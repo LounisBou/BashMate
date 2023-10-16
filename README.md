@@ -18,7 +18,7 @@ BashMate is a curated collection of bash commands, functions, and aliases design
 
 ## Installation
 
-1. Clone the repository:gs
+1. Clone the repository:
    ```bash
    git clone https://github.com/LounisBou/BashMate.git
    ```
