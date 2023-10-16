@@ -17,16 +17,18 @@
 # Copy this file to ~/.bash_perso and source it in your .bashrc or .zshrc file.
 #
 #
+# Get absolute directory of the current file.
+currentDir="$(realpath $(dirname "$0"))"
 # Import .env file
-source ~/.bash_perso/.env
+source "$currentDir/.env"
 #
 # Import all files in the aliases directory.
-for file in ~/.bash_perso/aliases/*; do source $file; done
+for file in ${currentDir}/aliases/*; do source $file; done
 # Import all files in the aliases private directory.
-for file in ~/.bash_perso/aliases_private/*; do source $file; done
+for file in ${currentDir}/aliases_private/*; do source $file; done
 # 
 # Import all files in the functions directory.
-for file in ~/.bash_perso/functions/*; do source $file; done
+for file in ${currentDir}/functions/*; do source $file; done
 #
 # ! DYNAMIC ALIASES
 #
@@ -36,5 +38,5 @@ function createAlias(){
   alias "$*";
   # Create definitive alias.
   echo alias "\"$*\"
-" >> ~/.bash_perso/aliases_private/dynamic
+" >> ${currentDir}/aliases_private/dynamic
 }
