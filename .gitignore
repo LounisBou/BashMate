@@ -1,0 +1,9 @@
+# Ignore .DS_Store files
+.DS_Store
+*/.DS_Store
+
+# Ignore .env file
+.env
+
+# Ignore aliases private
+aliases_private/*
