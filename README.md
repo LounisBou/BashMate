@@ -2,7 +2,7 @@
 
 Your Ultimate Companion for Bash Productivity!
 
-![BashMate Logo](link-to-logo-if-you-have-one.png)
+![BashMate Logo](logo.png)
 
 ## Description
 
@@ -13,27 +13,20 @@ BashMate is a curated collection of bash commands, functions, and aliases design
 - **Git Enhancements**: Simplified git commands and useful aliases.
 - **macOS Utilities**: Tools specifically tailored for macOS users.
 - **Laravel Shortcuts**: Commands to streamline Laravel development.
+- **Envoyer.io Api Commands**: Commands to consult deployment status of envoyer.io projects.
 - **And More!**: Discover various other utilities to boost your productivity.
 
 ## Installation
 
-1. Clone the repository:
+1. Clone the repository:gs
    ```bash
-   git clone https://github.com/yourusername/BashMate.git
+   git clone https://github.com/LounisBou/BashMate.git
 
+2. Source the main bash file (or add this to your .bashrc or .zshrc for permanent use):
+  ```bash
+  cd BashMate
+  echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
 
-
-- Importer le projet git dans votre répertoire racine d'utilisateur.
-
-  (<code>/home/<user_name>/</code> sous Unix) ou (<code>/Volumes/HD/Utilisateurs/<user_name>/</code> sous MacOS)
-  
-- Importer le fichier .bash_perso/config dans votre fichier .bash principale.
-
-  (<code>\~/.bash_aliases</code> for BASH (Bourne-again shell)) ou (<code>\~/.zshrc</code> for Z Shell)
-  
-  Pour ce faire saisissez la commande suivante en bash du fichier : 
-  
-  <code>source ~/.bash_perso/config</code>
 
 ## Contributing
 We welcome contributions! Whether you're adding new commands, improving existing ones, or fixing issues, your input enriches the BashMate experience. See the CONTRIBUTING.md for more details.
