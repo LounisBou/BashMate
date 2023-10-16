@@ -468,6 +468,14 @@ envoyer-project [PROJECT_ID]
 
 ### MacOS: Shortcuts
 
+#### Mkcert
+
+- **Local SSL certificates**:
+  ```bash
+  sslcert
+  ```
+  Generate SSL certificates for local development using mkcert.
+
 #### Tor
 
 - **Activate TOR Proxy**:
@@ -507,6 +515,8 @@ envoyer-project [PROJECT_ID]
   ```
   *Where `[country_code]` is the desired exit node's country code.*  
   It configures the exit node for TOR to use nodes from the specified country and then restarts the TOR service.
+
+
 
 **Note**: These utilities are designed for macOS and use specific macOS commands for configuring network settings. Before using these commands, ensure that you have proper permissions, and be careful when editing configuration files. Always make backups before making any changes.
 
