@@ -1,0 +1,50 @@
+# Aliases for MacOS.
+# Created by LounisBou
+
+# ! TOR Proxy
+
+# Activation du proxy tor
+function torStart(){ 
+  # Configuration du port d'écoute du proxy MAC.
+  networksetup -setsocksfirewallproxy Wi-Fi localhost $tor_local_port
+  # Mac proxy activation.
+  networksetup -setsocksfirewallproxystate Wi-Fi on && echo "Configuration proxy du MAC activée."
+  # Activation du service tor.
+	brew services start tor
+}
+
+# Désactivation du proxy tor
+function torStop(){ 
+  # Mac proxy désactivation.
+  networksetup -setsocksfirewallproxystate Wi-Fi off && echo "Configuration proxy du MAC désactivée."
+  # Désactivation du service tor.
+	brew services stop tor
+}
+
+# Activation du proxy tor
+function torRestart(){ 
+  # Tor Stop && Tor Start.
+  torStop && torStart && echo 'Restart done.'
+}
+
+# Chose TOR Exit Node
+function torCheck(){ 
+  # Show TOR config values.
+  cat /etc/torrc.exit
+}
+
+# Chose TOR Entry Node
+function torIn(){ 
+  # Modify TOR Entry Node with arg value.
+  echo "EntryNodes {$1} StrictNodes 1" > /etc/torrc.entry
+  # Restart TOR.
+  torRestart
+}
+
+# Chose TOR Exit Node
+function torOut(){ 
+  # Modify TOR Exit Node with arg value.
+  echo "ExitNodes {$1} StrictNodes 1" > /etc/torrc.exit
+  # Restart TOR.
+  torRestart
+}

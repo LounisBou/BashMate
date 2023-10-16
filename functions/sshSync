@@ -1,0 +1,265 @@
+######################################################################################
+#
+#   La fonction "sshSync" permet de synchroniser 2 dossiers,
+#		à travers une connexion SSH.
+#
+######################################################################################
+function sshSync(){ 
+	
+	######################################################################################
+	#
+	#           Initialisation des variables
+	#
+	######################################################################################
+	
+	# Verbose mode.
+	verbose_mode=0
+	
+	# SSH Host.
+	ssh_host=''
+
+	# SSH User.
+	ssh_user=''
+
+	# SSH Port.
+	ssh_port=''
+	
+  # Local path.
+	local_path=''
+
+  # Remote path.
+	remote_path=''
+	
+	# Sens de synchronisation.
+	sync_way=''
+	
+	######################################################################################
+	#
+	#           Gestion de l'aide via l'option -h
+	#
+	######################################################################################
+	
+	# Si le script est appelé avec l'option -h, le script devra afficher un message sur la sortie d'erreur indiquant la liste des arguments qu'il attend.
+	# getops ?
+	usage="usage: sshSync [-h ssh_host] [-u ssh_user] [-p ssh_port] [-lp local_path] [-rp remote_path] [-sw sync_way] [-v]"
+	
+	# Pour chaque options listé 
+	while test ${#} -gt 0
+	do
+				
+	  # Switch args.
+	  case $1 in
+		  # SSH Host.
+			-h)
+				shift
+				ssh_host=$1
+			;;
+			# SSH User.
+			-u)
+				shift
+				ssh_user=$1
+			;;
+			# SSH Port.
+			-p)
+				shift
+				ssh_port=$1
+			;;
+			# Local path.
+			-lp)
+				shift
+				local_path=$1
+			;;
+			# Remote path.
+			-rp)
+				shift
+				remote_path=$1
+			;;
+			# Sens de synchronisation.
+			-sw)
+				shift
+				sync_way=$1
+			;;
+			# Verbose.
+			-v)
+				verbose_mode=1
+				echo "Mode verbose activé."
+			;;
+			#Usage.
+			*)   
+				if [[ $1 ]]
+				then 
+					echo "$1 n'est pas une option valide."
+					echo "$usage"
+					return -1 
+				fi
+			;;
+		esac
+		
+		# Décallage des arguments.
+		shift
+		
+	done
+
+
+	######################################################################################
+	#
+	#           Gestion des valeurs par défaut
+	#
+	######################################################################################
+	
+	# Host SSH :
+	if [[ ! $ssh_host ]]
+	then
+		echo -n "Entrer l'IP ou le nom de domaine du serveur auquel vous souhaitez vous connecter [localhost] : " 
+		read ssh_host
+		if [[ ! $ssh_host ]]
+		then
+			ssh_host='localhost'
+		fi
+	fi
+	
+	# User SSH :
+	if [[ ! $ssh_user ]]
+	then
+		echo -n "Entrer le nom d'un l'utilisateur autorisé à se connecter en SSH à la machine distante [$USER] : " 
+		read ssh_user
+		if [[ ! $ssh_user ]]
+		then
+			ssh_user="$USER"
+		fi
+	fi
+	
+	# Port SSH :
+	if [[ ! $ssh_port ]]
+	then
+		echo -n "Entrer le port d'écoute du serveur SSH de la machine distante [22] : " 
+		read ssh_port
+		if [[ ! $ssh_port ]]
+		then
+			ssh_port='22'
+		fi
+	fi
+	
+	# Local path :
+	if [[ ! $local_path ]]
+	then
+		echo -n "Entrer un chemin de dossier local à synchroniser [.] : " 
+		read local_path
+		if [[ ! $local_path ]]
+		then
+			local_path='.'
+		fi
+	fi
+	
+  # Remote path :
+	if [[ ! $remote_path ]]
+	then
+		echo -n "Entrer un chemin de dossier distant à synchroniser [.] : " 
+		read remote_path
+		if [[ ! $remote_path ]]
+		then
+			remote_path='.'
+		fi
+	fi
+	
+  # Sens de synchronisation :
+	if [[ ! $sync_way ]]
+	then
+		echo -n "Entrer le sens de synchronisation (up|down) : " 
+		read sync_way
+		if [[ $sync_way != 'down' && $sync_way != 'up' ]]
+		then
+		  echo "Error : Sens de synchronisation non valide."
+		  echo "Synchronisation avorté."
+			return -1
+		fi
+	fi
+
+	######################################################################################
+	#
+	#           Affichage des valeurs
+	#
+	######################################################################################
+	
+	# Si verbose mode actif.
+	if [[ $verbose_mode == 1 ]]
+	then
+		# Affichage des valeurs de la commande SSH.
+		echo "SSH host = $ssh_host"
+		echo "SSH user = $ssh_user"
+		echo "SSH port = $ssh_port"
+		echo "Local path = $local_path"
+		echo "Remote path = $remote_path"
+		echo "Synchro = $sync_way"
+	fi
+
+	
+	######################################################################################
+	#
+	#           Synchronisation SSH
+	#
+	######################################################################################
+	
+	# Si synchro up.
+	if [[ $sync_way == 'up' ]] 
+	then
+  	
+    # Création de la commande de synchro SSH.
+    # Local to Remote: rsync [OPTION] -e ssh [SRC] [USER@]HOST:DEST
+    ssh_sync="rsync -avz -P -e \"ssh -p $ssh_port\" $local_path $ssh_user@$ssh_host:$remote_path"
+    
+	  # Verification du dossier remote_path.
+	  if [ ! -d $remote_path ]
+  	then
+    	# Commande de création du dossier distant.
+    	remote_mkdir =  "echo 'Impossible de créer le dossier distant"
+  		# Si verbose mode actif.
+    	if [[ $verbose_mode == 1 ]]
+    	then 
+      	  echo "[Warning] Le dossier distant n'existe pas."
+        echo "[Info] Création du dossier distant."
+        echo "$remote_mkdir"
+      fi
+      # Création du dossier distant.
+      eval $remote_mkdir
+    fi
+  fi
+   
+	# Si syncho down.
+	if [[ $sync_way == 'down' ]] 
+	then
+  	
+    # Création de la commande de synchro SSH.
+    # Remote to Local: rsync [OPTION] -e ssh [USER@]HOST:SRC [DEST]
+    ssh_sync="rsync -avz -P -e \"ssh -p $ssh_port\" $ssh_user@$ssh_host:$remote_path $local_path"
+    
+  	# Verification du dossier local_path
+  	if [ ! -d $local_path ]
+  	then
+    	# Commande de création du dossier distant.
+    	local_mkdir =  "mkdir $local_path"
+  		# Si verbose mode actif.
+    	if [[ $verbose_mode == 1 ]]
+    	then 
+      	  echo "[Warning] Le dossier local n'existe pas."
+        echo "[Info] Création du dossier local."
+        echo "$local_mkdir"
+      fi
+      # Création du dossier local.
+      eval $local_mkdir
+    fi
+	fi
+  	  
+	# Message début.
+	echo "Lancement de la synchronisation via SSH :"
+	
+	# Initiation de la sauvegarde SSH.
+	eval $ssh_sync
+	
+	# Message fin.
+	echo "Synchronisation terminée. "	
+	
+	# Retour
+	return -1
+	
+}

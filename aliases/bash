@@ -1,0 +1,68 @@
+# Aliases for bourne again shell.
+# Created by LounisBou
+
+# Restart bash 
+alias rebash="source ~/.bashrc"
+# Restart zsh
+alias rezsh="source ~/.zshrc"
+
+# Shutdown and reboot
+alias shutdown="sudo shutdown -h now"
+alias reboot="sudo reboot"
+
+# List all files
+alias ll="ls -al"
+# Get the real path of a file
+alias path="realpath $*" 
+# Clear terminal
+alias cl="clear"
+# Watch aliases
+function watcha(){
+  # Show execution result of command
+  watch -x zsh -ic "$*"
+}
+
+# ! SYSTEM USER 
+
+# Add group to user (add-group <groupname> <username>)
+alias add-group="sudo usermod -a -G"
+
+# ! FILESYSTEM 
+
+# Create folder for each file
+function folderPack(){
+  for x in ./*.*; do
+    mkdir "${x%.*}" && mv "$x" "${x%.*}"
+  done
+}
+
+# Rename
+function rname(){
+	cmd="rename 's/$1/$2/g' *"
+	echo $cmd
+	eval $cmd
+}
+
+# ! NMAP.
+
+# Check all machines on LAN.
+function onLan(){ 
+  nmap -sPn $1/24
+}
+
+# Check for specific port on LAN.
+function onLanPort(){ 
+  nmap -sS $1/24 -p $2
+}
+
+# ! TAR/UNTAR (Compression/Décompression) :
+
+# targz : Compress folder in tar.gz file.
+function targz(){ 
+	tar -pcvzf $1.tar.gz $1
+}
+
+# untargz : Uncompress tar.gz file in current folder.
+function untargz(){ 
+	tar -zxvf $1
+}

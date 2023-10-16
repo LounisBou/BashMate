@@ -1,0 +1,35 @@
+# Aliases for Brew.
+# Created by LounisBou
+
+# Brew services
+function services(){
+    brew services $*
+}
+function start(){
+    brew services start $*
+    brew services
+}
+function sstart(){
+    sudo brew services start $*
+    sudo brew services
+}
+function stop(){
+    brew services stop $*
+    brew services
+}
+function sstop(){
+    sudo brew services stop $*
+    sudo brew services
+}
+function restart(){
+    brew services restart $* 
+    brew services
+}
+function srestart(){
+    sudo brew services restart $*
+    sudo brew services
+}
+
+# Brew update
+alias brewup="brew update && brew upgrade && brew cleanup && brew doctor"
+alias brewupc="brew update && brew upgrade && brew cleanup && brew doctor && brew cask upgrade"
