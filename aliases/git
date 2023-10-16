@@ -43,7 +43,7 @@ alias gbs="git flow bugfix start $*"
 alias gbf="git flow bugfix finish $*"
 # Checkout
 alias gco="git checkout $*"
-function gct(){
+function gcft(){
     # Checkout feature branch
     git checkout feature/task/$*
 }
