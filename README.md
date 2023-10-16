@@ -21,17 +21,16 @@ BashMate is a curated collection of bash commands, functions, and aliases design
 1. Clone the repository:gs
    ```bash
    git clone https://github.com/LounisBou/BashMate.git
+   ```
 
 2. Source the main bash file (or add this to your .bashrc or .zshrc for permanent use):
   ```bash
   cd BashMate
   echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
-
+  ```
 
 ## Contributing
 We welcome contributions! Whether you're adding new commands, improving existing ones, or fixing issues, your input enriches the BashMate experience. See the CONTRIBUTING.md for more details.
 
 ## License
 This project is licensed under the CC BY-NC - see the LICENSE file for details.
-
-
