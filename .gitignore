@@ -6,4 +6,4 @@
 .env
 
 # Ignore aliases private
-aliases_private/*
+aliases_private/*.sh
