@@ -1,6 +1,11 @@
 # Aliases for MacOS.
 # Created by LounisBou
 
+# ! Mkcert
+
+# mkcert : generate local ssl certificates
+alias sslcert="mkcert -install && mkcert localhost $*"
+
 # ! TOR Proxy
 
 # Activation du proxy tor
