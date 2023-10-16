@@ -1,0 +1,12 @@
+# Aliases for Laravel.
+# Created by LounisBou
+
+# PHP artisan
+alias art="php artisan"
+function artm() {
+    php artisan make:$*
+}
+alias artmig="php artisan migrate"
+alias artserve="php artisan serve"
+alias arttink="php artisan tinker"
+alias artclean="php artisan cache:clear && php artisan config:clear && php artisan view:clear && php artisan route:clear"

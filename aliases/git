@@ -1,0 +1,134 @@
+# Aliases for GIT.
+# Created by LounisBou
+
+# Git create repo
+function gcreate(){
+    git init -b main
+    git add .
+    git commit -m "Initial commit"
+}
+
+function gcreate-remote(){
+    # Create repo on github
+    gh repo create $* --source=. --private --confirm --remote --push
+}
+
+
+# Git global
+alias ga="git add $*"
+alias gc="git commit -m $*"
+alias gp="git push origin $*"
+alias gpl="git pull"
+alias gs="git status"
+alias gcl="git clone $*"
+# Git branch
+alias gbr="git branch $*"
+alias gbrd="git branch -d $*"
+alias gbrD="git branch -D $*"
+alias gbrm="git branch -m $*"
+alias gbrM="git branch -M $*"
+alias gbrv="git branch -v"
+# Git log
+alias glg="git log --graph --oneline --decorate --all"
+alias gdf="git diff"
+# Git flow
+alias gfi="git flow init"
+alias gfs="git flow feature start $*"
+alias gff="git flow feature finish $*"
+alias grs="git flow release start $*"
+alias grf="git flow release finish $*"
+alias ghs="git flow hotfix start $*"
+alias ghf="git flow hotfix finish $*"
+alias gbs="git flow bugfix start $*"
+alias gbf="git flow bugfix finish $*"
+# Checkout
+alias gco="git checkout $*"
+function gct(){
+    # Checkout feature branch
+    git checkout feature/task/$*
+}
+function gcf(){
+    # Checkout feature branch
+    git checkout feature/$*
+}
+function gcr(){
+    # Checkout release branch
+    git checkout release/$*
+}
+function gch(){
+    # Checkout hotfix branch
+    git checkout hotfix/$*
+}
+function gcb(){
+    # Checkout bugfix branch
+    git checkout bugfix/$*
+}
+alias gcd="git checkout develop"
+alias gcm="git checkout master"
+alias gct="git checkout tests"
+alias gcp="git checkout prod"
+alias gcpp="git checkout preprod"
+# Stash
+alias gst="git stash"
+alias gstl="git stash list"
+alias gstp="git stash pop"
+alias gstc="git stash clear"
+# Merge
+function gmf(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Merge feature branch
+    git merge feature/task/$* -m "Merge feature/task/$* in $current_branch"
+}
+function gmergin(){
+    # Retrieve current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Go to $1 branch
+    git checkout $1
+    # Merge current branch in $1 branch
+    git merge $current_branch -m "Merge $current_branch in $1"
+    # git add all
+    git add .
+    # git commit
+    git commit -m "Merge $current_branch in $1"
+    # Go back to current branch
+    git checkout $current_branch
+}
+# Update
+function git-update(){
+    # Retrieve current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Fetch all branches
+    git fetch --all
+    # Checkout develop branch
+    git checkout develop
+    # Update develop branch
+    git pull 
+    # Checkout master branch
+    git checkout master
+    # Update master branch
+    git pull
+    # Checkout current branch
+    git checkout $current_branch
+    # Update current branch
+    git pull
+}
+# After MEP
+function git-after-mep(){
+    # Retrieve current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Checkout develop branch
+    git checkout develop
+    # Push develop branch
+    git push
+    # Checkout master branch
+    git checkout master
+    # Push master branch
+    git push
+    # Checkout current branch
+    git checkout $current_branch
+    # Push current branch
+    git push
+}
+# Infos
+alias ginfo="git config --list"
