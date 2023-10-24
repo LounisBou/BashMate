@@ -14,6 +14,7 @@ if [ -f "$HOME/.bashrc" ]; then
     echo "BashMate installed in .bashrc"
 fi
 
+# Show BashMate logo
 echo <<'EOF'
         @@@@@@@@@@@@@@@@@@@@@@@@@                                                                  @@@@@@@@@@@@@@@@@@@@@@@@@
         @                                                                                                                  @
@@ -49,4 +50,5 @@ echo <<'EOF'
 EOF
 
 # Provide instructions to the user
-echo "BashMate installation completed. You may need to restart your shell or run 'source ~/.zshrc' or 'source ~/.bashrc' for the changes to take effect."
+echo "BashMate installation completed."
+echo "You may need to restart your shell or run 'source ~/.zshrc' or 'source ~/.bashrc' for the changes to take effect."
