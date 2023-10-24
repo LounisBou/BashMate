@@ -37,6 +37,5 @@ function createAlias(){
   # Create alias for current session.
   alias "$*";
   # Create definitive alias.
-  echo alias "\"$*\"
-" >> ${currentDir}/aliases_private/dynamic.sh
+  echo alias $* >> ${currentDir}/aliases_private/dynamic.sh
 }

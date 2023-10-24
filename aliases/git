@@ -7,13 +7,10 @@ function gcreate(){
     git add .
     git commit -m "Initial commit"
 }
-
 function gcreate-remote(){
     # Create repo on github
     gh repo create $* --source=. --private --confirm --remote --push
 }
-
-
 # Git global
 alias ga="git add $*"
 alias gc="git commit -m $*"
@@ -29,18 +26,113 @@ alias gbrm="git branch -m $*"
 alias gbrM="git branch -M $*"
 alias gbrv="git branch -v"
 # Git log
-alias glg="git log --graph --oneline --decorate --all"
+function glg(){
+    # Define variable nb_commits
+    nb_commits=30
+    # Check if $1 is not empty
+    if [ ! -z "$1" ]
+    then
+        # Set $1 to nb_commits
+        nb_commits=$1
+    fi
+    # Display git log
+    git --no-pager log --graph --oneline --decorate --all -n $nb_commits
+}
+function gllc(){
+    # Define variable nb_commits
+    nb_commits=1
+    # Check if $1 is not empty
+    if [ ! -z "$1" ]
+    then
+        # Set $1 to nb_commits
+        nb_commits=$1
+    fi
+    # Display git log
+    git --no-pager log -$nb_commits
+}
 alias gdf="git diff"
 # Git flow
 alias gfi="git flow init"
 alias gfs="git flow feature start $*"
 alias gff="git flow feature finish $*"
-alias grs="git flow release start $*"
-alias grf="git flow release finish $*"
-alias ghs="git flow hotfix start $*"
-alias ghf="git flow hotfix finish $*"
-alias gbs="git flow bugfix start $*"
-alias gbf="git flow bugfix finish $*"
+function grs(){
+    # Call git update
+    git-update
+    # Create release branch
+    git flow release start $*
+}
+function grf(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Check if current branch is a release branch
+    if [[ $current_branch == release/* ]]
+    then
+        # Get release version
+        release_version=$(echo $current_branch | cut -d '/' -f2)
+        echo "Finish release version: $release_version"
+        # Finish release
+        git flow release finish $release_version
+        # Push tags
+        git push origin --tags
+        # Call git after mep
+        git-after-mep
+    else
+        # Message error current branch is not a release branch
+        echo "Error: Current branch is not a release branch"
+    fi
+}
+function ghs(){
+    # Call git update
+    git-update
+    # Create hotfix branch
+    git flow hotfix start $*
+}
+function ghf(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Check if current branch is a hotfix branch
+    if [[ $current_branch == hotfix/* ]]
+    then
+        # Get hotfix version
+        hotfix_version=$(echo $current_branch | cut -d '/' -f2)
+        echo "Finish hotfix version: $hotfix_version"
+        # Finish hotfix
+        git flow hotfix finish $hotfix_version
+        # Push tags
+        git push origin --tags
+        # Call git after mep
+        git-after-mep
+    else
+        # Message error current branch is not a hotfix branch
+        echo "Error: Current branch is not a hotfix branch"
+    fi
+}
+function gbs(){
+    # Call git update
+    git-update
+    # Create bugfix branch
+    git flow bugfix start $*
+}
+function gbf(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Check if current branch is a bugfix branch
+    if [[ $current_branch == bugfix/* ]]
+    then
+        # Get bugfix version
+        bugfix_version=$(echo $current_branch | cut -d '/' -f2)
+        echo "Finish bugfix version: $bugfix_version"
+        # Finish bugfix
+        git flow bugfix finish $bugfix_version
+        # Push tags
+        git push origin --tags
+        # Call git after mep
+        git-after-mep
+    else
+        # Message error current branch is not a bugfix branch
+        echo "Error: Current branch is not a bugfix branch"
+    fi
+}
 # Checkout
 alias gco="git checkout $*"
 function gcft(){
@@ -77,7 +169,25 @@ alias gstc="git stash clear"
 function gmf(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Checkout on feature branch
+    git checkout feature/$*
+    # Update feature branch
+    git pull
+    # Checkout on current branch
+    git checkout $current_branch
     # Merge feature branch
+    git merge feature/$* -m "Merge feature/$* in $current_branch"
+}
+function gmft(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Checkout on feature/task branch
+    git checkout feature/task/$*
+    # Update feature/task branch
+    git pull
+    # Checkout on current branch
+    git checkout $current_branch
+    # Merge feature task branch
     git merge feature/task/$* -m "Merge feature/task/$* in $current_branch"
 }
 function gmergin(){
@@ -94,6 +204,14 @@ function gmergin(){
     # Go back to current branch
     git checkout $current_branch
 }
+gmt="git mergetool"
+# Push tag 
+function gpt(){
+    # Push all local tags
+    git push origin --tags
+    # Call git after mep
+    git-after-mep
+}
 # Update
 function git-update(){
     # Retrieve current branch name
@@ -104,9 +222,15 @@ function git-update(){
     git checkout develop
     # Update develop branch
     git pull 
+    # Apply migration
+    php artisan migrate
     # Checkout master branch
     git checkout master
     # Update master branch
+    git pull
+    # Checkout preprod branch
+    git checkout preprod
+    # Update preprod branch
     git pull
     # Checkout current branch
     git checkout $current_branch
