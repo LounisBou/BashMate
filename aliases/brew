@@ -33,3 +33,10 @@ function srestart(){
 # Brew update
 alias brewup="brew update && brew upgrade && brew cleanup && brew doctor"
 alias brewupc="brew update && brew upgrade && brew cleanup && brew doctor && brew cask upgrade"
+
+# Brew doctor
+alias brewd="brew doctor"
+
+# Brew dump
+alias brew-dump="brew bundle dump --force --file=~/.Brewfile"
+alias brew-install="brew bundle install"
