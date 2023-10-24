@@ -26,10 +26,10 @@ BashMate is a curated collection of bash commands, functions, and aliases design
    ```
 
 2. Source the main bash file (or add this to your .bashrc or .zshrc for permanent use):
-  ```bash
-  cd BashMate
-  echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
-  ```
+    ```bash
+    cd BashMate
+    echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
+    ```
 
 3. Restart your terminal or run `source ~/.zshrc` or `source ~/.bashrc` to load the new configuration.
 
