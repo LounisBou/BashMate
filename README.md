@@ -18,6 +18,8 @@ BashMate is a curated collection of bash commands, functions, and aliases design
 
 ## Installation
 
+### Manual Installation
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/LounisBou/BashMate.git
@@ -28,6 +30,22 @@ BashMate is a curated collection of bash commands, functions, and aliases design
   cd BashMate
   echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
   ```
+
+3. Restart your terminal or run `source ~/.zshrc` or `source ~/.bashrc` to load the new configuration.
+
+### Automatic Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/LounisBou/BashMate.git
+   ```
+
+2. Run the installation script:
+   ```bash
+    cd BashMate
+    chmod +x install.sh
+    ./install.sh
+    ```
 
 ## Documentation
 
