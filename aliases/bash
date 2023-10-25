@@ -10,8 +10,10 @@ alias rezsh="source ~/.zshrc"
 alias shutdown="sudo shutdown -h now"
 alias reboot="sudo reboot"
 
-# List all files
+# List all files with permissions
 alias ll="ls -al"
+# List all files with permissions in tree mode
+alias llt="tree -u -g -D -p"
 # Get the real path of a file
 alias path="realpath $*" 
 # Clear terminal

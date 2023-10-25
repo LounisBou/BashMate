@@ -14,10 +14,10 @@ if [ -f "$HOME/.bashrc" ]; then
     echo "BashMate installed in .bashrc"
 fi
 
-# Check if logo.sh exists
-if [ -f "logo.sh" ]; then
+# Check if logo/logo.sh exists
+if [ -f "logo/logo.sh" ]; then
     # Execute logo.sh
-    ./logo.sh
+    ./logo/logo.sh
 fi
 
 # Provide instructions to the user

@@ -38,5 +38,5 @@ alias brewupc="brew update && brew upgrade && brew cleanup && brew doctor && bre
 alias brewd="brew doctor"
 
 # Brew dump
-alias brew-dump="brew bundle dump --force --file=~/.Brewfile"
-alias brew-install="brew bundle install"
+alias brew-dump="brew bundle dump --force --file=~/BashMate/brew/.Brewfile"
+alias brew-install="brew bundle install ~/BashMate/brew/.Brewfile"

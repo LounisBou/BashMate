@@ -2,7 +2,7 @@
 
 Your Ultimate Companion for Bash Productivity!
 
-![BashMate Logo](logo-bg-white.png)
+![BashMate Logo](logo/logo-bg-white.png)
 
 ## Description
 
