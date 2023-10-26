@@ -212,30 +212,24 @@ function gpt(){
     # Call git after mep
     git-after-mep
 }
-# Update
+# Update master/develop/preprod branch
 function git-update(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Fetch all branches
     git fetch --all
-    # Checkout develop branch
-    git checkout develop
-    # Update develop branch
-    git pull 
-    # Apply migration
-    php artisan migrate
-    # Checkout master branch
-    git checkout master
-    # Update master branch
-    git pull
-    # Checkout preprod branch
-    git checkout preprod
-    # Update preprod branch
-    git pull
-    # Checkout current branch
-    git checkout $current_branch
-    # Update current branch
-    git pull
+    # List of branches to update
+    branches=("develop" "master" "preprod")
+    # Loop on branches
+    for branch in "${branches[@]}"
+    do
+        # Checkout branch
+        git checkout $branch
+        # Pull branch
+        git pull
+        # Apply migration
+        php artisan migrate
+    done
 }
 # After MEP
 function git-after-mep(){
@@ -253,6 +247,32 @@ function git-after-mep(){
     git checkout $current_branch
     # Push current branch
     git push
+}
+# Push current branch on preprod
+function gpush-on-preprod(){
+    # Retrieve current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Add all files to commit
+    ga .
+    # Check if there is a commit message
+    if [ -z "$1" ]
+    then
+        # Set default commit message
+        commit_message="Push $current_branch on preprod"
+    else
+        # Set commit message
+        commit_message=$1
+    fi
+    # Commit with message
+    gc $commit_message
+    # Push current branch
+    gp $current_branch
+    # Merge current branch in preprod
+    gmergin preprod
+    # Update master/develop/preprod branch
+    git-update
+    # Push preprod branch
+    gp preprod
 }
 # Infos
 alias ginfo="git config --list"
