@@ -1,0 +1,65 @@
+#!/bin/bash
+######################################################################################
+#
+#   envCheck
+#   -------
+#   Checks that all keys in .env-example are present in .env
+#   Usage: envCheck [directory]
+#   If directory is not specified, the current directory is used.
+#   Returns 0 if all keys are present, 1 otherwise.
+#
+######################################################################################
+function envCheck(){
+
+    # Get directory from argument or use current directory if not specified
+    DIR="${1:-.}"
+
+    # Get .env file name as second argument or use .env if not specified
+    ENV_FILE_NAME="${2:-.env}"
+
+    # Set .env.example file name as third argument or use .env.example if not specified
+    ENV_EXAMPLE_FILE_NAME="${3:-.env.example}"
+
+    # Set .env file paths
+    ENV_FILE="$DIR/$ENV_FILE_NAME"
+    ENV_EXAMPLE_FILE="$DIR/$ENV_EXAMPLE_FILE_NAME"
+
+    # Ensure the .env file exists
+    if [ ! -f "$ENV_FILE" ]; then
+        echo "$ENV_FILE does not exist."
+        return 1
+    fi
+
+    # Ensure the .env-example file exists
+    if [ ! -f "$ENV_EXAMPLE_FILE" ]; then
+        echo "$ENV_EXAMPLE_FILE does not exist."
+        return 1
+    fi
+
+    # Check for missing keys
+    missing_keys=()
+    while IFS= read -r line; do
+        if [[ $line =~ ^[[:space:]]*# || $line == "" ]]; then
+            # Skip comments or empty lines
+            continue
+        fi
+
+        key="${line%=*}"  # extract key part (before =)
+        if ! grep -q -E "^$key=" "$ENV_FILE"; then
+            missing_keys+=("$key")
+        fi
+    done < "$ENV_EXAMPLE_FILE"
+
+    # Report results
+    if [ ${#missing_keys[@]} -eq 0 ]; then
+        echo "All .env-example keys are present in .env."
+        return 0
+    else
+        echo "Missing keys in $ENV_FILE:"
+        for key in "${missing_keys[@]}"; do
+            echo "- $key"
+        done
+        return 1
+    fi
+
+}
