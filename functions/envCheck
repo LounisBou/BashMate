@@ -4,7 +4,7 @@
 #   envCheck
 #   -------
 #   Checks that all keys in .env-example are present in .env
-#   Usage: envCheck [directory]
+#   Usage: envCheck [directory] [file name] [file name]
 #   If directory is not specified, the current directory is used.
 #   Returns 0 if all keys are present, 1 otherwise.
 #

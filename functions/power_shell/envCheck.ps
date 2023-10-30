@@ -1,0 +1,61 @@
+<#
+.Synopsis
+   Checks that all keys in .env-example are present in .env
+.DESCRIPTION
+   envCheck.ps [dir] [envFileName] [envExampleFileName]
+.INPUTS
+    dir - The directory to check for the .env and .env-example files.
+    envFileName - The name of the .env.
+    envExampleFileName - The name of the .env-example.
+.OUTPUTS
+    None
+#>
+
+param(
+    [string]$dir = (Get-Location),
+    [string]$envFileName = ".env",
+    [string]$envExampleFileName = ".env-example"
+)
+
+$envFile = Join-Path $dir $envFileName
+$envExampleFile = Join-Path $dir $envExampleFileName
+
+# Ensure the .env file exists
+if (-not (Test-Path $envFile)) {
+    Write-Output "$envFile does not exist."
+    exit
+}
+
+# Ensure the .env-example file exists
+if (-not (Test-Path $envExampleFile)) {
+    Write-Output "$envExampleFile does not exist."
+    exit
+}
+
+# Check for missing keys
+$missingKeys = @()
+Get-Content $envExampleFile | ForEach-Object {
+    $line = $_.Trim()
+
+    # Skip comments or empty lines
+    if ($line.StartsWith("#") -or (-not $line)) {
+        return
+    }
+
+    $key = $line -split "=", 2 | Select-Object -First 1
+    $pattern = "^$key="
+
+    if (-not (Select-String -Path $envFile -Pattern $pattern -Quiet)) {
+        $missingKeys += $key
+    }
+}
+
+# Report results
+if ($missingKeys.Count -eq 0) {
+    Write-Output "All $envExampleFileName keys are present in $envFileName."
+} else {
+    Write-Output "Missing keys in $envFile:"
+    $missingKeys | ForEach-Object {
+        Write-Output "- $_"
+    }
+}
