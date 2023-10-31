@@ -88,6 +88,7 @@ fi
 
 # Install BrewMate.
 if [[ $install == true ]]; then
+
     # Check if brewmate is already installed. 
     # By checking if brewmate.conf exists in target directory.
     if [[ -f "$systemHomebrewEtcDir/brewmate.conf" ]]; then
@@ -98,6 +99,15 @@ if [[ $install == true ]]; then
 
     # Message.
     echo -e "${GREEN}Installing BrewMate...${NC}"
+
+    # Update brew.
+    brew update
+
+    # Install brew packages.
+    brew bundle install ${currentDir}/brew/.Brewfile
+
+    # Upgrade brew packages.
+    brew upgrade
 
     # Create symbolic link for each folders and files entries in ./opt/brew/homebrew/etc in /opt/homebrew/etc.
     for entry in ${brewMateHomebrewEtcDir}/*; do 
@@ -114,11 +124,13 @@ if [[ $install == true ]]; then
         # Create symbolic link.
         ln -s $entry $systemHomebrewEtcDir;
     done
-    # Show message.
+
+    # Message.
     echo -e "${GREEN}BrewMate installed.${NC}"
 
 # Uninstall brewmate
 elif [[ $uninstall == true ]]; then
+
     # Check if brewmate is already uninstalled. 
     # By checking if /opt/homebrew/etc/brewmate.conf exists.
     if [[ ! -f "$systemHomebrewEtcDir/brewmate.conf" ]]; then
@@ -149,6 +161,30 @@ elif [[ $uninstall == true ]]; then
             echo -e "${INDENT}$(basename $entry) is not a symbolic link, skipping."
         fi
     done
+
+    # Dump brew packages.
+    brew bundle dump --force --file=${currentDir}/brew/.Brewfile
+    
+    # Ask user if he wants to uninstall brew packages.
+    read -p "Do you want to uninstall brew packages? (y/n) " -n 1 -r REPLY
+
+    # Check if user wants to uninstall brew packages.
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        # Warning message.
+        echo -e "${RED}Be careful, this will uninstall all packages installed with BrewMate.${NC}"
+        # Confirm message.
+        read -p "${RED}ARE YOU SURE? (y/n)${NC} " -n 1 -r REPLY
+        # Check if user wants to uninstall brew packages.
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            # Uninstall brew packages.
+            brew bundle cleanup --force --file=${currentDir}/brew/.Brewfile
+            # Message.
+            echo -e "${GREEN}Brew packages uninstalled.${NC}"
+            echo ""
+        fi
+    fi
+
     # Show message.
     echo -e "${GREEN}BrewMate uninstalled.${NC}"
+
 fi
