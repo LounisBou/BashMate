@@ -1,4 +1,4 @@
-# Title: Brew config
+# Title: BrewMate install script
 # Creator: LounisBou
 # Access: Public
 # Category: System
@@ -22,8 +22,7 @@ currentDir="$(realpath $(dirname "$0"))"
 # System homebrew etc directory.
 systemHomebrewEtcDir="/opt/homebrew/etc"
 # BrewMate homebrew etc directory.
-brewMateHomebrewEtcDir="${currentDir}/brew/opt/homebrew/etc"
-
+brewMateHomebrewEtcDir="${currentDir}/opt/homebrew/etc"
 # Define colors for output.
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -86,12 +85,14 @@ if [[ $install != true && $uninstall != true ]]; then
     exit
 fi
 
+
+
 # Install BrewMate.
 if [[ $install == true ]]; then
 
     # Check if brewmate is already installed. 
-    # By checking if brewmate.conf exists in target directory.
-    if [[ -f "$systemHomebrewEtcDir/brewmate.conf" ]]; then
+    # By checking if brewmate.conf symlink exists in /opt/homebrew/etc.
+    if [[ -L "$systemHomebrewEtcDir/brewmate.conf" ]]; then
         echo -e "${GREEN}BrewMate is already installed.${NC}"
         echo -e "${GREEN}Nothing to do.${NC}"
         exit
@@ -121,7 +122,7 @@ if [[ $install == true ]]; then
         fi
         # Echo message for entry installation.
         echo -e "${INDENT}Installing $(basename $entry) in $systemHomebrewEtcDir"
-        # Create symbolic link.
+        # Create symbolic link not already existing.
         ln -s $entry $systemHomebrewEtcDir;
     done
 

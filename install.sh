@@ -21,6 +21,10 @@ NC='\033[0m' # No Color
 # Define indent for output.
 INDENT="    "
 #
+# BrewMate path
+BREWMATE_PATH="$(PWD)/BrewMate"
+#
+#
 echo ""
 #
 # Check if .zshrc exists
@@ -67,7 +71,7 @@ read -p "Do you want to install BrewMate? (y/n) " -n 1 -r REPLY
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     # Execute brewmate.sh
     echo -e "\n"
-    ./brewmate.sh -i
+    ${BREWMATE_PATH}/brewmate.sh -i
 fi
 
 # Message
