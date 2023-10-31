@@ -85,8 +85,6 @@ if [[ $install != true && $uninstall != true ]]; then
     exit
 fi
 
-
-
 # Install BrewMate.
 if [[ $install == true ]]; then
 
