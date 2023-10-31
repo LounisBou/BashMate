@@ -7,3 +7,6 @@
 
 # Ignore aliases private
 aliases_private/*.sh
+
+# Ignore config apache2
+opt/homebrew/etc/httpd/extra/sites-enabled/*.conf
