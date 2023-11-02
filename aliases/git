@@ -1,6 +1,14 @@
 # Aliases for GIT.
 # Created by LounisBou
 
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+ORANGE='\033[0;33m'
+BLUE='\033[1;34m' # Light Blue
+NC='\033[0m' # No Color
+
 # Git create repo
 function gcreate(){
     git init -b main
@@ -69,16 +77,16 @@ function grf(){
     then
         # Get release version
         release_version=$(echo $current_branch | cut -d '/' -f2)
-        echo "Finish release version: $release_version"
+        echo -e "${YELLOW}Finish release version: $release_version ${NC}"
         # Finish release
         git flow release finish $release_version
         # Push tags
         git push origin --tags
-        # Call git after mep
-        git-after-mep
+        # Message user to call git after mep
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
     else
         # Message error current branch is not a release branch
-        echo "Error: Current branch is not a release branch"
+        echo -e "${RED}Error: Current branch is not a release branch ${NC}"
     fi
 }
 function ghs(){
@@ -100,11 +108,11 @@ function ghf(){
         git flow hotfix finish $hotfix_version
         # Push tags
         git push origin --tags
-        # Call git after mep
-        git-after-mep
+        # Message user to call git after mep
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
     else
         # Message error current branch is not a hotfix branch
-        echo "Error: Current branch is not a hotfix branch"
+        echo -e "${RED}Error: Current branch is not a hotfix branch${NC}"
     fi
 }
 function gbs(){
@@ -126,11 +134,11 @@ function gbf(){
         git flow bugfix finish $bugfix_version
         # Push tags
         git push origin --tags
-        # Call git after mep
-        git-after-mep
+        # Message user to call git after mep
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
     else
         # Message error current branch is not a bugfix branch
-        echo "Error: Current branch is not a bugfix branch"
+        echo -e "${RED}Error: Current branch is not a bugfix branch${NC}"
     fi
 }
 # Checkout
@@ -209,8 +217,8 @@ gmt="git mergetool"
 function gpt(){
     # Push all local tags
     git push origin --tags
-    # Call git after mep
-    git-after-mep
+    # Message user to call git after mep
+    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
 }
 # Update master/develop/preprod branch
 function git-update(){
@@ -230,6 +238,12 @@ function git-update(){
         # Apply migration
         php artisan migrate
     done
+    # Checkout current branch
+    git checkout $current_branch
+    # Pull current branch
+    git pull
+    # Apply migration
+    php artisan migrate
 }
 # After MEP
 function git-after-mep(){
