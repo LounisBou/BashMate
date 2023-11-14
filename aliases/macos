@@ -1,17 +1,176 @@
 # Aliases for MacOS.
 # Created by LounisBou
 
+# ----------------------------------
+# ! Mac OS 
+#
+# READ THIS CAREFULLY BEFORE USING THIS FILE:
+# 
+# Commands in this section are work in progress.
+# They are not ready to be used.
+# Please do not use them.
+#
+
+# Show all processes
+alias psa="ps aux"
+# Show all processes with grep
+alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
+
+# Show all ports
+alias ports="sudo lsof -i -P | grep -i -e LISTEN"
+
+# Disable autoboot on Lid Open
+alias autoboot-off="sudo nvram AutoBoot=%00"
+# Enable autoboot on Lid Open
+alias autoboot-on="sudo nvram AutoBoot=%03"
+
+# Disable sound on boot
+alias boot-sound-off="sudo nvram SystemAudioVolume=%80"
+# Enable sound on boot
+alias boot-sound-on="sudo nvram -d SystemAudioVolume"
+
+# Show hidden files
+alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+# Hide hidden files
+alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+
+# Activate dark mode
+alias dark-mode="sudo defaults write /Library/Preferences/.GlobalPreferences.plist _HIEnableThemeSwitchHotKey -bool true && killall Dock"
+# Activate light mode
+alias light-mode="sudo defaults write /Library/Preferences/.GlobalPreferences.plist _HIEnableThemeSwitchHotKey -bool false && killall Dock"
+# Activate auto mode
+alias auto-mode="sudo defaults delete /Library/Preferences/.GlobalPreferences.plist _HIEnableThemeSwitchHotKey && killall Dock"
+
+# Enable touch id for sudo
+alias sudo-touch-on="sudo sed -i '' 's/#auth       sufficient     pam_tid.so/auth       sufficient     pam_tid.so/g' /etc/pam.d/sudo"
+# Disable touch id for sudo
+alias sudo-touch-off="sudo sed -i '' 's/auth       sufficient     pam_tid.so/#auth       sufficient     pam_tid.so/g' /etc/pam.d/sudo"
+
+# Flush cache & dns
+alias flush="sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder"
+# Flush dns
+alias flush-dns="sudo killall -HUP mDNSResponder"
+# Flush cache
+alias flush-cache="sudo dscacheutil -flushcache"
+# Flush arp
+alias flush-arp="sudo arp -ad"
+
+# Launch screen saver
+alias screen-saver="open -a ScreenSaverEngine"
+
+# Lock user session
+alias lock="osascript -e 'tell application \"System Events\" to keystroke \"q\" using {control down, command down}'"
+
+# Empty trash
+alias empty-trash="sudo rm -rfv ~/.Trash/*"
+
+# List all apps
+alias list-apps="ls /Applications"
+
+# Show system info
+alias system-info="system_profiler SPHardwareDataType SPSoftwareDataType"
+
+# Eject all disks
+alias eject-volumes="diskutil list | grep /dev/disk | cut -d ' ' -f 1 | xargs -I {} diskutil eject {}"
+
+# Create ram disk
+alias create-ram-disk="diskutil erasevolume HFS+ 'RAMDisk' $(hdiutil attach -nomount ram://1024)"
+
+# Check battery health
+alias battery-health="system_profiler SPPowerDataType"
+# Check battery cycle count
+alias battery-cycle="ioreg -l | grep Capacity | awk '{print $5}' | sed 's/[^0-9]*//g'"
+# Check battery temperature
+alias battery-temp="ioreg -l | grep Temperature | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery voltage
+alias battery-voltage="ioreg -l | grep Voltage | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery amperage
+alias battery-amperage="ioreg -l | grep Amperage | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery current capacity
+alias battery-capacity="ioreg -l | grep CurrentCapacity | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery max capacity
+alias battery-max-capacity="ioreg -l | grep MaxCapacity | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery design capacity
+alias battery-design-capacity="ioreg -l | grep DesignCapacity | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery time remaining
+alias battery-time-remaining="ioreg -l | grep TimeRemaining | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery time to full charge
+alias battery-time-to-full-charge="ioreg -l | grep TimeToFullCharge | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery time to empty
+alias battery-time-to-empty="ioreg -l | grep TimeToEmpty | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery external connected
+alias battery-external-connected="ioreg -l | grep ExternalConnected | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery is charging
+alias battery-is-charging="ioreg -l | grep IsCharging | awk '{print $10}' | sed 's/[^0-9]*//g'"
+# Check battery is charged
+alias battery-is-charged="ioreg -l | grep IsCharged | awk '{print $10}' | sed 's/[^0-9]*//g'"
+
+# Get wifi strength
+alias wifi-strength="airport -I | grep CtlRSSI"
+# List wifi networks
+alias wifi-scan="airport -s"
+# Enable wifi
+alias wifi-on="networksetup -setairportpower en0 on"
+# Disable wifi
+alias wifi-off="networksetup -setairportpower en0 off"
+
+# Enable bluetooth
+alias bluetooth-on="blueutil -p 1"
+# Disable bluetooth
+alias bluetooth-off="blueutil -p 0"
+
+# Enable gatekeeper
+alias enable-gatekeeper="sudo spctl --master-enable"
+# Disable gatekeeper
+alias disable-gatekeeper="sudo spctl --master-disable"
+
+# Enable firewall
+alias firewall-on="sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1"
+# Disable firewall
+alias firewall-off="sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 0"
+
+# Enable firewall stealth mode
+alias firewall-stealth-on="sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -int 1"
+# Disable firewall stealth mode
+alias firewall-stealth-off="sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -int 0"
+
+# Enable firewall logging
+alias firewall-logging-on="sudo defaults write /Library/Preferences/com.apple.alf loggingenabled -int 1"
+# Disable firewall logging
+alias firewall-logging-off="sudo defaults write /Library/Preferences/com.apple.alf loggingenabled -int 0"
+
+# Enable firewall notifications
+alias firewall-notifications-on="sudo defaults write /Library/Preferences/com.apple.alf shownotifications -int 1"
+# Disable firewall notifications
+alias firewall-notifications-off="sudo defaults write /Library/Preferences/com.apple.alf shownotifications -int 0"
+
+# Check available updates 
+alias check-updates="softwareupdate -l"
+
+# List recent apps
+alias recent-apps="mdfind 'kMDItemLastUsedDate >= $time.this_week' -onlyin /Applications"
+# List recent files
+alias recent-files="mdfind 'kMDItemLastUsedDate >= $time.this_week' -onlyin ~"
+
+# Enable guest user
+alias enable-guest-user="sudo dscl . -create /Users/Guest UserShell /bin/bash"
+# Disable guest user
+alias disable-guest-user="sudo dscl . -delete /Users/Guest"
+
+
+# ----------------------------------
 # ! Mkcert
 
 # mkcert : generate local ssl certificates
 alias sslcert="mkcert -install && mkcert localhost $*"
 
+# ----------------------------------
 # ! TOR Proxy
 
 # Activation du proxy tor
 function torStart(){ 
   # Configuration du port d'écoute du proxy MAC.
-  networksetup -setsocksfirewallproxy Wi-Fi localhost $tor_local_port
+  networksetup -setsocksfirewallproxy Wi-Fi localhost $TOR_SOCKS_PORT
   # Mac proxy activation.
   networksetup -setsocksfirewallproxystate Wi-Fi on && echo "Configuration proxy du MAC activée."
   # Activation du service tor.
@@ -41,7 +200,7 @@ function torCheck(){
 # Chose TOR Entry Node
 function torIn(){ 
   # Modify TOR Entry Node with arg value.
-  echo "EntryNodes {$1} StrictNodes 1" > /etc/torrc.entry
+  echo "EntryNodes {$1} StrictNodes 1" > /opt/homebrew/etc/tor/torrc.entry
   # Restart TOR.
   torRestart
 }
@@ -49,7 +208,7 @@ function torIn(){
 # Chose TOR Exit Node
 function torOut(){ 
   # Modify TOR Exit Node with arg value.
-  echo "ExitNodes {$1} StrictNodes 1" > /etc/torrc.exit
+  echo "ExitNodes {$1} StrictNodes 1" > /opt/homebrew/etc/tor/torrc.exit
   # Restart TOR.
   torRestart
 }

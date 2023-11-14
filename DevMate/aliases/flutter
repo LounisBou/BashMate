@@ -1,0 +1,8 @@
+# Aliases for Flutter.
+# Created by LounisBou
+
+# Create a new Flutter project
+function flutter-create() {
+    flutter create $1
+    cd $1
+}

@@ -76,7 +76,7 @@ if [[ $install != true && $uninstall != true ]]; then
     exit
 fi
 
-echo ""
+echo -e "\n"
 
 # Install BrewMate.
 if [[ $install == true ]]; then
@@ -90,8 +90,10 @@ if [[ $install == true ]]; then
             # Add BashMate sourcing to .zshrc
             echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
             echo -e "${GREEN}BashMate installed in .zshrc${NC}"
-            # Reload .zshrc
-            source ~/.zshrc
+            # Inform user to reload .zshrc
+            echo -e "${YELLOW}Please reload .zshrc to apply changes.${NC}"
+            # Give user the command to reload .zshrc
+            echo -e "${YELLOW}Command: source ~/.zshrc${NC}"
         fi
     fi
 
@@ -104,8 +106,10 @@ if [[ $install == true ]]; then
             # Add BashMate sourcing to .bashrc
             echo "source $(PWD)/bashmate.sh" >> ~/.bashrc
             echo -e "${GREEN}BashMate installed in .bashrc${NC}"
-            # Reload .bashrc
-            source ~/.bashrc
+            # Inform user to reload .bashrc
+            echo -e "${YELLOW}Please reload .bashrc to apply changes.${NC}"
+            # Give user the command to reload .bashrc
+            echo -e "${YELLOW}Command: source ~/.bashrc${NC}"
         fi
     fi
 
@@ -129,9 +133,7 @@ if [[ $install == true ]]; then
     fi
 
     # Message
-    echo -e "\n"
-    echo -e "${GREEN}BashMate installed.${NC}"
-    echo ""
+    echo -e "\n ${GREEN}BashMate installed.${NC} \n"
 
 # Uninstall BrewMate
 elif [[ $uninstall == true ]]; then
@@ -167,11 +169,11 @@ elif [[ $uninstall == true ]]; then
     # Check if logo/logo.sh exists
     if [ -f "logo/logo.sh" ]; then
         # Execute logo.sh
-        echo ""
+        echo -e "\n"
         ./logo/logo.sh
-        echo ""
+        echo -e "\n"
     fi
-    echo ""
+    echo -e "\n"
 
     # Ask user if he wants to uninstall BrewMate
     read -p "Do you want to uninstall BrewMate? (y/n) " -n 1 -r REPLY
@@ -184,8 +186,6 @@ elif [[ $uninstall == true ]]; then
     fi
 
     # Message
-    echo -e "\n"
-    echo -e "${GREEN}BashMate uninstalled.${NC}"
-    echo ""
+    echo -e "\n ${GREEN}BashMate uninstalled.${NC} \n"
 
 fi

@@ -1,0 +1,33 @@
+<!--
+    Example:
+    <audio 
+        id="[AUDIO_ID]" 
+        controls 
+        preload="auto" 
+        autoplay 
+        loop 
+        muted 
+        playsinline 
+        webkit-playsinline 
+        x-webkit-airplay="allow" 
+        x5-video-player-type="h5" 
+        x5-video-player-fullscreen="true" 
+        x5-video-orientation="portraint"
+    >
+        <source src="audio/hero.mp3" type="audio/mpeg">
+        <source src="audio/hero.ogg" type="audio/ogg">
+        <source src="audio/hero.wav" type="audio/wav">
+        Your browser does not support the audio tag.
+    </audio>
+-->
+<template>
+    <audio 
+        id="[AUDIO_ID]" 
+        controls
+    >
+        <source src="[AUDIO_SRC_MP3]" type="audio/mpeg">
+        <source src="[AUDIO_SRC_OGG]" type="audio/ogg">
+        <source src="[AUDIO_SRC_WAV]" type="audio/wav">
+        Your browser does not support the audio tag.
+    </audio>
+</template>

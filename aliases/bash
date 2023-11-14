@@ -68,3 +68,7 @@ function targz(){
 function untargz(){ 
 	tar -zxvf $1
 }
+
+# IP address 
+alias IP="curl -4 icanhazip.com"
+alias IP6="curl -6 icanhazip.com"

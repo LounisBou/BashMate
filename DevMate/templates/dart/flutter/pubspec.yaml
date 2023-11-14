@@ -1,0 +1,55 @@
+# The pubspec file specifies dependencies that the project requires, 
+# such as particular packages (and their versions), fonts, or image files. 
+# It also specifies other requirements, such as dependencies on developer packages (like testing or mocking packages), 
+# or particular constraints on the version of the Flutter SDK.
+
+# Application metadata.
+name: flutter_template
+description: Template for Flutter projects. 
+publish_to: none # Remove this line if you wish to publish to pub.dev
+version: 0.0.1+1 # This is the version used when publishing
+
+# Environment constraints.
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+# Dependencies.
+dependencies:
+  flutter:
+    sdk: flutter
+  # Only required if you use Cupertino (iOS style) icons
+  cupertino_icons: ^1.0.5
+  # Dio is a powerful Http client for Dart
+  dio: ^5.0.0
+
+# Dev dependencies.
+dev_dependencies:
+  # Required for a Flutter project that includes tests
+  flutter_test:
+    sdk: flutter
+  # Contains a set of recommended lints for Flutter code
+  flutter_lints: ^3.0.0 
+
+# The following section is specific to Flutter.
+flutter:
+  # Required if you use the Material icon font
+  uses-material-design: true
+  # Enables generation of localized strings from arb files
+  generate: true
+  # Lists assets, such as image files
+  assets:
+    - assets/images/
+    - assets/icons/
+  # Required if your app uses custom fonts
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+

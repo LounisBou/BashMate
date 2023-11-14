@@ -1,0 +1,35 @@
+<!--
+    Example:
+    <video 
+        id="[VIDEO_ID]" 
+        controls 
+        preload="auto" 
+        autoplay 
+        loop 
+        muted 
+        playsinline 
+        webkit-playsinline 
+        x-webkit-airplay="allow" 
+        x5-video-player-type="h5" 
+        x5-video-player-fullscreen="true" 
+        x5-video-orientation="portraint"
+    >
+        <source src="video/hero.mp4" type="video/mp4">
+        <source src="video/hero.ogg" type="video/ogg">
+        <source src="video/hero.webm" type="video/webm">
+        <iframe src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+        Your browser does not support the video tag.
+    </video>
+-->
+<template>
+    <video 
+        id="[VIDEO_ID]" 
+        controls
+    >
+        <source src="[VIDEO_SRC_MP4]" type="video/mp4">
+        <source src="[VIDEO_SRC_OGG]" type="video/ogg">
+        <source src="[VIDEO_SRC_WEBM]" type="video/webm">
+        <iframe src="[VIDEO_SRC_IFRAME]" frameborder="0" allowfullscreen></iframe>
+        Your browser does not support the video tag.
+    </video>
+</template>
