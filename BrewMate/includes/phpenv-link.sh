@@ -11,7 +11,7 @@
 #
 
 # Exit with error if any command fails
-set -au
+set -euo pipefail
 
 # Check brew is installed
 if ! command -v brew >/dev/null 2>&1; then
