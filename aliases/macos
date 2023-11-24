@@ -157,6 +157,41 @@ alias enable-guest-user="sudo dscl . -create /Users/Guest UserShell /bin/bash"
 # Disable guest user
 alias disable-guest-user="sudo dscl . -delete /Users/Guest"
 
+# ----------------------------------
+# ! Open in Apps
+
+# Open in Finder
+alias open-finder="open -a Finder $*"
+
+# Open in VSCode
+alias open-vscode="open -a /Applications/Visual\ Studio\ Code.app $*"
+
+# Open in Sublime Text
+alias open-sublime="open -a /Applications/Sublime\ Text.app $*"
+
+# Open in PyCharm
+alias open-py="open -a /Applications/PyCharm.app $*"
+
+# Open in PhpStorm
+alias open-php="open -a /Applications/PhpStorm.app $*"
+
+# Open in Android Studio
+alias open-android="open -a /Applications/Android\ Studio.app $*"
+
+# Open in Xcode
+alias open-xcode="open -a /Applications/Xcode.app $*"
+
+# Open in Chrome
+alias open-chrome="open -a /Applications/Google\ Chrome.app $*"
+
+# Open in Firefox
+alias open-firefox="open -a /Applications/Firefox.app $*"
+
+# Open in Safari
+alias open-safari="open -a /Applications/Safari.app $*"
+
+# Open in VLC
+alias open-vlc="open -a /Applications/VLC.app $*"
 
 # ----------------------------------
 # ! Mkcert
