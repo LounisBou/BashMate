@@ -13,13 +13,19 @@
 # Exit with error if any command fails
 set -au
 
-# Constants
-PHPENV_DIR="$HOME/.phpenv/versions"
-ERROR_MSG="Not found. brew package path: $cellarDir :("
+# Check brew is installed
+if ! command -v brew >/dev/null 2>&1; then
+    echo "Brew is not installed. Please install it first."
+    exit 1
+fi
 
-## Check cellar dir
-cellarDir=$(brew --prefix)/Cellar
-if [ ! -d "$cellarDir" ]; then
+# Constants
+CELLAR_DIR=$(brew --prefix)/Cellar
+PHPENV_DIR="$HOME/.phpenv/versions"
+ERROR_MSG="Not found. brew package path: $CELLAR_DIR :("
+
+# Check if cellar directory exists
+if [ ! -d "$CELLAR_DIR" ]; then
     echo "$ERROR_MSG"
     exit 1
 fi
@@ -43,7 +49,7 @@ create_symlink() {
 
 # Create the versions directory if it doesn't exist
 echo "# Link the php installed by Brew to $PHPENV_DIR"
-for php_dir in "$cellarDir"/php*/[0-9]*.*; do
+for php_dir in "$CELLAR_DIR"/php*/[0-9]*.*; do
     # Check php dir exists
     if [ ! -d "$php_dir" ]; then
         continue
