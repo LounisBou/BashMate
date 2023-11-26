@@ -1,12 +1,14 @@
 # Ignore .DS_Store files
 .DS_Store
-*/.DS_Store
+**/.DS_Store
 
 # Ignore .env file
 .env
+**/.env
 
 # Ignore aliases private
-aliases_private/*.sh
+aliases_private/
+**/aliases_private/
 
-# Ignore config apache2
+# Ignore VHost config files from Apache2
 opt/homebrew/etc/httpd/extra/sites-enabled/*.conf
