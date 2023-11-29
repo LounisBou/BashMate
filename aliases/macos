@@ -12,7 +12,7 @@
 #
 
 # Check if system type is macos
-if [ "$(uname)" == "Darwin" ]; then
+if [[ $(uname) == "Darwin" ]]; then
 
   # Show all processes
   alias psa="ps aux"
