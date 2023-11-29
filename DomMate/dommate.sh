@@ -17,15 +17,15 @@ currentDir="$(realpath $(dirname "$0"))"
 #
 #
 # Check if system type is macos
-if [ "$(uname)" == "Darwin" ]; then
+if [[ $(uname) == "Darwin" ]]; then
     echo "Macos based system detected"
     OS_TYPE="macos"
 # Check if system type is debian based
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
     echo "Linux based system detected"
     OS_TYPE="linux"
 # Check if system type is windows
-elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]]; then
     echo "Windows based system detected"
     OS_TYPE="windows"
 fi
@@ -33,7 +33,7 @@ fi
 # ! Install mosquitto
 
 # Check OS type
-if [ "$OS_TYPE" == "macos" ]; then
+if [[ "$OS_TYPE" == "macos" ]]; then
     # Check if mosquitto is installed
     if brew ls --versions mosquitto > /dev/null; then
         # The package is installed
@@ -47,7 +47,7 @@ if [ "$OS_TYPE" == "macos" ]; then
         # Start mosquitto
         brew services start mosquitto
     fi
-elif [ "$OS_TYPE" == "linux" ]; then
+elif [[ "$OS_TYPE" == "linux" ]]; then
     # Check if mosquitto is installed
     if dpkg -s mosquitto > /dev/null; then
         # The package is installed
@@ -67,7 +67,7 @@ fi
 # ! Install zigbee2mqtt
 
 # Check if nodejs is installed
-if [ "$OS_TYPE" == "macos" ]; then
+if [[ "$OS_TYPE" == "macos" ]]; then
     # Check if nodejs is installed
     if brew ls --versions node > /dev/null; then
         # The package is installed
@@ -78,7 +78,7 @@ if [ "$OS_TYPE" == "macos" ]; then
         # Install nodejs
         brew install node
     fi
-elif [ "$OS_TYPE" == "linux" ]; then
+elif [[ "$OS_TYPE" == "linux" ]]; then
     # Check if nodejs is installed
     if dpkg -s node > /dev/null; then
         # The package is installed
@@ -129,14 +129,14 @@ sudo chown root /opt/zigbee2mqtt/data/log-stdout.txt
 sudo chmod 777 /opt/zigbee2mqtt/data/log-stderr.txt
 sudo chmod 777 /opt/zigbee2mqtt/data/log-stdout.txt
 # Create zigbee2mqtt service
-if [ "$OS_TYPE" == "macos" ]; then
+if [[ "$OS_TYPE" == "macos" ][]; then
     # Copy zigbee2mqtt plist file
     sudo cp $currentDir/includes/zigbee2mqtt.plist /Library/LaunchDaemons/zigbe2mqtt.plist
     # Load zigbee2mqtt service
     sudo launchctl load /Library/LaunchDaemons/zigbe2mqtt.plist
     # Start zigbee2mqtt service
     sudo launchctl start zigbe2mqtt
-elif [ "$OS_TYPE" == "linux" ]; then
+elif [[ "$OS_TYPE" == "linux" ]]; then
     # Copy zigbee2mqtt service file
     sudo cp $currentDir/includes/zigbee2mqtt.service /etc/systemd/system/zigbee2mqtt.service
     # Reload systemd
@@ -153,7 +153,7 @@ fi
 # ! Install openhab
 
 # Check OS type
-if [ "$OS_TYPE" == "macos" ]; then
+if [[ "$OS_TYPE" == "macos" ]]; then
     # Check if openhab is installed
     if brew ls --versions openhab > /dev/null; then
         # The package is installed
@@ -167,7 +167,7 @@ if [ "$OS_TYPE" == "macos" ]; then
         # Start openhab
         brew services start openhab
     fi
-elif [ "$OS_TYPE" == "linux" ]; then
+elif [[ "$OS_TYPE" == "linux" ]]; then
     # Check if openhab is installed
     if dpkg -s openhab > /dev/null; then
         # The package is installed
