@@ -24,7 +24,7 @@ fi
 # Import all files in the aliases directory.
 for file in ${currentDir}/aliases/*; do source $file; done
 # Check if there is at least one file in the aliases private directory.
-if [ "$(ls -A ${currentDir}/aliases_private)" ]; then
+if [ "$(ls -A ${currentDir}/aliases_private/*.sh)" ]; then
   # Import all files in the aliases private directory.
   for file in ${currentDir}/aliases_private/*.sh; do source $file; done
 fi
