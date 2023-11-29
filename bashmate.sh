@@ -23,8 +23,8 @@ fi
 #
 # Import all files in the aliases directory.
 for file in ${currentDir}/aliases/*; do source $file; done
-# Check if there is at least one file in the aliases private directory.
-if [ "$(ls -A ${currentDir}/aliases_private/*.sh)" ]; then
+# Check if there is at least one file with sh extension in the aliases private directory.
+if ls ${currentDir}/aliases_private/*.sh 1> /dev/null 2>&1; then
   # Import all files in the aliases private directory.
   for file in ${currentDir}/aliases_private/*.sh; do source $file; done
 fi
