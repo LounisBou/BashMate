@@ -1,3 +1,4 @@
+#!/bin/bash
 # Title: DomMate
 # Language: Bourne Again Shell
 # Creator: LounisBou
@@ -104,7 +105,7 @@ fi
 # The package is not installed
 echo "Installing Zigbee2mqtt..."
 # Install zigbee2mqtt
-git clone --depth 1 https://github.com/Koenkk/zigbee2mqtt.git /opt/zigbee2mqtt
+sudo git clone --depth 1 https://github.com/Koenkk/zigbee2mqtt.git /opt/zigbee2mqtt
 sudo chown -R ${USER}: /opt/zigbee2mqtt
 # Install zigbee2mqtt dependencies
 npm install --prefix /opt/zigbee2mqtt
