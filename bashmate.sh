@@ -23,11 +23,15 @@ fi
 #
 # Import all files in the aliases directory.
 for file in ${currentDir}/aliases/*; do source $file; done
+# Enable nullglob to prevent errors if no matching files are found
+shopt -s nullglob
 # Check if there is at least one file with sh extension in the aliases private directory.
-if ls ${currentDir}/aliases_private/*.sh 1> /dev/null 2>&1; then
+if compgen -G "${currentDir}/aliases_private/*.sh" > /dev/null; then
   # Import all files in the aliases private directory.
   for file in ${currentDir}/aliases_private/*.sh; do source $file; done
 fi
+# Disable nullglob 
+shopt -u nullglob
 # 
 # Import all files in the functions directory.
 for file in ${currentDir}/functions/*; do source $file; done
