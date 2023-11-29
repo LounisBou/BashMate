@@ -23,11 +23,12 @@ fi
 #
 # Import all files in the aliases directory.
 for file in ${currentDir}/aliases/*; do source $file; done
-# Check if there is at least one file in the aliases private directory.
-if [ "$(ls -A ${currentDir}/aliases_private)" ]; then
-  # Import all files in the aliases private directory.
-  for file in ${currentDir}/aliases_private/*.sh; do source $file; done
+# Create aliases personal file if not exists.
+if [ ! -f "$currentDir/aliases_private/personal.sh" ]; then
+  touch "$currentDir/aliases_private/personal.sh"
 fi
+# Import all files in the aliases private directory.
+for file in ${currentDir}/aliases_private/*.sh; do source $file; done
 # 
 # Import all files in the functions directory.
 for file in ${currentDir}/functions/*; do source $file; done
