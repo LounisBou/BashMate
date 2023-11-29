@@ -1,0 +1,22 @@
+[Unit]
+Description=zigbee2mqtt
+# Wait for network to be up before starting
+After=network.target
+
+[Service]
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+WorkingDirectory=/opt/zigbee2mqtt
+Restart=always
+RestartSec=10s
+
+# Set user and group to currently logged in user
+User=$USER
+Group=$USER
+
+# Log output to specific file, otherwise journalctl will be used
+StandardOutput=file:/opt/zigbee2mqtt/data/log-stdout.txt
+StandardError=file:/opt/zigbee2mqtt/data/log-stderr.txt
+
+[Install]
+WantedBy=multi-user.target

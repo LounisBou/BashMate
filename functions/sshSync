@@ -41,7 +41,7 @@ function sshSync(){
 	
 	# Si le script est appelé avec l'option -h, le script devra afficher un message sur la sortie d'erreur indiquant la liste des arguments qu'il attend.
 	# getops ?
-	usage="usage: sshSync [-h ssh_host] [-u ssh_user] [-p ssh_port] [-lp local_path] [-rp remote_path] [-sw sync_way] [-v]"
+	usage="usage: sshSync [-h ssh_host] [-u ssh_user] [-p ssh_port] [-lp local_path] [-rp remote_path] [-sw sync_way (up|down)] [-v]"
 	
 	# Pour chaque options listé 
 	while test ${#} -gt 0

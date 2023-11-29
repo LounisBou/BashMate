@@ -1,20 +1,16 @@
-# Title: Bash personal
+# Title: BashMate
 # Language: Bourne Again Shell
 # Creator: LounisBou
 # Access: Public
 # Category: System
 # Type: Configuration
-# Tags: bash, config, personal
+# Tags: bash, config, commands, tools
 #
-# Summary:
-# Bash personal configuration file.
 #
 # Description: 
-# This file is sourced by .bashrc or .zshrc, 
-# so it can be used to configure aliases and functions.
 #
 # Usage:
-# Copy this file to ~/.bash_perso and source it in your .bashrc or .zshrc file.
+# Source this file in your .bashrc or .zshrc file.
 #
 #
 # Get absolute directory of the current file.
