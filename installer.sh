@@ -87,6 +87,17 @@ if [[ $install == true ]]; then
         if grep -q "bashmate.sh" "$HOME/.zshrc"; then
             echo -e "${YELLOW}BashMate is already installed in .zshrc${NC}"
         else
+            # Check if Oh My Zsh is installed
+            if [ -d "$HOME/.oh-my-zsh" ]; then
+                # Ask user if he wants to install Oh My Zsh
+                read -p "Do you want to install Oh My Zsh? (y/n) " -n 1 -r REPLY
+                # Check if user wants to install Oh My Zsh
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    # Install Oh My Zsh
+                    echo -e "\n"
+                    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+                fi
+            fi
             # Add BashMate sourcing to .zshrc
             echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
             echo -e "${GREEN}BashMate installed in .zshrc${NC}"

@@ -15,8 +15,11 @@
 #
 # Get absolute directory of the current file.
 currentDir="$(realpath $(dirname "$0"))"
-# Import .env file
-source "$currentDir/.env"
+# Check if .env file exists
+if [ ! -f "$currentDir/.env" ]; then
+  # Import .env file
+  source "$currentDir/.env"
+fi
 #
 # Import all files in the aliases directory.
 for file in ${currentDir}/aliases/*; do source $file; done
