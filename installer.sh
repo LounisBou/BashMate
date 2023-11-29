@@ -99,7 +99,7 @@ if [[ $install == true ]]; then
                 fi
             fi
             # Add BashMate sourcing to .zshrc
-            echo "source $(PWD)/bashmate.sh" >> ~/.zshrc
+            echo "source $(PWD)/BashMate/bashmate.sh" >> ~/.zshrc
             echo -e "${GREEN}BashMate installed in .zshrc${NC}"
             # Inform user to reload .zshrc
             echo -e "${YELLOW}Please reload .zshrc to apply changes.${NC}"
@@ -115,7 +115,7 @@ if [[ $install == true ]]; then
             echo -e "${YELLOW}BashMate is already installed in .bashrc${NC}"
         else
             # Add BashMate sourcing to .bashrc
-            echo "source $(PWD)/bashmate.sh" >> ~/.bashrc
+            echo "source $(PWD)/BashMate/bashmate.sh" >> ~/.bashrc
             echo -e "${GREEN}BashMate installed in .bashrc${NC}"
             # Inform user to reload .bashrc
             echo -e "${YELLOW}Please reload .bashrc to apply changes.${NC}"
