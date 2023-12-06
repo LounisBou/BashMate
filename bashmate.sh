@@ -20,7 +20,6 @@ if [ -f "$currentDir/.env" ]; then
   # Import .env file
   source "$currentDir/.env"
 fi
-echo "ssh $KAP_PROD_SSH_USER@$KAP_PROD_URL -p $KAP_PROD_SSH_PORT"
 #
 # Import all files in the aliases directory.
 for file in ${currentDir}/aliases/*; do source $file; done
