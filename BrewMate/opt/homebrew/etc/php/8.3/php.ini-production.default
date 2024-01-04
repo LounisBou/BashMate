@@ -1,4 +1,3 @@
-zend_extension="xdebug.so"
 [PHP]
 
 ;;;;;;;;;;;;;;;;;;;
@@ -76,7 +75,7 @@ zend_extension="xdebug.so"
 
 ; php.ini-production contains settings which hold security, performance and
 ; best practices at its core. But please be aware, these settings may break
-; compatibility with older or less security conscience applications. We
+; compatibility with older or less security-conscious applications. We
 ; recommending using the production ini in production and testing environments.
 
 ; php.ini-development is very similar to its production variant, except it is
@@ -84,7 +83,7 @@ zend_extension="xdebug.so"
 ; development version only in development environments, as errors shown to
 ; application users can inadvertently leak otherwise secure information.
 
-; This is the php.ini-development INI file.
+; This is the php.ini-production INI file.
 
 ;;;;;;;;;;;;;;;;;;;
 ; Quick Reference ;
@@ -145,6 +144,11 @@ zend_extension="xdebug.so"
 ;   Development Value: 5
 ;   Production Value: 5
 
+; session.sid_length
+;   Default Value: 32
+;   Development Value: 26
+;   Production Value: 26
+
 ; short_open_tag
 ;   Default Value: On
 ;   Development Value: Off
@@ -154,6 +158,11 @@ zend_extension="xdebug.so"
 ;   Default Value: "EGPCS"
 ;   Development Value: "GPCS"
 ;   Production Value: "GPCS"
+
+; zend.assertions
+;   Default Value: 1
+;   Development Value: 1
+;   Production Value: -1
 
 ; zend.exception_ignore_args
 ;   Default Value: Off
@@ -377,7 +386,7 @@ zend.enable_gc = On
 ; Default Value: Off
 ; Development Value: Off
 ; Production Value: On
-zend.exception_ignore_args = Off
+zend.exception_ignore_args = On
 
 ; Allows setting the maximum string length in an argument of a stringified stack trace
 ; to a value between 0 and 1000000.
@@ -385,7 +394,9 @@ zend.exception_ignore_args = Off
 ; Default Value: 15
 ; Development Value: 15
 ; Production Value: 0
-zend.exception_string_param_max_len = 15
+; In production, it is recommended to set this to 0 to reduce the output
+; of sensitive information in stack traces.
+zend.exception_string_param_max_len = 0
 
 ;;;;;;;;;;;;;;;;;
 ; Miscellaneous ;
@@ -487,7 +498,7 @@ memory_limit = 128M
 ; Development Value: E_ALL
 ; Production Value: E_ALL & ~E_DEPRECATED & ~E_STRICT
 ; https://php.net/error-reporting
-error_reporting = E_ALL
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
 
 ; This directive controls whether or not and where PHP will output errors,
 ; notices and warnings too. Error output is very useful during development, but
@@ -504,7 +515,7 @@ error_reporting = E_ALL
 ; Development Value: On
 ; Production Value: Off
 ; https://php.net/display-errors
-display_errors = On
+display_errors = Off
 
 ; The display of errors which occur during PHP's startup sequence are handled
 ; separately from display_errors. We strongly recommend you set this to 'off'
@@ -513,7 +524,7 @@ display_errors = On
 ; Development Value: On
 ; Production Value: Off
 ; https://php.net/display-startup-errors
-display_startup_errors = On
+display_startup_errors = Off
 
 ; Besides displaying errors, PHP can also log errors to locations such as a
 ; server-specific log, STDERR, or a location specified by the error_log
@@ -764,7 +775,7 @@ user_dir =
 
 ; Directory in which the loadable extensions (modules) reside.
 ; https://php.net/extension-dir
-extension_dir = "/opt/homebrew/lib/php/pecl/20220829"
+extension_dir = "/opt/homebrew/lib/php/pecl/20230831"
 ; On windows:
 ;extension_dir = "ext"
 
@@ -975,7 +986,7 @@ cli_server.color = On
 [Date]
 ; Defines the default timezone used by the date functions
 ; https://php.net/date.timezone
-date.timezone = Europe/Paris
+;date.timezone =
 
 ; https://php.net/date.default-latitude
 ;date.default_latitude = 31.7667
@@ -1202,9 +1213,6 @@ mysqli.default_user =
 ; https://php.net/mysqli.default-pw
 mysqli.default_pw =
 
-; Allow or prevent reconnect
-mysqli.reconnect = Off
-
 ; If this option is enabled, closing a persistent connection will rollback
 ; any pending transactions of this connection, before it is put back
 ; into the persistent connection pool.
@@ -1217,7 +1225,7 @@ mysqlnd.collect_statistics = On
 
 ; Enable / Disable collection of memory usage statistics by mysqlnd which can be
 ; used to tune and monitor MySQL operations.
-mysqlnd.collect_memory_statistics = On
+mysqlnd.collect_memory_statistics = Off
 
 ; Records communication from all extensions using mysqlnd to the specified log
 ; file.
@@ -1592,32 +1600,13 @@ session.sid_bits_per_character = 5
 ; -1: Do not compile at all
 ;  0: Jump over assertion at run-time
 ;  1: Execute assertions
-; Changing from or to a negative value is only possible in php.ini! (For turning assertions on and off at run-time, see assert.active, when zend.assertions = 1)
+; Changing from or to a negative value is only possible in php.ini!
+; (For turning assertions on and off at run-time, toggle zend.assertions between the values 1 and 0)
 ; Default Value: 1
 ; Development Value: 1
 ; Production Value: -1
 ; https://php.net/zend.assertions
-zend.assertions = 1
-
-; Assert(expr); active by default.
-; https://php.net/assert.active
-;assert.active = On
-
-; Throw an AssertionError on failed assertions
-; https://php.net/assert.exception
-;assert.exception = On
-
-; Issue a PHP warning for each failed assertion. (Overridden by assert.exception if active)
-; https://php.net/assert.warning
-;assert.warning = On
-
-; Don't bail out by default.
-; https://php.net/assert.bail
-;assert.bail = Off
-
-; User-function to be called if an assertion fails.
-; https://php.net/assert.callback
-;assert.callback = 0
+zend.assertions = -1
 
 [COM]
 ; path to a file containing GUIDs, IIDs or filenames of files with TypeLibs
@@ -1850,10 +1839,6 @@ ldap.max_links = -1
 ; Allows exclusion of large files from being cached. By default all files
 ; are cached.
 ;opcache.max_file_size=0
-
-; Check the cache checksum each N requests.
-; The default value of "0" means that the checks are disabled.
-;opcache.consistency_checks=0
 
 ; How long to wait (in seconds) for a scheduled restart to begin if the cache
 ; is not being accessed.

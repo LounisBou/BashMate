@@ -57,6 +57,21 @@ function onLanPort(){
   nmap -sS $1/24 -p $2
 }
 
+# Check all machines on LAN.
+function onLanDevices(){ 
+  nmap -sn $1/24
+}
+
+# Get info on specific machine on LAN.
+function onLanDevice(){ 
+  sudo nmap -O $1
+}
+
+# Get info on specific machine on LAN.
+function onLanDevicePlus(){ 
+  sudo nmap -A $1
+}
+
 # ! TAR/UNTAR (Compression/Décompression) :
 
 # targz : Compress folder in tar.gz file.

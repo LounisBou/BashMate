@@ -16,6 +16,16 @@
 if [[ $(uname) == "Darwin" ]]; then
 
   # ----------------------------------
+  # ! Close Apps
+  function close-apps(){
+    # Close all apps
+    osascript -e 'tell application "System Events" to set quitapps to name of every application process whose visible is true and name is not "Finder" and name is not "iTerm2" and name is not "Terminal"'
+    for app in $quitapps; do
+      osascript -e "tell application \"$app\" to quit"
+    done
+  }
+
+  # ----------------------------------
   # ! Open in Apps
 
   # Open in Finder

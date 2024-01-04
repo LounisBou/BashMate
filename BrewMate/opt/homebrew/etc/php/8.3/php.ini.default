@@ -1,4 +1,3 @@
-zend_extension="xdebug.so"
 [PHP]
 
 ;;;;;;;;;;;;;;;;;;;
@@ -76,7 +75,7 @@ zend_extension="xdebug.so"
 
 ; php.ini-production contains settings which hold security, performance and
 ; best practices at its core. But please be aware, these settings may break
-; compatibility with older or less security conscience applications. We
+; compatibility with older or less security-conscious applications. We
 ; recommending using the production ini in production and testing environments.
 
 ; php.ini-development is very similar to its production variant, except it is
@@ -145,6 +144,11 @@ zend_extension="xdebug.so"
 ;   Development Value: 5
 ;   Production Value: 5
 
+; session.sid_length
+;   Default Value: 32
+;   Development Value: 26
+;   Production Value: 26
+
 ; short_open_tag
 ;   Default Value: On
 ;   Development Value: Off
@@ -154,6 +158,11 @@ zend_extension="xdebug.so"
 ;   Default Value: "EGPCS"
 ;   Development Value: "GPCS"
 ;   Production Value: "GPCS"
+
+; zend.assertions
+;   Default Value: 1
+;   Development Value: 1
+;   Production Value: -1
 
 ; zend.exception_ignore_args
 ;   Default Value: Off
@@ -764,7 +773,7 @@ user_dir =
 
 ; Directory in which the loadable extensions (modules) reside.
 ; https://php.net/extension-dir
-extension_dir = "/opt/homebrew/lib/php/pecl/20220829"
+extension_dir = "/opt/homebrew/lib/php/pecl/20230831"
 ; On windows:
 ;extension_dir = "ext"
 
@@ -975,7 +984,7 @@ cli_server.color = On
 [Date]
 ; Defines the default timezone used by the date functions
 ; https://php.net/date.timezone
-date.timezone = Europe/Paris
+;date.timezone =
 
 ; https://php.net/date.default-latitude
 ;date.default_latitude = 31.7667
@@ -1201,9 +1210,6 @@ mysqli.default_user =
 ; file will be able to reveal the password as well.
 ; https://php.net/mysqli.default-pw
 mysqli.default_pw =
-
-; Allow or prevent reconnect
-mysqli.reconnect = Off
 
 ; If this option is enabled, closing a persistent connection will rollback
 ; any pending transactions of this connection, before it is put back
@@ -1592,32 +1598,13 @@ session.sid_bits_per_character = 5
 ; -1: Do not compile at all
 ;  0: Jump over assertion at run-time
 ;  1: Execute assertions
-; Changing from or to a negative value is only possible in php.ini! (For turning assertions on and off at run-time, see assert.active, when zend.assertions = 1)
+; Changing from or to a negative value is only possible in php.ini!
+; (For turning assertions on and off at run-time, toggle zend.assertions between the values 1 and 0)
 ; Default Value: 1
 ; Development Value: 1
 ; Production Value: -1
 ; https://php.net/zend.assertions
 zend.assertions = 1
-
-; Assert(expr); active by default.
-; https://php.net/assert.active
-;assert.active = On
-
-; Throw an AssertionError on failed assertions
-; https://php.net/assert.exception
-;assert.exception = On
-
-; Issue a PHP warning for each failed assertion. (Overridden by assert.exception if active)
-; https://php.net/assert.warning
-;assert.warning = On
-
-; Don't bail out by default.
-; https://php.net/assert.bail
-;assert.bail = Off
-
-; User-function to be called if an assertion fails.
-; https://php.net/assert.callback
-;assert.callback = 0
 
 [COM]
 ; path to a file containing GUIDs, IIDs or filenames of files with TypeLibs
@@ -1850,10 +1837,6 @@ ldap.max_links = -1
 ; Allows exclusion of large files from being cached. By default all files
 ; are cached.
 ;opcache.max_file_size=0
-
-; Check the cache checksum each N requests.
-; The default value of "0" means that the checks are disabled.
-;opcache.consistency_checks=0
 
 ; How long to wait (in seconds) for a scheduled restart to begin if the cache
 ; is not being accessed.

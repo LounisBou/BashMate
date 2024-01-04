@@ -84,6 +84,13 @@ function grf(){
         git push origin --tags
         # Message user to call git after mep
         echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+        # Ask user if he wants to call git after mep
+        read REPLY"?Do you want to call method 'git-after-mep' ? (y/n) "
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            # Call git after mep
+            git-after-mep
+        fi
     else
         # Message error current branch is not a release branch
         echo -e "${RED}Error: Current branch is not a release branch ${NC}"
@@ -110,6 +117,13 @@ function ghf(){
         git push origin --tags
         # Message user to call git after mep
         echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+        # Ask user if he wants to call git after mep
+        read REPLY"?Do you want to call method 'git-after-mep' ? (y/n) "
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            # Call git after mep
+            git-after-mep
+        fi
     else
         # Message error current branch is not a hotfix branch
         echo -e "${RED}Error: Current branch is not a hotfix branch${NC}"
@@ -213,6 +227,22 @@ function gmergin(){
     git checkout $current_branch
 }
 gmt="git mergetool"
+# Get laster tag for branch
+function gtag(){
+    # Check if $1 is not empty
+    if [ -z "$1" ]
+    then
+        # Set default branch name
+        branch_name="master"
+    else
+        # Set branch name
+        branch_name=$1
+    fi
+    # Get last tag for current branch
+    last_tag=$(git describe --tags `git rev-list --tags --max-count=1 $branch_name`)
+    # Display last tag
+    echo -e "${GREEN}Last tag for $branch_name branch is : $last_tag ${NC}"
+}
 # Push tag 
 function gpt(){
     # Push all local tags
@@ -244,6 +274,35 @@ function git-update(){
     git pull
     # Apply migration
     php artisan migrate
+}
+# Update current branch by merging develop branch on it
+function git-update-branch(){
+    # Retrieve current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Checkout develop branch
+    git checkout develop
+    # Pull develop branch
+    git pull
+    # Checkout current branch
+    git checkout $current_branch
+    # Pull current branch
+    git pull
+    # Merge develop branch on current branch
+    git merge develop
+    # Check if there is a conflict
+    git diff --check
+    # Ask user if he wants to continue
+    read REPLY"?Do you want to continue ? (y/n) "
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        # Commit merge
+        git commit -m "Merge develop in $current_branch"
+        # Push current branch
+        git push
+    fi
+    # Apply migration
+    php artisan migrate
+    
 }
 # After MEP
 function git-after-mep(){
@@ -288,5 +347,12 @@ function gpush-on-preprod(){
     # Push preprod branch
     gp preprod
 }
+# Manage merge conflicts
+function git-conflicts(){
+    # Retrieve current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    
+}
+
 # Infos
 alias ginfo="git config --list"

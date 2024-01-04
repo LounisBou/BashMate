@@ -38,7 +38,7 @@ create_symlink() {
     if [ ! -e "$link_name" ]; then
         # Create symlink
         ln -s "$target" "$link_name" || {
-            echo "Failed to create symlink: $link_name"
+            echo "Failed to create symlink: $link_name from $target"
             return 1
         }
         echo "Created symlink: $link_name"
