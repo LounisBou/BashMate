@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 ; All relative paths in this configuration file are relative to PHP's install
-; prefix (/opt/homebrew/Cellar/php@7.2/7.2.34_10). This prefix can be dynamically changed by using the
+; prefix (/opt/homebrew/Cellar/php@7.2/7.2.34_11). This prefix can be dynamically changed by using the
 ; '-p' argument from the command line.
 
 ;;;;;;;;;;;;;;;;;;
@@ -121,5 +121,5 @@ daemonize = no
 ; file.
 ; Relative path can also be used. They will be prefixed by:
 ;  - the global prefix if it's been set (-p argument)
-;  - /opt/homebrew/Cellar/php@7.2/7.2.34_10 otherwise
+;  - /opt/homebrew/Cellar/php@7.2/7.2.34_11 otherwise
 include=/opt/homebrew/etc/php/7.2/php-fpm.d/*.conf

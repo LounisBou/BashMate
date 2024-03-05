@@ -84,6 +84,9 @@ function untargz(){
 	tar -zxvf $1
 }
 
-# IP address 
+# Local IP address
+alias ip="ipconfig getifaddr en0"
+# External IP V4 address 
 alias IP="curl -4 icanhazip.com"
+# External IP V6 address 
 alias IP6="curl -6 icanhazip.com"

@@ -39,6 +39,6 @@ for file in ${currentDir}/functions/*; do source $file; done
 function createAlias(){ 
   # Create alias for current session.
   alias "$*";
-  # Create definitive alias.
+  # Create definitive alias in dynamic.sh file add line return.
   echo alias $* >> ${currentDir}/aliases_private/dynamic.sh
 }
