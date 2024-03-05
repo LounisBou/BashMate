@@ -40,3 +40,6 @@ alias brewd="brew doctor"
 # Brew dump
 alias brew-dump="brew bundle dump --force --file=~/BashMate/BrewMate/.Brewfile"
 alias brew-install="brew bundle install ~/BashMate/BrewMate/.Brewfile"
+
+# PHPEnv link to brew PHP versions 
+alias php-env-link="~/BashMate/BrewMate/includes/phpenv-link.sh"
