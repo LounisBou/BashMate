@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Implementation of PHPCSStandards/PHP_CodeSniffer
+# https://github.com/PHPCSStandards/PHP_CodeSniffer
 echo "--- Code Sniffer ---"
 
 # Define file extensions separate by space. If empty, apply to all files.

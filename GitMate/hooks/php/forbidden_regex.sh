@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Check for forbidden regex patterns in the files being committed
+# Use forbidden_regex.txt to define the patterns
 echo "--- Forbidden Regex ---"
 
 # Define file extensions separate by space. If empty, apply to all files.
