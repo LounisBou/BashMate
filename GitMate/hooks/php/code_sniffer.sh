@@ -8,6 +8,9 @@ file_extensions="php"
 # Counter to track how many errors were found
 errors_found=0
 
+# Define PSR12 standard to be used by CodeSniffer
+standard="PSR12"
+
 # Check if CodeSniffer is installed
 if ! command -v phpcs &> /dev/null
 then
@@ -36,7 +39,7 @@ fi
 for file in $files_to_check
 do
     # Run CodeSniffer on the file
-    errors=$(phpcs --standard=PSR2 "$file")
+    errors=$(phpcs --standard=$standard -s "$file")
     if [ ! -z "$errors" ]; then
         # Increment the counter to indicate an error was found
         errors_found=$((errors_found+1))
@@ -55,7 +58,7 @@ if [ "$errors_found" -gt 0 ]; then
     # Check the answer
     if [ "$answer" == "y" ]; then
         # Fix the errors automatically
-        phpcbf --standard=PSR2 $files_to_check
+        phpcbf --standard=$standard $files_to_check
         echo "CodeSniffer errors were fixed."
     else
         # Ask the user to fix the errors manually
