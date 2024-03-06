@@ -1,14 +1,21 @@
 #!/bin/bash
 
+echo "--- Forbidden Regex ---"
+
 # Define file extensions separate by space. If empty, apply to all files.
 file_extensions="php"
 
 # Flag to track if any error was found
 error_found=0
 
+# Get the list of files that are being committed (available in the pre-commit hook via the files variable)
+# files=$(git diff --cached --name-only --diff-filter=ACM "$against")
+
 # Filter the files list based on the file extensions
 if [ -n "$file_extensions" ]; then
-    files=$(echo "$files" | grep -E ".*\.($file_extensions)$")
+    files_to_check=$(echo "$files" | grep -E ".*\.($file_extensions)$")
+else
+    files_to_check=$files
 fi
 
 # Initialize the array
@@ -17,10 +24,10 @@ regex=()
 # Read regex patterns from an external file into an array
 while IFS= read -r line; do
     regex+=("$line")
-done < "$SCRIPT_DIR/php/forbidden-regex.txt"
+done < "$SCRIPT_DIR/php/forbidden_regex.txt"
 
-# Iterate through the files
-for file in $files
+# Iterate through the files_to_check
+for file in $files_to_check
 do
     # Iterate through the regex patterns and check if the file contains any of the patterns
     for pattern in "${regex[@]}"
@@ -43,6 +50,3 @@ if [ "$error_found" -eq 1 ]; then
     echo "Forbidden patterns were found in one or more files."
     exit 1
 fi
-
-# If the script reaches here, it means the commit is allowed
-exit 0
