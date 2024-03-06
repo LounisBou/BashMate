@@ -1,0 +1,8 @@
+dump\(
+dd\(
+ddd\(
+var_dump\(
+print_r\(
+exit\(
+die\(
+compact\(

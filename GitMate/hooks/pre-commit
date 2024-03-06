@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Get the directory of the pre-commit script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Set the point of comparison against which the changes in the working directory will be evaluated 
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+    # The current commit is not the initial commit
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi
+
+# Get the list of files that are being committed
+files=$(git diff --cached --name-only --diff-filter=ACM "$against")
+
+# List of pre-commit hooks to run
+source "$SCRIPT_DIR/php/forbidden-regex.sh"
