@@ -40,7 +40,7 @@ done
 # After all commit messages have been checked, decide what to do if any error was found
 if [ "$errors_found" -gt 0 ]; then
     # Message to the user
-    echo "One or more commit messages contain forbidden patterns."
+    echo "$errors_found commit message(s) contain forbidden message(s)."
     # Ask if he wants to bypass the commit message policy
     read -p "Do you want to proceed and push the changes? (y/n) " answer < /dev/tty
     # Check the answer
