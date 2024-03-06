@@ -1,0 +1,72 @@
+#!/bin/sh
+
+# Called by "git push" after it has checked the remote status, but before anything 
+# has been pushed.  If this script exits with a non-zero status nothing will be pushed.
+#
+# This hook is called with the following parameters:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+# If pushing without using a named remote those arguments will be equal.
+#
+# Information about the commits which are being pushed is supplied as lines to
+# the standard input in the form:
+#
+#   <local ref> <local oid> <remote ref> <remote oid>
+#
+
+# Get the directory of the pre-commit script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Get remote branch name
+remote="$1"
+# Get remote URL
+url="$2"
+
+# Calculate a hash of an empty object, then replace all digits and letters with '0'
+# The purpose of generating this "zero" object ID is to provide a placeholder or reference value 
+# that represents a non-existent Git object. In the context of the script, this "zero" ID is used 
+# to check whether a local or remote object ID is equivalent to an empty object. 
+# This could happen in scenarios like deleting a branch (where the local object ID becomes "empty") 
+# or when a new branch is created (where the remote object ID is "empty" from the perspective of the push operation).
+zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+
+# Read commit info from stdin
+while read local_ref local_oid remote_ref remote_oid
+do
+    # Check if the local object ID is all zeros (indicating a deletion)
+	if test "$local_oid" = "$zero"
+	then
+		# Skip deletions
+		:
+	else
+        # Determine the range of commits to examine
+		if test "$remote_oid" = "$zero"
+		then
+			# If remote object ID is all zeros, it's a new branch (examine all commits)
+			range="$local_oid"
+		else
+			# Otherwise, it's an existing branch (examine only new commits)
+			range="$remote_oid..$local_oid"
+		fi
+
+        # Get all commit messages in the range of commits to examine
+        commit_messages=$(git log --format=%s "$range")
+
+        ################################################################################
+        ################################################################################
+        ################################################################################
+
+        # List of pre-push hooks to run
+        source "$SCRIPT_DIR/git/forbidden_commit.sh"
+
+        ################################################################################
+        ################################################################################
+        ################################################################################
+
+	fi
+done
+
+# If no error was found, the push is allowed
+exit 0

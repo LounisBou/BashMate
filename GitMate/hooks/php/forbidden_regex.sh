@@ -24,6 +24,7 @@ fi
 regex=()
 
 # Read regex patterns from an external file into an array
+# SCRIPT_DIR is defined in the pre-commit hook
 while IFS= read -r line; do
     regex+=("$line")
 done < "$SCRIPT_DIR/php/forbidden_regex.txt"

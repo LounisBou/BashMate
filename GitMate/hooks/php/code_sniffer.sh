@@ -63,12 +63,19 @@ if [ "$errors_found" -gt 0 ]; then
         phpcbf --standard=$standard $files_to_check
         echo "CodeSniffer errors were fixed."
     else
-        # Ask the user to fix the errors manually
-        echo "Please fix the errors manually and try again."
-        # Or run commit again, with the --no-verify option to skip the pre-commit hook
-        echo "You can also run the commit again, with the --no-verify option to skip the pre-commit hook."
-        echo "git commit --no-verify"
-        # Exit with an error
-        exit 1
+        # Ask the user if he want to ignore the errors
+        read -p "Do you want to ignore the errors and commit anyway? (y/n) " answer < /dev/tty
+        # Check the answer
+        if [ "$answer" != "y" ]; then
+            # Ask the user to fix the errors manually
+            echo "Please fix the errors manually and try again."
+            # Or run commit again, with the --no-verify option to skip the pre-commit hook
+            echo "You can also run the commit again, with the --no-verify option to skip the pre-commit hook."
+            echo "git commit --no-verify"
+            # Exit with an error
+            exit 1
+        else
+            echo "CodeSniffer errors were ignored."
+        fi
     fi
 fi
