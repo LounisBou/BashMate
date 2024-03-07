@@ -354,5 +354,20 @@ function git-conflicts(){
     
 }
 
+# Git rollback 1 commit
+function git-rollback(){
+    # Check if $1 is not empty
+    if [ -z "$1" ]
+    then
+        # Set default number of commits
+        nb_commits=1
+    else
+        # Set number of commits
+        nb_commits=$1
+    fi
+    # Rollback last commit
+    git reset --hard HEAD~$nb_commits
+}
+
 # Infos
 alias ginfo="git config --list"
