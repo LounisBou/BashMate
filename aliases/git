@@ -247,7 +247,7 @@ function gtag(){
     if [ -z "$1" ]
     then
         # Set default branch name
-        branch_name="master"
+        branch_name="$(gdefault-branch)"
     else
         # Set branch name
         branch_name=$1
@@ -262,16 +262,16 @@ function gpt(){
     # Push all local tags
     git push origin --tags
     # Message user to call git after mep
-    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update $(gdefault-branch)/develop/preprod branch ${NC}"
 }
-# Update master/develop/preprod branch
+# Update (master|main)/develop/preprod branch
 function git-update(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Fetch all branches
     git fetch --all
     # List of branches to update
-    branches=("develop" "master" "preprod")
+    branches=("develop" "$(gdefault-branch)" "preprod")
     # Loop on branches
     for branch in "${branches[@]}"
     do
@@ -326,9 +326,9 @@ function git-after-mep(){
     git checkout develop
     # Push develop branch
     git push
-    # Checkout master branch
-    git checkout master
-    # Push master branch
+    # Checkout (master|main) branch
+    git checkout $(gdefault-branch)
+    # Push (master|main) branch
     git push
     # Checkout current branch
     git checkout $current_branch
@@ -356,7 +356,7 @@ function gpush-on-preprod(){
     gp $current_branch
     # Merge current branch in preprod
     gmergin preprod
-    # Update master/develop/preprod branch
+    # Update (master|main)/develop/preprod branch
     git-update
     # Push preprod branch
     gp preprod
