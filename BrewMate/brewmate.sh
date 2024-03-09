@@ -115,7 +115,7 @@ if [[ $install == true ]]; then
     # Check if user wants to install brew packages from Brewfile.
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         # Install brew packages from Brewfile.
-        brew bundle install ${currentDir}/.Brewfile
+        brew bundle install --file="${currentDir}/.Brewfile"
     fi
 
     # Ask user if he wants to upgrade brew packages.
