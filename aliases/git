@@ -97,7 +97,7 @@ function grf(){
         # Push tags
         git push origin --tags
         # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update (master|main)/develop/preprod branch ${NC}"
         # Ask user if he wants to call git after mep
         read REPLY"?Do you want to call method 'git-after-mep' ? (y/n) "
         echo
@@ -163,7 +163,7 @@ function gbf(){
         # Push tags
         git push origin --tags
         # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update (master|main)/develop/preprod branch ${NC}"
     else
         # Message error current branch is not a bugfix branch
         echo -e "${RED}Error: Current branch is not a bugfix branch${NC}"
