@@ -11,6 +11,11 @@ NC='\033[0m' # No Color
 
 # Get git repository default branch
 function gdefault-branch(){
+    # Check if .git exists
+    if [ ! -d .git ]; then
+        # Do nothing
+        return
+    fi
     # Check if master branch exists
     if git show-ref --verify --quiet refs/heads/master; then
         # Set default branch to master
@@ -240,7 +245,7 @@ function gmergin(){
     # Go back to current branch
     git checkout $current_branch
 }
-gmt="git mergetool"
+alias gmt="git mergetool"
 # Get laster tag for branch
 function gtag(){
     # Check if $1 is not empty
