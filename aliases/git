@@ -9,6 +9,20 @@ ORANGE='\033[0;33m'
 BLUE='\033[1;34m' # Light Blue
 NC='\033[0m' # No Color
 
+# Get git repository default branch
+function gdefault-branch(){
+    # Check if master branch exists
+    if git show-ref --verify --quiet refs/heads/master; then
+        # Set default branch to master
+        default_branch="master"
+    else
+        # Set default branch to main
+        default_branch="main"
+    fi
+    # Return default branch
+    echo $default_branch
+}
+
 # Git create repo
 function gcreate(){
     git init -b main
@@ -178,7 +192,7 @@ function gcb(){
     git checkout bugfix/$*
 }
 alias gcd="git checkout develop"
-alias gcm="git checkout master"
+alias gcm="git checkout $(gdefault-branch)"
 alias gct="git checkout tests"
 alias gcp="git checkout prod"
 alias gcpp="git checkout preprod"
