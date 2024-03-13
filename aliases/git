@@ -9,6 +9,25 @@ ORANGE='\033[0;33m'
 BLUE='\033[1;34m' # Light Blue
 NC='\033[0m' # No Color
 
+# Get git repository default branch
+function gdefault-branch(){
+    # Check if .git exists
+    if [ ! -d .git ]; then
+        # Do nothing
+        return
+    fi
+    # Check if master branch exists
+    if git show-ref --verify --quiet refs/heads/master; then
+        # Set default branch to master
+        default_branch="master"
+    else
+        # Set default branch to main
+        default_branch="main"
+    fi
+    # Return default branch
+    echo $default_branch
+}
+
 # Git create repo
 function gcreate(){
     git init -b main
@@ -83,7 +102,7 @@ function grf(){
         # Push tags
         git push origin --tags
         # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update (master|main)/develop/preprod branch ${NC}"
         # Ask user if he wants to call git after mep
         read REPLY"?Do you want to call method 'git-after-mep' ? (y/n) "
         echo
@@ -149,7 +168,7 @@ function gbf(){
         # Push tags
         git push origin --tags
         # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update (master|main)/develop/preprod branch ${NC}"
     else
         # Message error current branch is not a bugfix branch
         echo -e "${RED}Error: Current branch is not a bugfix branch${NC}"
@@ -178,7 +197,7 @@ function gcb(){
     git checkout bugfix/$*
 }
 alias gcd="git checkout develop"
-alias gcm="git checkout master"
+alias gcm="git checkout $(gdefault-branch)"
 alias gct="git checkout tests"
 alias gcp="git checkout prod"
 alias gcpp="git checkout preprod"
@@ -226,14 +245,14 @@ function gmergin(){
     # Go back to current branch
     git checkout $current_branch
 }
-gmt="git mergetool"
+alias gmt="git mergetool"
 # Get laster tag for branch
 function gtag(){
     # Check if $1 is not empty
     if [ -z "$1" ]
     then
         # Set default branch name
-        branch_name="master"
+        branch_name="$(gdefault-branch)"
     else
         # Set branch name
         branch_name=$1
@@ -248,16 +267,16 @@ function gpt(){
     # Push all local tags
     git push origin --tags
     # Message user to call git after mep
-    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
+    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update $(gdefault-branch)/develop/preprod branch ${NC}"
 }
-# Update master/develop/preprod branch
+# Update (master|main)/develop/preprod branch
 function git-update(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Fetch all branches
     git fetch --all
     # List of branches to update
-    branches=("develop" "master" "preprod")
+    branches=("develop" "$(gdefault-branch)" "preprod")
     # Loop on branches
     for branch in "${branches[@]}"
     do
@@ -312,9 +331,9 @@ function git-after-mep(){
     git checkout develop
     # Push develop branch
     git push
-    # Checkout master branch
-    git checkout master
-    # Push master branch
+    # Checkout (master|main) branch
+    git checkout $(gdefault-branch)
+    # Push (master|main) branch
     git push
     # Checkout current branch
     git checkout $current_branch
@@ -342,7 +361,7 @@ function gpush-on-preprod(){
     gp $current_branch
     # Merge current branch in preprod
     gmergin preprod
-    # Update master/develop/preprod branch
+    # Update (master|main)/develop/preprod branch
     git-update
     # Push preprod branch
     gp preprod
