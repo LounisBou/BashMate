@@ -354,7 +354,7 @@ function git-conflicts(){
     
 }
 
-# Git rollback 1 commit
+# Git rollback $1 commit
 function git-rollback(){
     # Check if $1 is not empty
     if [ -z "$1" ]
@@ -365,9 +365,68 @@ function git-rollback(){
         # Set number of commits
         nb_commits=$1
     fi
-    # Rollback last commit
-    git reset --hard HEAD~$nb_commits
+    # Log the last $nb_commits commit(s)
+    git --no-pager log --oneline --max-count=$nb_commits
+    # Ask user if he is sure to rollback last commit
+    read REPLY"?Do you want to rollback last $nb_commits commit(s) ? (y/n) "
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        # Rollback last commit
+        git reset --hard HEAD~$nb_commits
+    else
+        echo "Rollback aborted"
+    fi
 }
+
+# Git rollback $1 commit
+function git-log(){
+    # Check if $1 is not empty
+    if [ -z "$1" ]
+    then
+        # Set default number of commits
+        nb_commits=1
+    else
+        # Set number of commits
+        nb_commits=$1
+    fi
+    # Log the last $nb_commits commit(s)
+    git --no-pager log --oneline --max-count=$nb_commits
+}
+
+function git-move-head(){
+    # Get a list of commits using git log --oneline
+    commit_list=$(git log --oneline)
+
+    # If no commits are found, exit the script
+    if [ -z "$commit_list" ]; then
+        echo "No commits found."
+        exit 1
+    fi
+    
+    # Initialize an empty array
+    commits=()
+
+    # Read commit list line by line into an array
+    while IFS= read -r line; do
+        commits+=("$line")
+    done <<< "$commit_list"
+
+    # Use select to create a menu for checking out a commit
+    PS3="Please select a commit to checkout (or 'q' to quit): "
+    select commit_option in "${commits[@]}" "Quit"; do
+        if [[ "$REPLY" = "q" ]] || [[ "$REPLY" = "Quit" ]]; then
+            echo "Exiting..."
+            break
+        elif [[ -n "$commit_option" ]] && [[ "$REPLY" -le ${#commits[@]} ]]; then
+            commit_hash=$(echo "$commit_option" | awk '{print $1}')
+            echo "Checking out commit $commit_hash..."
+            git checkout "$commit_hash"
+            break
+        else
+            echo "Invalid option. Please try again."
+        fi
+    done
+}   
 
 # Infos
 alias ginfo="git config --list"
