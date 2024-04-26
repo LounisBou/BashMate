@@ -1,0 +1,31 @@
+# Aliases for Yarn package manager
+# Created by LounisBou
+
+# GLOBAL VARIABLES
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+ORANGE='\033[0;33m'
+BLUE='\033[1;34m' # Light Blue
+NC='\033[0m' # No Color
+
+# Yarn commands
+y="yarn $*"
+yinstall="yarn install $*"
+yadd="yarn add $*"
+yadddev="yarn add --dev $*"
+yremove="yarn remove $*"
+yrun="yarn run $*"
+yglobal="yarn global $*"
+
+# Yarn server
+yserve="yarn serve $*"
+
+# Yarn tests
+ytest="yarn tests:run:with-coverage"
+
+ybuild="yarn build $*"
+ybuild-dev="yarn build --mode development $*"
+ybuild-prod="yarn build --mode production $*"

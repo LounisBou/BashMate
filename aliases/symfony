@@ -1,0 +1,51 @@
+# Aliases for Symfony framework
+# Created by LounisBou
+
+# GLOBAL VARIABLES
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+ORANGE='\033[0;33m'
+BLUE='\033[1;34m' # Light Blue
+NC='\033[0m' # No Color
+
+# Symfony commands
+alias sf="php bin/console $*"
+
+# Clear cache
+alias sf-cache-clear="php bin/console cache:clear"
+alias sf-cache-warmup="php bin/console cache:warmup"
+alias sf-cache-pool-clear="php bin/console cache:pool:clear"
+
+# Doctrine migrations
+alias sf-migration-diff="php bin/console doctrine:migrations:diff"
+alias sf-migration-migrate="php bin/console doctrine:migrations:migrate"
+alias sf-migration-status="php bin/console doctrine:migrations:status"
+alias sf-migration-version="php bin/console doctrine:migrations:version"
+function sf-migrate(){
+    # Check migration status
+    php bin/console doctrine:migrations:status
+    # Ask for confirmation
+    read REPLY"?Do you want to continue ? (y/n) "
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        # Create migration files
+        php bin/console doctrine:migrations:diff
+        # Execute migration on database
+        php bin/console doctrine:migrations:migrate
+        # Message migration done
+        echo -e "${GREEN}Migration done${NC}"
+    else
+        echo -e "${RED}Migration cancelled${NC}"
+    fi
+    # Show migration status
+    php bin/console doctrine:migrations:status
+}
+function sf-migration-exec() {
+    php bin/console doctrine:migrations:execute $1 --up
+}
+function sf-migration-exec-down() {
+    php bin/console doctrine:migrations:execute $1 --down
+}

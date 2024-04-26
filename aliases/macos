@@ -84,7 +84,7 @@ if [[ $(uname) == "Darwin" ]]; then
         # Retrieve filename
         filename=$(basename "$filepath")
         # Retrieve vhost name and add it to vhosts list
-        vhosts+=$(echo "$filename" | sed 's/\.test\.conf//')
+        vhosts+=$(echo "$filename" | sed 's/\.conf//')
       done
       select selected_vhost in "${vhosts[@]}"; do
         if [ -n "$selected_vhost" ]; then
@@ -99,16 +99,16 @@ if [[ $(uname) == "Darwin" ]]; then
     fi
 
     # Vhost file path
-    vhostFilepath="/opt/homebrew/etc/httpd/extra/sites-enabled/$vhost.test.conf"
+    vhostFilepath="/opt/homebrew/etc/httpd/extra/sites-enabled/$vhost.conf"
     # Check if vhost file exists
     if [ ! -f "$vhostFilepath" ]; then
-      echo "Vhost file not found."
+      echo "Vhost file not found : $vhostFilepath"
       return
     fi
     
     # Read vhosh file content
-    content=$(cat "/opt/homebrew/etc/httpd/extra/sites-enabled/$vhost.test.conf")
-    # Retrieve domain file contains : define SITE "api.kap-laravel.test"
+    content=$(cat "/opt/homebrew/etc/httpd/extra/sites-enabled/$vhost.conf")
+    # Retrieve domain file contains : define SITE "api.domain.local"
     domain=$(echo "$content" | grep "define SITE" | sed 's/define SITE "//' | sed 's/"//')
     # Echo domain
     echo "Certificat will be create for : $domain"

@@ -11,7 +11,9 @@ aliases_private/
 **/aliases_private/
 
 # Ignore VHost config files from Apache2
-BrewMate/opt/homebrew/etc/httpd/extra/sites-enabled/*.conf
-BrewMate/opt/homebrew/etc/httpd/extra/sites-disabled/*
+./BrewMate/opt/homebrew/etc/httpd/extra/sites-enabled/**/*
+./BrewMate/opt/homebrew/etc/httpd/extra/sites-disabled/**/*
+
 # Ignore SSL certificats for VHost
-BrewMate/opt/homebrew/etc/httpd/ssl/**/*
+./BrewMate/opt/homebrew/etc/httpd/ssl/**/*
+

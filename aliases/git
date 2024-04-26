@@ -1,5 +1,7 @@
-# Aliases for GIT.
+# Aliases for GIT
 # Created by LounisBou
+
+# GLOBAL VARIABLES
 
 # Colors
 RED='\033[0;31m'
@@ -8,6 +10,23 @@ YELLOW='\033[0;33m'
 ORANGE='\033[0;33m'
 BLUE='\033[1;34m' # Light Blue
 NC='\033[0m' # No Color
+
+# List of workflow branches other than default branch (master|main)
+work_branches=("staging")
+
+# Reference branch for git-update-branch
+ref_branch="main"
+
+# Prefix
+feature_prefix="feat-"
+release_prefix="release/"
+hotfix_prefix="hotfix/"
+bugfix_prefix="bugfix/"
+task_prefix="task/"
+build_prefix="build-"
+
+# Separator
+feature_prefix_separator="-"
 
 # Get git repository default branch
 function gdefault-branch(){
@@ -78,129 +97,120 @@ function gllc(){
     git --no-pager log -$nb_commits
 }
 alias gdf="git diff"
-# Git flow
-alias gfi="git flow init"
-alias gfs="git flow feature start $*"
-alias gff="git flow feature finish $*"
-function grs(){
-    # Call git update
-    git-update
-    # Create release branch
-    git flow release start $*
-}
-function grf(){
-    # Get current branch name
-    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Check if current branch is a release branch
-    if [[ $current_branch == release/* ]]
+# Git feature start
+function gfs(){
+    # Check if $1 is not empty
+    if [ -z "$1" ]
     then
-        # Get release version
-        release_version=$(echo $current_branch | cut -d '/' -f2)
-        echo -e "${YELLOW}Finish release version: $release_version ${NC}"
-        # Finish release
-        git flow release finish $release_version
-        # Push tags
-        git push origin --tags
-        # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update (master|main)/develop/preprod branch ${NC}"
-        # Ask user if he wants to call git after mep
-        read REPLY"?Do you want to call method 'git-after-mep' ? (y/n) "
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            # Call git after mep
-            git-after-mep
+        # Display error message
+        echo -e "${RED}Error: You must provide a feature name${NC}"
+    else
+        # Check if feature alternative prefix has been provided
+        if [ ! -z "$2" ]
+        then
+            # Override feature prefix
+            feature_prefix=$2${feature_prefix_separator}
         fi
-    else
-        # Message error current branch is not a release branch
-        echo -e "${RED}Error: Current branch is not a release branch ${NC}"
+        # Feature branch name
+        feature_branch=${feature_prefix}$1
+        # Checkout main branch
+        git checkout $(gdefault-branch)
+        # Pull main branch
+        git pull
+        # Create feature branch from main branch
+        git checkout -b $feature_branch
     fi
 }
-function ghs(){
-    # Call git update
-    git-update
-    # Create hotfix branch
-    git flow hotfix start $*
-}
-function ghf(){
+# Git feature finish
+function gff(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Check if current branch is a hotfix branch
-    if [[ $current_branch == hotfix/* ]]
-    then
-        # Get hotfix version
-        hotfix_version=$(echo $current_branch | cut -d '/' -f2)
-        echo "Finish hotfix version: $hotfix_version"
-        # Finish hotfix
-        git flow hotfix finish $hotfix_version
-        # Push tags
-        git push origin --tags
-        # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update master/develop/preprod branch ${NC}"
-        # Ask user if he wants to call git after mep
-        read REPLY"?Do you want to call method 'git-after-mep' ? (y/n) "
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            # Call git after mep
-            git-after-mep
-        fi
-    else
-        # Message error current branch is not a hotfix branch
-        echo -e "${RED}Error: Current branch is not a hotfix branch${NC}"
+    # Workflow branches
+    branches=($(gdefault-branch) ${work_branches[@]})
+    # Check if current branch is in workflow branches
+    if [[ " ${branches[@]} " =~ " ${current_branch} " ]]; then
+        # Display error message
+        echo -e "${RED}Error: You can't finish a workflow branch${NC}"
+        return
     fi
+    # Finish feature branch
+    git checkout $(gdefault-branch)
+    git pull
+    git merge $current_branch
+    git checkout $current_branch
+    git push 
 }
-function gbs(){
-    # Call git update
-    git-update
-    # Create bugfix branch
-    git flow bugfix start $*
-}
-function gbf(){
-    # Get current branch name
-    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Check if current branch is a bugfix branch
-    if [[ $current_branch == bugfix/* ]]
-    then
-        # Get bugfix version
-        bugfix_version=$(echo $current_branch | cut -d '/' -f2)
-        echo "Finish bugfix version: $bugfix_version"
-        # Finish bugfix
-        git flow bugfix finish $bugfix_version
-        # Push tags
-        git push origin --tags
-        # Message user to call git after mep
-        echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update (master|main)/develop/preprod branch ${NC}"
-    else
-        # Message error current branch is not a bugfix branch
-        echo -e "${RED}Error: Current branch is not a bugfix branch${NC}"
-    fi
-}
+
 # Checkout
 alias gco="git checkout $*"
-function gcft(){
-    # Checkout feature branch
-    git checkout feature/task/$*
-}
-function gcf(){
-    # Checkout feature branch
-    git checkout feature/$*
-}
-function gcr(){
-    # Checkout release branch
-    git checkout release/$*
-}
-function gch(){
-    # Checkout hotfix branch
-    git checkout hotfix/$*
-}
-function gcb(){
-    # Checkout bugfix branch
-    git checkout bugfix/$*
+function gcm(){
+    # Checkout main branch
+    git checkout $(gdefault-branch)
 }
 alias gcd="git checkout develop"
-alias gcm="git checkout $(gdefault-branch)"
 alias gct="git checkout tests"
 alias gcp="git checkout prod"
 alias gcpp="git checkout preprod"
+alias gcs="git checkout staging"
+function gcft(){
+    # Checkout feature branch
+    git checkout ${feature_prefix}${task_prefix}$*
+}
+function gcf(){
+    # Check if feature name is provided
+    if [ -z "$1" ]
+    then
+        # Display error message
+        echo -e "${RED}Error: You must provide a feature name${NC}"
+    else
+        # Check if feature alternative prefix has been provided
+        if [ ! -z "$2" ]
+        then
+            # Override feature prefix
+            feature_prefix=$2${feature_prefix_separator}
+        fi
+        # Checkout feature branch
+        git checkout ${feature_prefix}$*
+    fi
+}
+function gcr(){
+    # Checkout release branch
+    git checkout ${release_prefix}$*
+}
+function gch(){
+    # Checkout hotfix branch
+    git checkout ${hotfix_prefix}$*
+}
+function gcb(){
+    # Checkout bugfix branch
+    git checkout ${bugfix_prefix}$*
+}
+# Delete branch
+function grm(){
+    # Delete branch
+    git branch -d $*
+}
+# Delete remote branch
+function grm-remote(){
+    # Delete remote branch
+    git push origin --delete $*
+}
+# Delete current branch
+function grmc(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Checkout to default branch
+    git checkout $(gdefault-branch)
+    # Delete current branch
+    git branch -d $current_branch
+}
+# Delete remote current branch
+function grmc-remote(){
+    # Get current branch name
+    current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Delete remote current branch
+    git push origin --delete $current_branch
+}
 # Stash
 alias gst="git stash"
 alias gstl="git stash list"
@@ -211,25 +221,25 @@ function gmf(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Checkout on feature branch
-    git checkout feature/$*
+    git checkout ${feature_prefix}$*
     # Update feature branch
     git pull
     # Checkout on current branch
-    git checkout $current_branch
+    git checkout $(current_branch)
     # Merge feature branch
-    git merge feature/$* -m "Merge feature/$* in $current_branch"
+    git merge ${feature_prefix}$* -m "Merge ${feature_prefix}$* in ${current_branch}"
 }
 function gmft(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Checkout on feature/task branch
-    git checkout feature/task/$*
-    # Update feature/task branch
+    # Checkout on feature task branch
+    git checkout ${feature_prefix}${task_prefix}$*
+    # Update feature task branch
     git pull
     # Checkout on current branch
-    git checkout $current_branch
+    git checkout $(current_branch)
     # Merge feature task branch
-    git merge feature/task/$* -m "Merge feature/task/$* in $current_branch"
+    git merge ${feature_prefix}${task_prefix}$* -m "Merge ${feature_prefix}${task_prefix}$* in ${current_branch}"
 }
 function gmergin(){
     # Retrieve current branch name
@@ -237,13 +247,13 @@ function gmergin(){
     # Go to $1 branch
     git checkout $1
     # Merge current branch in $1 branch
-    git merge $current_branch -m "Merge $current_branch in $1"
+    git merge $(current_branch) -m "Merge ${current_branch} in $1"
     # git add all
     git add .
     # git commit
-    git commit -m "Merge $current_branch in $1"
+    git commit -m "Merge ${current_branch} in $1"
     # Go back to current branch
-    git checkout $current_branch
+    git checkout $(current_branch)
 }
 alias gmt="git mergetool"
 # Get laster tag for branch
@@ -260,23 +270,23 @@ function gtag(){
     # Get last tag for current branch
     last_tag=$(git describe --tags `git rev-list --tags --max-count=1 $branch_name`)
     # Display last tag
-    echo -e "${GREEN}Last tag for $branch_name branch is : $last_tag ${NC}"
+    echo -e "${GREEN}Last tag for ${branch_name} branch is : ${last_tag} ${NC}"
 }
 # Push tag 
 function gpt(){
     # Push all local tags
     git push origin --tags
     # Message user to call git after mep
-    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update $(gdefault-branch)/develop/preprod branch ${NC}"
+    echo -e "${ORANGE}WARNING : You should call method 'git-after-mep' to update $(gdefault-branch) ${work_branch} branches ${NC}"
 }
-# Update (master|main)/develop/preprod branch
+# Update $(gdefault-branch) ${work_branch} branch
 function git-update(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Fetch all branches
     git fetch --all
     # List of branches to update
-    branches=("develop" "$(gdefault-branch)" "preprod")
+    branches=($(gdefault-branch) ${work_branches[@]})
     # Loop on branches
     for branch in "${branches[@]}"
     do
@@ -284,30 +294,28 @@ function git-update(){
         git checkout $branch
         # Pull branch
         git pull
-        # Apply migration
-        php artisan migrate
     done
     # Checkout current branch
     git checkout $current_branch
     # Pull current branch
     git pull
-    # Apply migration
-    php artisan migrate
 }
-# Update current branch by merging develop branch on it
+# Update current branch by merging ref branch on it
 function git-update-branch(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Checkout develop branch
-    git checkout develop
-    # Pull develop branch
+    # Branch to update
+    branches=($(gdefault-branch) ${work_branches[@]})
+    # Checkout ref branch
+    git checkout $ref_branch
+    # Pull branch
     git pull
     # Checkout current branch
     git checkout $current_branch
     # Pull current branch
     git pull
-    # Merge develop branch on current branch
-    git merge develop
+    # Merge ref branch in current branch
+    git merge $ref_branch
     # Check if there is a conflict
     git diff --check
     # Ask user if he wants to continue
@@ -315,64 +323,76 @@ function git-update-branch(){
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         # Commit merge
-        git commit -m "Merge develop in $current_branch"
+        git commit -m "Merge $ref_branch in $current_branch"
         # Push current branch
         git push
     fi
-    # Apply migration
-    php artisan migrate
-    
 }
 # After MEP
 function git-after-mep(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Checkout develop branch
-    git checkout develop
-    # Push develop branch
-    git push
-    # Checkout (master|main) branch
-    git checkout $(gdefault-branch)
-    # Push (master|main) branch
-    git push
+    # List of branches to update
+    branches=($(gdefault-branch) ${work_branches[@]})
+    # Loop on branches
+    for branch in "${branches[@]}"
+    do
+        # Checkout branch
+        git checkout $branch
+        # Merge current branch in branch
+        git merge $current_branch -m "Merge $current_branch in $branch"
+        # Push branch
+        git push
+    done
     # Checkout current branch
     git checkout $current_branch
     # Push current branch
     git push
 }
-# Push current branch on preprod
-function gpush-on-preprod(){
+# Push current branch on a specific branch
+function gpushon(){
+    # Retrieve branch to push on
+    branch_to_push_on=$1
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Add all files to commit
     ga .
     # Check if there is a commit message
-    if [ -z "$1" ]
+    if [ -z "$2" ]
     then
         # Set default commit message
-        commit_message="Push $current_branch on preprod"
+        commit_message="Push $current_branch on $branch_to_push_on"
     else
         # Set commit message
-        commit_message=$1
+        commit_message=$2
     fi
     # Commit with message
     gc $commit_message
     # Push current branch
     gp $current_branch
-    # Merge current branch in preprod
-    gmergin preprod
-    # Update (master|main)/develop/preprod branch
+    # Merge current branch in branch to push on
+    gmergin $branch_to_push_on
+    # Update $(gdefault-branch) ${work_branch[@]} branches
     git-update
-    # Push preprod branch
-    gp preprod
+    # Push on branch to push on
+    gp $branch_to_push_on
 }
 # Manage merge conflicts
 function git-conflicts(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    
+    # Check if there is a conflict
+    git diff --check
+    # Ask user if he wants to continue
+    read REPLY"?Do you want to continue ? (y/n) "
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        # Commit merge
+        git commit -m "Merge $ref_branch in $current_branch"
+        # Push current branch
+        git push
+    fi
 }
-
 # Git rollback $1 commit
 function git-rollback(){
     # Check if $1 is not empty
@@ -396,7 +416,6 @@ function git-rollback(){
         echo "Rollback aborted"
     fi
 }
-
 # Git rollback $1 commit
 function git-log(){
     # Check if $1 is not empty
@@ -411,7 +430,7 @@ function git-log(){
     # Log the last $nb_commits commit(s)
     git --no-pager log --oneline --max-count=$nb_commits
 }
-
+# Git checkout to commit
 function git-move-head(){
     # Get a list of commits using git log --oneline
     commit_list=$(git log --oneline)
@@ -446,6 +465,5 @@ function git-move-head(){
         fi
     done
 }   
-
 # Infos
 alias ginfo="git config --list"
