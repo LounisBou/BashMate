@@ -1,0 +1,180 @@
+# Aliases for .env files management
+# Created by LounisBou
+
+# GLOBAL VARIABLES
+
+# .env files name
+env_file=".env"
+
+# .env files suffixe
+env_example_suffix=".example"
+env_prod_suffix=".prod"
+env_dev_suffix=".dev"
+env_test_suffix=".test"
+env_local_suffix=".local"
+
+# COMMANDS
+
+# Get environment file name from parameters
+function env-file-name(){
+    # Default .env file name
+    env_file_name="$env_file"
+    # For each argument set
+    for arg in "$@"; do
+        # check if the file with the suffix exists
+        case "$arg" in
+            "example")
+                env_file_name="$env_file_name$env_example_suffix"
+                ;;
+            "prod")
+                env_file_name="$env_file_name$env_prod_suffix"
+                ;;
+            "dev")
+                env_file_name="$env_file_name$env_dev_suffix"
+                ;;
+            "test")
+                env_file_name="$env_file_name$env_test_suffix"
+                ;;
+            "local")
+                env_file_name="$env_file_name$env_local_suffix"
+                ;;
+            *)
+                echo "The suffix $arg is not valid."
+                return 1
+                ;;
+        esac
+    done
+    echo "$env_file_name"
+}
+
+# Check if the .env file exists
+function env-exists() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # check if the file exists
+    if [ -f "$env_file_name" ]; then
+        echo "The $env_file_name file exists."
+    else
+        echo "The $env_file_name file does not exist."
+    fi
+}
+
+# Create a new environment file empty
+function env-create() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    if [ -f "$env_file_name" ]; then
+        echo "The $env_file_name file already exists."
+    else
+        touch "$env_file"
+        echo "The $env_file_name file has been created."
+    fi
+}
+
+# Create a new environment file from an env.example file
+function env-create-from-example() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # Get the example file name
+    env_example_file_name="$env_file$env_example_suffix"
+    # check if the example file exists
+    if [ -f "$env_example_file_name" ]; then
+        cp "$env_example_file_name" "$env_file_name"
+        echo "The $env_file_name file has been created from the $env_example_file_name file."
+    else
+        echo "The $env_example_file_name file does not exist."
+    fi
+}
+
+# Copy the .env file to a new environment file
+function env-copy() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # check if the file exists
+    if [ -f "$env_file_name" ]; then
+        # Check if parameters contain the force option
+        if [[ "$@" == *"--force"* ]]; then
+            cp "$env_file" "$env_file_name"
+            echo "The $env_file_name file has been override."
+        else
+            echo "The $env_file_name file already exists."
+        fi
+    else
+        cp "$env_file" "$env_file_name"
+        echo "The $env_file_name file has been copied."
+    fi
+}
+
+# Check if the .env file is up to date
+function env-check() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # Get the example file name
+    env_example_file_name="$env_file$env_example_suffix"
+    # check if the example file exists
+    if [ -f "$env_example_file_name" ]; then
+        # Check if the file is up to date
+        if cmp -s "$env_file_name" "$env_example_file_name"; then
+            echo "The $env_file_name file is up to date."
+        else
+            echo "The $env_file_name file is not up to date."
+            # Show the difference
+            diff "$env_file_name" "$env_example_file_name"
+        fi
+    else
+        echo "The $env_example_file_name file does not exist."
+    fi
+}
+
+# Check if the .env.example file is up to date with the .env file
+function env-check-example() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # Get the example file name
+    env_example_file_name="$env_file$env_example_suffix"
+    # check if the example file exists
+    if [ -f "$env_example_file_name" ]; then
+        # Check if the file is up to date
+        if cmp -s "$env_file_name" "$env_example_file_name"; then
+            echo "The $env_example_file_name file is up to date."
+        else
+            echo "The $env_example_file_name file is not up to date."
+            # Show the difference
+            diff "$env_example_file_name" "$env_file_name"
+        fi
+    else
+        echo "The $env_example_file_name file does not exist."
+    fi
+}
+
+# Update the .env file from an env.example file
+function env-update() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # Get the example file name
+    env_example_file_name="$env_file$env_example_suffix"
+    # Check if env file have different content from the example file
+    if cmp -s "$env_file_name" "$env_example_file_name"; then
+        echo "The $env_file_name file is already up to date."
+    else
+        # Add the new variables from the example file in the env file
+        diff "$env_file_name" "$env_example_file_name" | grep "^>" | sed 's/^> //g' >> "$env_file_name"
+        echo "The $env_file_name file has been updated."
+    fi
+}
+
+# Update the .env.example file from the .env file
+function env-update-example() {
+    # Get environment file name from parameters
+    env_file_name=$(env-file-name "$@")
+    # Get the example file name
+    env_example_file_name="$env_file$env_example_suffix"
+    # Check if env file have different content from the example file
+    if cmp -s "$env_file_name" "$env_example_file_name"; then
+        echo "The $env_example_file_name file is already up to date."
+    else
+        # Add the new variables from the env file in the example file
+        diff "$env_example_file_name" "$env_file_name" | grep "^>" | sed 's/^> //g' >> "$env_example_file_name"
+        echo "The $env_example_file_name file has been updated."
+    fi
+}
