@@ -1,7 +1,12 @@
 # Aliases definitions.
 # Created by LounisBou
 #
-#
+
+# GLOBAL VARIABLES
+
+# COMMANDS
+
+# List all projects from Envoyer API
 function envoyer-projects(){
     # Create api url for projects
     api_url="$ENVOYER_API_URL/projects"

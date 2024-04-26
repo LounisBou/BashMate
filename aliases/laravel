@@ -1,6 +1,10 @@
 # Aliases for Laravel.
 # Created by LounisBou
 
+# GLOBAL VARIABLES
+
+# COMMANDS
+
 # PHP artisan
 alias art="php artisan"
 function artm() {

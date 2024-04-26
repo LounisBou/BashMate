@@ -1,6 +1,10 @@
 # Aliases for Brew.
 # Created by LounisBou
 
+# GLOBAL VARIABLES
+
+# COMMANDS
+
 # Brew services
 function services(){
     brew services $*

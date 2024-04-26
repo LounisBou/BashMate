@@ -12,6 +12,10 @@
 # Please do not use them.
 #
 
+# GLOBAL VARIABLES
+
+# COMMANDS
+
 # Check if system type is macos
 if [[ $(uname) == "Darwin" ]]; then
 

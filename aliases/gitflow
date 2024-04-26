@@ -6,14 +6,6 @@
 
 # GLOBAL VARIABLES
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-ORANGE='\033[0;33m'
-BLUE='\033[1;34m' # Light Blue
-NC='\033[0m' # No Color
-
 # List of workflow branches other than default branch (master|main)
 work_branches=("staging")
 
@@ -26,6 +18,8 @@ release_prefix="release/"
 hotfix_prefix="hotfix/"
 bugfix_prefix="bugfix/"
 task_prefix="task/"
+
+# COMMANDS
 
 # Git flow
 alias gfi="git flow init"

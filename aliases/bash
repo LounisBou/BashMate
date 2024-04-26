@@ -1,6 +1,10 @@
 # Aliases for bourne again shell.
 # Created by LounisBou
 
+# GLOBAL VARIABLES
+
+# COMMANDS
+
 # Restart bash 
 alias rebash="source ~/.bashrc"
 # Restart zsh
