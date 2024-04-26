@@ -9,3 +9,6 @@
 
 # Remove all .php-version files
 **/.php-version
+
+# Remove all .nvmrc files
+**/.nvmrc

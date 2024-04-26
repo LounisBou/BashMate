@@ -207,4 +207,39 @@ if [[ $(uname) == "Darwin" ]]; then
     torRestart
   }
 
+  # ----------------------------------
+  # ! iTerm2
+
+  # Open a new tab in iTerm2, with the current directory and execute a command if provided
+  function tab() {
+    # Check if command is not empty
+    if [ -n "$*" ]; then
+      # Retrieve command
+      command="$*"
+    fi
+    osascript -e "tell application \"iTerm2\"" \
+              -e "tell current window" \
+              -e "create tab with default profile" \
+              -e "tell current session" \
+              -e "write text \"cd \" & quoted form of (do shell script \"pwd\") & \"; clear; $command\"" \
+              -e "end tell" \
+              -e "end tell" \
+              -e "end tell"
+  }
+
+  # Open a new window in iTerm2, with the current directory and execute a command if provided
+  function win() {
+    # Check if command is not empty
+    if [ -n "$*" ]; then
+      # Retrieve command
+      command="$*"
+    fi
+    osascript -e "tell application \"iTerm2\"" \
+              -e "create window with default profile" \
+              -e "tell current session of current window" \
+              -e "write text \"cd \" & quoted form of (do shell script \"pwd\") & \"; clear; $command\"" \
+              -e "end tell" \
+              -e "end tell"
+  }
+
 fi

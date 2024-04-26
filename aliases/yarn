@@ -14,8 +14,10 @@ alias yremove="yarn remove $*"
 alias yrun="yarn run $*"
 alias yglobal="yarn global $*"
 
-# Yarn server
-alias yserve="yarn serve $*"
+# Yarn server in dev mode
+alias yserve="yarn dev $*"
+# Yarn server in prod mode
+alias yserve-prod="yarn prod $*"
 
 # Yarn tests
 alias ytest="yarn tests:run:with-coverage"
