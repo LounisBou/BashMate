@@ -26,6 +26,9 @@ alias sf-router-debug="php bin/console debug:router"
 alias sf-cache-clear="php bin/console cache:clear"
 alias sf-cache-warmup="php bin/console cache:warmup"
 alias sf-cache-pool-clear="php bin/console cache:pool:clear"
+# Pest PHP test
+alias sf-test="vendor/bin/pest"
+alias sf-test-coverage="vendor/bin/pest --coverage --min=100"
 # Doctrine database
 alias sf-database-create="php bin/console doctrine:database:create"
 alias sf-database-drop="php bin/console doctrine:database:drop"
