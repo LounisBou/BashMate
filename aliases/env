@@ -39,7 +39,7 @@ function env-file-name(){
                 env_file_name="$env_file_name$env_local_suffix"
                 ;;
             *)
-                echo "The suffix $arg is not valid."
+                echo "{$RED}The suffix $arg is not valid.${NC}"
                 return 1
                 ;;
         esac
@@ -53,9 +53,9 @@ function env-exists() {
     env_file_name=$(env-file-name "$@")
     # check if the file exists
     if [ -f "$env_file_name" ]; then
-        echo "The $env_file_name file exists."
+        echo "{$GREEN}The $env_file_name file exists.${NC}"
     else
-        echo "The $env_file_name file does not exist."
+        echo "{$RED}The $env_file_name file does not exist.${NC}"
     fi
 }
 
@@ -64,10 +64,10 @@ function env-create() {
     # Get environment file name from parameters
     env_file_name=$(env-file-name "$@")
     if [ -f "$env_file_name" ]; then
-        echo "The $env_file_name file already exists."
+        echo "{$YELLOW}The $env_file_name file already exists.${NC}"
     else
         touch "$env_file"
-        echo "The $env_file_name file has been created."
+        echo "{$GREEN}The $env_file_name file has been created.${NC}"
     fi
 }
 
@@ -80,9 +80,9 @@ function env-create-from-example() {
     # check if the example file exists
     if [ -f "$env_example_file_name" ]; then
         cp "$env_example_file_name" "$env_file_name"
-        echo "The $env_file_name file has been created from the $env_example_file_name file."
+        echo "{$GREEN}The $env_file_name file has been created from the $env_example_file_name file.${NC}"
     else
-        echo "The $env_example_file_name file does not exist."
+        echo {$RED}The $env_example_file_name file does not exist.${NC}
     fi
 }
 
@@ -95,13 +95,13 @@ function env-copy() {
         # Check if parameters contain the force option
         if [[ "$@" == *"--force"* ]]; then
             cp "$env_file" "$env_file_name"
-            echo "The $env_file_name file has been override."
+            echo "{$GREEN}The $env_file_name file has been override.${NC}"
         else
-            echo "The $env_file_name file already exists."
+            echo "{$YELLOW}The $env_file_name file already exists.${NC}"
         fi
     else
         cp "$env_file" "$env_file_name"
-        echo "The $env_file_name file has been copied."
+        echo "{$GREEN}The $env_file_name file has been copied.${NC}"
     fi
 }
 
@@ -114,15 +114,14 @@ function env-check() {
     # check if the example file exists
     if [ -f "$env_example_file_name" ]; then
         # Check if the file is up to date
-        if cmp -s "$env_file_name" "$env_example_file_name"; then
-            echo "The $env_file_name file is up to date."
+        if $(file-diff "$env_file_name" "$env_example_file_name"); then
+            echo "${GREEN}The $env_file_name file is up to date.${NC}"
         else
-            echo "The $env_file_name file is not up to date."
             # Show the difference
-            diff "$env_file_name" "$env_example_file_name"
+            show-file-diff "$env_file_name" "$env_example_file_name"
         fi
     else
-        echo "The $env_example_file_name file does not exist."
+        echo "${RED}The $env_example_file_name file does not exist.${NC}"
     fi
 }
 
@@ -134,16 +133,15 @@ function env-check-example() {
     env_example_file_name="$env_file$env_example_suffix"
     # check if the example file exists
     if [ -f "$env_example_file_name" ]; then
-        # Check if the file is up to date
-        if cmp -s "$env_file_name" "$env_example_file_name"; then
-            echo "The $env_example_file_name file is up to date."
+        # Check if the file is up to date ignoring whitespaces and blank lines
+        if $(file-diff "$env_example_file_name" "$env_file_name"); then
+            echo "${GREEN}The $env_example_file_name file is up to date.${NC}"
         else
-            echo "The $env_example_file_name file is not up to date."
             # Show the difference
-            diff "$env_example_file_name" "$env_file_name"
+            show-file-diff "$env_example_file_name" "$env_file_name"
         fi
     else
-        echo "The $env_example_file_name file does not exist."
+        echo "${RED}The $env_example_file_name file does not exist.${NC}"
     fi
 }
 
@@ -154,12 +152,16 @@ function env-update() {
     # Get the example file name
     env_example_file_name="$env_file$env_example_suffix"
     # Check if env file have different content from the example file
-    if cmp -s "$env_file_name" "$env_example_file_name"; then
-        echo "The $env_file_name file is already up to date."
+    if $(file-diff "$env_file_name" "$env_example_file_name"); then
+        echo "${YELLOW}The $env_file_name file is already up to date.${NC}"
     else
+        # Get array of the difference between the two files
+        new_variables=$(file-diff-array "$env_file_name" "$env_example_file_name")
         # Add the new variables from the example file in the env file
-        diff "$env_file_name" "$env_example_file_name" | grep "^>" | sed 's/^> //g' >> "$env_file_name"
-        echo "The $env_file_name file has been updated."
+        for new_variable in "${new_variables[@]}"; do
+            echo "$new_variable" >> "$env_file_name"
+        done
+        echo "${GREEN}The $env_file_name file has been updated.${NC}"
     fi
 }
 
@@ -170,11 +172,15 @@ function env-update-example() {
     # Get the example file name
     env_example_file_name="$env_file$env_example_suffix"
     # Check if env file have different content from the example file
-    if cmp -s "$env_file_name" "$env_example_file_name"; then
-        echo "The $env_example_file_name file is already up to date."
+    if diff -w -B "$env_example_file_name" "$env_file_name" > /dev/null; then
+        echo "${YELLOW}The $env_example_file_name file is already up to date.${NC}"
     else
+        # Get array of the difference between the two files
+        new_variables=$(file-diff-array "$env_example_file_name" "$env_file_name")
         # Add the new variables from the env file in the example file
-        diff "$env_example_file_name" "$env_file_name" | grep "^>" | sed 's/^> //g' >> "$env_example_file_name"
-        echo "The $env_example_file_name file has been updated."
+        for new_variable in "${new_variables[@]}"; do
+            echo "$new_variable" >> "$env_example_file_name"
+        done
+        echo "${GREEN}The $env_example_file_name file has been updated.${NC}"
     fi
 }
