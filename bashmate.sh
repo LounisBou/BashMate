@@ -36,9 +36,14 @@ for file in ${currentDir}/functions/*; do source $file; done
 # ! DYNAMIC ALIASES
 #
 # Fonction to create dynamic alias. (dynamic alias are not saved in git)
-function createAlias(){ 
-  # Create alias for current session.
-  alias "$*";
-  # Create definitive alias in dynamic.sh file add line return.
-  echo alias $* >> ${currentDir}/aliases_private/dynamic.sh
+# Usage: createAlias "alias_name=alias_command"
+function createAlias() {
+    # Extract the alias name from the argument (part before the first = sign)
+    local alias_name="${1%%=*}"
+    # Extract the alias command from the argument (part after the first = sign)
+    local alias_command="${1#*=}"
+    # Create alias for current session.
+    alias "$alias_name"="$alias_command"
+    # Create definitive alias in dynamic.sh file add line return, protect double quotes contains in $*.
+    echo "alias $alias_name=\"$alias_command\"" >> "$currentDir/aliases_private/dynamic.sh"
 }

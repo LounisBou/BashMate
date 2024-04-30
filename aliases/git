@@ -9,16 +9,25 @@ work_branches=("staging")
 # Reference branch for git-update-branch
 ref_branch="main"
 
-# Prefix
-feature_prefix="feat-"
-release_prefix="release/"
-hotfix_prefix="hotfix/"
-bugfix_prefix="bugfix/"
-task_prefix="task/"
-build_prefix="build-"
+# Prefix for branches
+branch_prefix_feature="feat"
+branch_prefix_release="release"
+branch_prefix_hotfix="hotfix"
+branch_prefix_bugfix="bugfix"
+branch_prefix_task="task"
+branch_prefix_build="build"
+branch_prefix_separator="-"
 
-# Separator
-feature_prefix_separator="-"
+# Prefixes for commit messages (See : https://www.conventionalcommits.org/en/v1.0.0)
+commit_prefix_build="build"            # Changes that affect the build system or external dependencies
+commit_prefix_chore="chore"            # 
+commit_prefix_ci="ci"                  # Changes to our CI configuration files and scripts
+commit_prefix_docs="docs"              # Documentation only changes
+commit_prefix_style="style"            # Changes that do not affect the meaning of the code
+commit_prefix_refactor="refactor"      # A code change that neither fixes a bug nor adds a feature
+commit_prefix_perf="perf"              # A code change that improves performance
+commit_prefix_test="test"              # Adding missing tests or correcting existing tests
+commit_prefix_separator=":"
 
 # COMMANDS
 
@@ -59,12 +68,7 @@ alias gpl="git pull"
 alias gs="git status"
 alias gcl="git clone $*"
 # Git branch
-alias gbr="git branch $*"
-alias gbrd="git branch -d $*"
-alias gbrD="git branch -D $*"
-alias gbrm="git branch -m $*"
-alias gbrM="git branch -M $*"
-alias gbrv="git branch -v"
+alias gb="git branch $*"
 # Git log
 function glg(){
     # Define variable nb_commits
@@ -102,11 +106,14 @@ function gfs(){
         # Check if feature alternative prefix has been provided
         if [ ! -z "$2" ]
         then
-            # Override feature prefix
-            feature_prefix=$2${feature_prefix_separator}
+            # Override branch prefix
+            branch_prefix=$2
+        else
+            # Set default branch prefix
+            branch_prefix=${branch_prefix_feature}
         fi
         # Feature branch name
-        feature_branch=${feature_prefix}$1
+        feature_branch=${branch_prefix}${branch_prefix_separator}$1
         # Checkout main branch
         git checkout $(gdefault-branch)
         # Pull main branch
@@ -146,10 +153,23 @@ alias gct="git checkout tests"
 alias gcp="git checkout prod"
 alias gcpp="git checkout preprod"
 alias gcs="git checkout staging"
-function gcft(){
-    # Checkout feature branch
-    git checkout ${feature_prefix}${task_prefix}$*
+# - Checkout local branch in interactive mode (Need fzf; see : https://github.com/junegunn/fzf)
+function gco-local(){
+    # Checkout branch in interactive mode, list all local branches and ask user to choose one
+    git checkout $(git branch | fzf)
 }
+# - Checkout remote branch in interactive mode (Need fzf; see : https://github.com/junegunn/fzf)
+function gco-remote(){
+    # Fetch all branches
+    git fetch --all
+    # Checkout branch in interactive mode, list all remote branches and ask user to choose one
+    git checkout $(git branch -r | fzf)
+}
+# - Checkout feature task branch
+function gcft(){
+    git checkout ${branch_prefix_feature}${branch_prefix_separator}${task_prefix}$*
+}
+# - Checkout feature branch
 function gcf(){
     # Check if feature name is provided
     if [ -z "$1" ]
@@ -160,37 +180,40 @@ function gcf(){
         # Check if feature alternative prefix has been provided
         if [ ! -z "$2" ]
         then
-            # Override feature prefix
-            feature_prefix=$2${feature_prefix_separator}
+            # Override branch prefix
+            branch_prefix=$2
+        else
+            # Set default branch prefix
+            branch_prefix=${branch_prefix_feature}
         fi
         # Checkout feature branch
-        git checkout ${feature_prefix}$*
+        git checkout ${branch_prefix}${branch_prefix_separator}$*
     fi
 }
+# - Checkout release branch
 function gcr(){
-    # Checkout release branch
-    git checkout ${release_prefix}$*
+    git checkout ${branch_prefix_release}${branch_prefix_separator}$*
 }
+# - Checkout hotfix branch
 function gch(){
-    # Checkout hotfix branch
-    git checkout ${hotfix_prefix}$*
+    git checkout ${branch_prefix_hotfix}${branch_prefix_separator}$*
 }
+# - Checkout bugfix branch
 function gcb(){
-    # Checkout bugfix branch
-    git checkout ${bugfix_prefix}$*
+    git checkout ${branch_prefix_bugfix}${branch_prefix_separator}$*
 }
-# Delete branch
-function grm(){
-    # Delete branch
+# Delete branches
+# - Delete local branch
+function gbrm(){
     git branch -d $*
 }
-# Delete remote branch
-function grm-remote(){
+# - Delete remote branch
+function gbrm-remote(){
     # Delete remote branch
     git push origin --delete $*
 }
-# Delete current branch
-function grmc(){
+# - Delete current branch
+function gbrmc(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Checkout to default branch
@@ -198,8 +221,8 @@ function grmc(){
     # Delete current branch
     git branch -d $current_branch
 }
-# Delete remote current branch
-function grmc-remote(){
+# - Delete remote current branch
+function gbrmc-remote(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Delete remote current branch
@@ -214,26 +237,30 @@ alias gstc="git stash clear"
 function gmf(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Branch name
+    branch_name=${branch_prefix_feature}${branch_prefix_separator}$*
     # Checkout on feature branch
-    git checkout ${feature_prefix}$*
+    git checkout ${branch_name}
     # Update feature branch
     git pull
     # Checkout on current branch
     git checkout $(current_branch)
     # Merge feature branch
-    git merge ${feature_prefix}$* -m "Merge ${feature_prefix}$* in ${current_branch}"
+    git merge ${branch_name} -m "Merge ${branch_name} in ${current_branch}"
 }
 function gmft(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+    # Branch name
+    branch_name=${branch_prefix_feature}${branch_prefix_separator}$*
     # Checkout on feature task branch
-    git checkout ${feature_prefix}${task_prefix}$*
+    git checkout ${branch_name}
     # Update feature task branch
     git pull
     # Checkout on current branch
     git checkout $(current_branch)
     # Merge feature task branch
-    git merge ${feature_prefix}${task_prefix}$* -m "Merge ${feature_prefix}${task_prefix}$* in ${current_branch}"
+    git merge ${branch_name} -m "Merge ${branch_name} in ${current_branch}"
 }
 function gmergin(){
     # Retrieve current branch name
