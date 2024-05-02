@@ -14,8 +14,8 @@
 #
 # Parameters:
 # -h, --help: Show help.
-# -i, --install: Install BrewMate.
-# -u, --uninstall: Uninstall BrewMate.
+# -i, --install: Install BashMate.
+# -u, --uninstall: Uninstall BashMate.
 #
 # Define colors for output.
 RED='\033[0;31m'
