@@ -77,9 +77,8 @@ source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 # User configuration
 
-# Add by izno 13/05/2022
+# Add by lounisBou 13/05/2022
 #antigen bundle zsh-users/zsh-autosuggestions
-
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -96,7 +95,7 @@ source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# PyEnv config add by izno 18/01/2021
+# PyEnv config add by lounisBou 18/01/2021
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 export PIPENV_PYTHON="$PYENV_ROOT/shims/python"
@@ -114,9 +113,16 @@ eval "$(pyenv virtualenv-init -)"
 # Brew
 export PATH="/opt/homebrew/bin/brew:$PATH"
 
+# Local binaries
+export PATH="~/bin:$PATH"
+
 # JAVA HOME
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-19.jdk/Contents/Home
 export PATH=$JAVA_HOME/bin:$PATH
+
+# ANDROID SDK
+export ANDROID_HOME="${HOME}/Library/Android/sdk"
+export PATH="${HOME}/Library/Android/sdk/tools:${HOME}/Library/Android/sdk/platform-tools:${PATH}"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -152,4 +158,10 @@ export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh
 
 # BashMate
-source /Users/izno/BashMate/bashmate.sh
+source $HOME/BashMate/bashmate.sh
+# phpenv
+export PHPENV_ROOT="$HOME/.phpenv"
+if [ -d "${PHPENV_ROOT}" ]; then
+  export PATH="${PHPENV_ROOT}/bin:${PATH}"
+  eval "$(phpenv init -)"
+fi
