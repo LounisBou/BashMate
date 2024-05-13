@@ -20,7 +20,7 @@ BashMate is a curated collection of bash commands, functions, and aliases design
 
 ## Usage
 
-Need help using BashMate ? [Here a GPTMate](https://chatgpt.com/g/g-vJ4SiwFJV-bashmate-gpt) that will help you !
+Need help using BashMate ? [Here a GPTMate](https://chatgpt.com/g/g-vJ4SiwFJV-gptmate) that will help you !
 
 ## Installation
 
