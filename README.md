@@ -18,6 +18,10 @@ BashMate is a curated collection of bash commands, functions, and aliases design
 - **System Configuration**: Leverage the BrewMate scripts to customize and manage your local macOS development environment, including Apache, PHP, MySQL, and other system-level components.
 - **And More!**: Discover various other utilities to boost your productivity.
 
+## Usage
+
+Need help using BashMate ? [Here a GPTMate](https://chatgpt.com/g/g-vJ4SiwFJV-bashmate-gpt) that will help you !
+
 ## Installation
 
 ### Manual Installation
@@ -77,6 +81,11 @@ The BrewMate folder and associated scripts allow you to manage and customize you
 
 ## Contributing
 We welcome contributions! Whether you're adding new commands, improving existing ones, or fixing issues, your input enriches the BashMate experience. See the [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
+---
+
+## RoadMap
+
 
 ---
 
