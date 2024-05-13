@@ -22,16 +22,16 @@ if [ -f "$currentDir/.env" ]; then
 fi
 #
 # Import all files in the aliases directory.
-for file in ${currentDir}/aliases/*; do source $file; done
+for file in ${currentDir}/aliases/*.sh; do source $file; done
 # Create aliases personal file if not exists.
 if [ ! -f "$currentDir/aliases_private/personal.sh" ]; then
   touch "$currentDir/aliases_private/personal.sh"
 fi
-# Import all files in the aliases private directory.
+# Import all files in the aliases_private directory.
 for file in ${currentDir}/aliases_private/*.sh; do source $file; done
 # 
-# Import all files in the functions directory.
-for file in ${currentDir}/functions/*; do source $file; done
+# Import all files in the functions/bash_shell directory.
+for file in ${currentDir}/functions/bash_shell/*.sh; do source $file; done
 #
 # ! DYNAMIC ALIASES
 #

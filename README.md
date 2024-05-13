@@ -76,7 +76,7 @@ The BrewMate folder and associated scripts allow you to manage and customize you
 ---
 
 ## Contributing
-We welcome contributions! Whether you're adding new commands, improving existing ones, or fixing issues, your input enriches the BashMate experience. See the CONTRIBUTING.md for more details.
+We welcome contributions! Whether you're adding new commands, improving existing ones, or fixing issues, your input enriches the BashMate experience. See the [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ---
 
