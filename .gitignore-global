@@ -12,3 +12,6 @@
 
 # Remove all .nvmrc files
 **/.nvmrc
+
+# Remove scripts folder & all files within
+scripts/
