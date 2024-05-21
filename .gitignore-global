@@ -15,3 +15,6 @@
 
 # Remove scripts folder & all files within
 scripts/
+
+# Remove Podfile.lock (Apple App dependencies file lock)
+Podfile.lock

@@ -158,7 +158,7 @@ function gco-local(){
     # Checkout branch in interactive mode, list all local branches and ask user to choose one
     git checkout $(git branch | fzf)
 }
-# - Checkout remote branch in interactive mode (Need fzf; see : https://github.com/junegunn/fzf)
+# - Checkout remote branch in interactive mode
 function gco-remote(){
     # Fetch all branches
     git fetch --all

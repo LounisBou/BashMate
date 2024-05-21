@@ -5,6 +5,9 @@
 
 # COMMANDS
 
+# Overriding the default yarn command with nvm use
+alias yarn="nvm use && yarn" # nvm use is used to switch to the correct node version read from .nvmrc file
+
 # Yarn commands
 alias y="yarn $*"
 alias yinstall="yarn install $*"
