@@ -31,12 +31,22 @@ commit_prefix_separator=":"
 
 # COMMANDS
 
+# Check if current directory is a git repository
+function gisgit(){
+    # Check if .git doesn't exists
+    if [ ! -d .git ]; then
+        # Display message
+        echo -e "${RED}This is not a git repository${NC}"
+        return 1
+    fi
+    return 0
+}
+
 # Get git repository default branch
 function gdefault-branch(){
     # Check if .git exists
     if [ ! -d .git ]; then
-        # Do nothing
-        return
+        exit 1  
     fi
     # Check if master branch exists
     if git show-ref --verify --quiet refs/heads/master; then
@@ -143,7 +153,28 @@ function gff(){
 }
 
 # Checkout
-alias gco="git checkout $*"
+function gco(){
+    # Check if current directory is a git repository
+    if ! gisgit; then
+        exit 1
+    fi
+    # Check if $1 is not empty
+    if [ -z "$1" ]
+    then
+        echo -e "${ORANGE}Interactive mode${NC}"
+        # Prompt user to select branch
+        git checkout $(git branch | fzf)
+    else
+        echo -e "${ORANGE}Checkout branch $1${NC}"
+        # Checkout branch
+        git checkout $1
+    fi
+}
+# - Checkout local branch in interactive mode (Need fzf; see : https://github.com/junegunn/fzf)
+function gco-local(){
+    # Checkout branch in interactive mode, list all local branches and ask user to choose one
+    git checkout $(git branch | fzf)
+}
 function gcm(){
     # Checkout main branch
     git checkout $(gdefault-branch)
@@ -153,11 +184,6 @@ alias gct="git checkout tests"
 alias gcp="git checkout prod"
 alias gcpp="git checkout preprod"
 alias gcs="git checkout staging"
-# - Checkout local branch in interactive mode (Need fzf; see : https://github.com/junegunn/fzf)
-function gco-local(){
-    # Checkout branch in interactive mode, list all local branches and ask user to choose one
-    git checkout $(git branch | fzf)
-}
 # - Checkout remote branch in interactive mode
 function gco-remote(){
     # Fetch all branches
@@ -488,3 +514,41 @@ function git-move-head(){
 }   
 # Infos
 alias ginfo="git config --list"
+# Add file or directory to .gitignore
+function git-ignore(){
+    # Check if $1 is not empty
+    if [ -z "$1" ]
+    then
+        # Display error message
+        echo -e "${RED}Error: You must provide a file or directory to ignore${NC}"
+    else
+        # Check if 1st parameter is a directory
+        if [ -d "$1" ]
+        then
+            # Gitignore entry for directory
+            gitignore_entry="$1/**/*"
+        else
+            # Gitignore entry for file
+            gitignore_entry=$1
+        fi
+        # Check if there is a second parameter get it as comment
+        if [ -z "$2" ]
+        then
+            # Set default comment
+            comment=""
+        else
+            # Set comment
+            comment=$2
+        fi
+        # If comment not empty
+        if [ -z "$comment" ]
+        then
+            # Add file or directory to .gitignore
+            echo $gitignore_entry >> .gitignore
+        else
+            # Add file or directory to .gitignore with comment
+            echo "# $comment" >> .gitignore
+            echo $gitignore_entry >> .gitignore
+        fi
+    fi
+}

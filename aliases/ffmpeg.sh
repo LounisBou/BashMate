@@ -60,7 +60,7 @@ function ffmpeg-concat-mp3-all(){
     # Loop over all folders in current folder
     for folder in */; do
         # Concat mp3 files in folder
-        concat-mp3 $folder
+        ffmpeg-concat-mp3 $folder
     done
 }
 

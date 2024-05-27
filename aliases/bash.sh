@@ -28,6 +28,28 @@ function watcha(){
   watch -x zsh -ic "$*"
 }
 
+# ! INTERACTIVE PROMPT COMMANDS
+
+# Interactive prompt prefix commands
+function interactive-prompt(){
+    # Use fzf to select prefix* commands, order them by name
+    local command=$(compgen -A function | grep "${$0}[^=]\+" | sort | fzf)
+    # Check if the command is not empty
+    if [ -n "$command" ]; then
+        if [[ -n $ZLE_LINE_TEXT ]]; then
+            # When zle is active (e.g., via key binding)
+            BUFFER="$command "
+            CURSOR=${#BUFFER}
+            zle -R -c
+        else
+            # When zle is not active (e.g., direct invocation)
+            print -z "$command "
+        fi
+    fi
+}
+# /!\ Dont forget to call : 
+#zle -N prefix
+
 # ! SYSTEM USER 
 
 # Add group to user (add-group <groupname> <username>)
