@@ -124,6 +124,11 @@ export PATH=$JAVA_HOME/bin:$PATH
 export ANDROID_HOME="${HOME}/Library/Android/sdk"
 export PATH="${HOME}/Library/Android/sdk/tools:${HOME}/Library/Android/sdk/platform-tools:${PATH}"
 
+# Pipx
+export PATH="${HOME}/.local/bin:${PATH}"
+# Pipx auto-completion
+eval "$(register-python-argcomplete pipx)"
+
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -165,3 +170,6 @@ if [ -d "${PHPENV_ROOT}" ]; then
   export PATH="${PHPENV_ROOT}/bin:${PATH}"
   eval "$(phpenv init -)"
 fi
+
+# Created by `pipx` on 2024-05-28 12:01:31
+export PATH="$PATH:/Users/izno/.local/bin"
