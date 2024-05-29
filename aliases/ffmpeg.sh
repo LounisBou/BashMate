@@ -52,7 +52,7 @@ function ffmpeg-concat-mp3(){
     # Get current folder name from path
     folder_name=$(basename -- "$folder_path")
     # Concat mp3 files
-    ffmpeg -i "concat:$(ls -1 $folder_path/*.mp3 | tr '\n' '|')" -acodec copy ${folder_name}.mp3
+    ffmpeg -i "concat:$(ls -1 $folder_path/*.mp3 | tr '\n' '|')" -acodec copy ${folder_name}.mp3 -metadata title="${folder_name}"
 }
 
 # Loop over all folders in current folder and concat mp3 in each folder into one mp3 file
@@ -77,7 +77,7 @@ function ffmpeg-concat-mp4(){
     # Get current folder name from path
     folder_name=$(basename -- "$folder_path")
     # Concat mp4 files
-    ffmpeg -i "concat:$(ls -1 $folder_path/*.mp4 | tr '\n' '|')" -c copy ${folder_name}.mp4
+    ffmpeg -i "concat:$(ls -1 $folder_path/*.mp4 | tr '\n' '|')" -c copy ${folder_name}.mp4 -metadata title="${folder_name}"
 }
 
 # Extract audio from video
@@ -85,7 +85,7 @@ function ffmpeg-extract-audio(){
     # Retrieve file name without extension
     file_name=$(basename -- "$1")
     # Extract audio from video
-    ffmpeg -i $1 -vn -acodec copy ${file_name}.aac
+    ffmpeg -i $1 -vn -acodec copy ${file_name}.aac -metadata title="${file_name}"
 }
 
 # Extract video from video
@@ -93,7 +93,7 @@ function ffmpeg-extract-video(){
     # Retrieve file name without extension
     file_name=$(basename -- "$1")
     # Extract video from video
-    ffmpeg -i $1 -an -vcodec copy ${file_name}.mp4
+    ffmpeg -i $1 -an -vcodec copy ${file_name}.mp4 -metadata title="${file_name}"
 }
 
 # Extract frames from video
