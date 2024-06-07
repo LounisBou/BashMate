@@ -124,12 +124,8 @@ function gfs(){
         fi
         # Feature branch name
         feature_branch=${branch_prefix}${branch_prefix_separator}$1
-        # Checkout main branch
-        git checkout $(gdefault-branch)
-        # Pull main branch
-        git pull
-        # Create feature branch from main branch
-        git checkout -b $feature_branch
+        # Checkout main branch, pull and create feature branch
+        git checkout $(gdefault-branch) && git pull && git checkout -b $feature_branch
     fi
 }
 # Git feature finish
@@ -170,11 +166,14 @@ function gco(){
         git checkout $1
     fi
 }
-# - Checkout local branch in interactive mode (Need fzf; see : https://github.com/junegunn/fzf)
-function gco-local(){
-    # Checkout branch in interactive mode, list all local branches and ask user to choose one
-    git checkout $(git branch | fzf)
+# autocomplete for gco
+function _gco(){
+    # Get list of branches
+    branches=$(git branch | tr -d ' ' | tr -d '*')
+    # Set completion
+    COMPREPLY=($(compgen -W "$branches" -- "${COMP_WORDS[1]}"))
 }
+complete -F _gco gco
 function gcm(){
     # Checkout main branch
     git checkout $(gdefault-branch)
@@ -242,10 +241,8 @@ function gbrm-remote(){
 function gbrmc(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Checkout to default branch
-    git checkout $(gdefault-branch)
-    # Delete current branch
-    git branch -d $current_branch
+    # Checkout to default branch and delete current branch
+    git checkout $(gdefault-branch) && git branch -d $current_branch
 }
 # - Delete remote current branch
 function gbrmc-remote(){
@@ -265,40 +262,26 @@ function gmf(){
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Branch name
     branch_name=${branch_prefix_feature}${branch_prefix_separator}$*
-    # Checkout on feature branch
-    git checkout ${branch_name}
-    # Update feature branch
-    git pull
-    # Checkout on current branch
-    git checkout $(current_branch)
-    # Merge feature branch
-    git merge ${branch_name} -m "Merge ${branch_name} in ${current_branch}"
+    # Checkout on feature branch and pull
+    git checkout ${branch_name} && git pull
+    # Checkout on current branch and merge feature branch
+    git checkout $(current_branch) && git merge ${branch_name} -m "Merge ${branch_name} in ${current_branch}"
 }
 function gmft(){
     # Get current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Branch name
     branch_name=${branch_prefix_feature}${branch_prefix_separator}$*
-    # Checkout on feature task branch
-    git checkout ${branch_name}
-    # Update feature task branch
-    git pull
-    # Checkout on current branch
-    git checkout $(current_branch)
-    # Merge feature task branch
-    git merge ${branch_name} -m "Merge ${branch_name} in ${current_branch}"
+    # Checkout on feature task branch and pull
+    git checkout ${branch_name} && git pull
+    # Checkout on current branch and merge feature task branch
+    git checkout $(current_branch) && git merge ${branch_name} -m "Merge ${branch_name} in ${current_branch}"
 }
 function gmergin(){
     # Retrieve current branch name
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-    # Go to $1 branch
-    git checkout $1
-    # Merge current branch in $1 branch
-    git merge $(current_branch) -m "Merge ${current_branch} in $1"
-    # git add all
-    git add .
-    # git commit
-    git commit -m "Merge ${current_branch} in $1"
+    # Go to $1 branch and merge current branch in it
+    git checkout $1 && git merge $(current_branch) -m "Merge ${current_branch} in $1"
     # Go back to current branch
     git checkout $(current_branch)
 }
@@ -337,15 +320,11 @@ function git-update(){
     # Loop on branches
     for branch in "${branches[@]}"
     do
-        # Checkout branch
-        git checkout $branch
-        # Pull branch
-        git pull
+        # Checkout branch and pull
+        git checkout $branch && git pull
     done
-    # Checkout current branch
-    git checkout $current_branch
-    # Pull current branch
-    git pull
+    # Checkout current branch and pull
+    git checkout $current_branch && git pull
 }
 # Update current branch by merging ref branch on it
 function git-update-branch(){
@@ -353,18 +332,12 @@ function git-update-branch(){
     current_branch=$(git branch | grep \* | cut -d ' ' -f2)
     # Branch to update
     branches=($(gdefault-branch) ${work_branches[@]})
-    # Checkout ref branch
-    git checkout $ref_branch
-    # Pull branch
-    git pull
+    # Checkout ref branch and pull
+    git checkout $ref_branch && git pull
     # Checkout current branch
-    git checkout $current_branch
-    # Pull current branch
-    git pull
-    # Merge ref branch in current branch
-    git merge $ref_branch
-    # Check if there is a conflict
-    git diff --check
+    git checkout $current_branch && git pull
+    # Merge ref branch in current branch and check conflicts
+    git merge $ref_branch && git diff --check
     # Ask user if he wants to continue
     read REPLY"?Do you want to continue ? (y/n) "
     echo
@@ -384,17 +357,11 @@ function git-after-mep(){
     # Loop on branches
     for branch in "${branches[@]}"
     do
-        # Checkout branch
-        git checkout $branch
-        # Merge current branch in branch
-        git merge $current_branch -m "Merge $current_branch in $branch"
-        # Push branch
-        git push
+        # Checkout branch and merge current branch in it, then push
+        git checkout $branch && git merge $current_branch -m "Merge $current_branch in $branch" && git push
     done
-    # Checkout current branch
-    git checkout $current_branch
-    # Push current branch
-    git push
+    # Checkout current branch and push
+    git checkout $current_branch && git push
 }
 # Push current branch on a specific branch
 function gpushon(){
@@ -413,16 +380,10 @@ function gpushon(){
         # Set commit message
         commit_message=$2
     fi
-    # Commit with message
-    gc $commit_message
-    # Push current branch
-    gp $current_branch
-    # Merge current branch in branch to push on
-    gmergin $branch_to_push_on
     # Update $(gdefault-branch) ${work_branch[@]} branches
     git-update
-    # Push on branch to push on
-    gp $branch_to_push_on
+    # Commit with message and push on current branch, then merge and push on branch to push on
+    gc $commit_message && gp $current_branch && gmergin $branch_to_push_on && gp $branch_to_push_on
 }
 # Manage merge conflicts
 function git-conflicts(){
@@ -434,10 +395,8 @@ function git-conflicts(){
     read REPLY"?Do you want to continue ? (y/n) "
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        # Commit merge
-        git commit -m "Merge $ref_branch in $current_branch"
-        # Push current branch
-        git push
+        # Commit merge and push
+        git commit -m "Merge $ref_branch in $current_branch" && git push
     fi
 }
 # Git rollback $1 commit
