@@ -29,6 +29,20 @@ alias sf-cache-pool-clear="php bin/console cache:pool:clear"
 # Pest PHP test
 alias sf-test="vendor/bin/pest"
 alias sf-test-coverage="vendor/bin/pest --coverage --min=100"
+function sf-test-coverage-html(){
+    # Get current directory name
+    current_directory=${PWD##*/}
+    # Create directory for coverage report recursively if not exists
+    mkdir -p /tmp/tests-coverage/$current_directory
+    # Run test with coverage and html report
+    vendor/bin/pest --coverage-html /tmp/tests-coverage/$current_directory
+}
+function sf-test-open-report(){
+    # Get current directory name
+    current_directory=${PWD##*/}
+    # Open coverage report in browser
+    open-chrome /tmp/tests-coverage/$current_directory/index.html
+}
 # PHP Code Sniffer 
 alias sf-phpcs-check="vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff"
 alias sf-phpcs-run="vendor/bin/php-cs-fixer fix --allow-risky=yes"

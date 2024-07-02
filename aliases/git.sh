@@ -252,10 +252,64 @@ function gbrmc-remote(){
     git push origin --delete $current_branch
 }
 # Stash
-alias gst="git stash"
-alias gstl="git stash list"
-alias gstp="git stash pop"
-alias gstc="git stash clear"
+
+# Add named stash
+function git-stash-add(){
+    # Check if the first argument is empty
+    if [ -z $1 ]; then
+        echo "Please provide a stash name as first argument"
+        return
+    fi
+    # Add the stash with the provided name
+    git stash push -m $1
+}
+
+# Remove stash by name
+function git-stash-rm(){
+    # Check if the first argument is empty
+    if [ -z $1 ]; then
+        echo "Please provide a stash name as first argument"
+        return
+    fi
+    # Find the stash number by name
+    stash_number=$(git stash list | grep "$1" | head -n 1 | sed -E 's/^([^:]+):.*/\1/')
+    # Remove the stash by number
+    git stash drop $stash_number
+}
+
+# List all stashes
+function git-stash-list(){
+    # List all stashes
+    git stash list
+}
+
+# Apply stash by name
+function git-stash-apply(){
+    # Check if the first argument is empty
+    if [ -z $1 ]; then
+        echo "Please provide a stash name as first argument"
+        return
+    fi
+    # Find the stash number by name
+    stash_number=$(git stash list | grep "$1" | head -n 1 | sed -E 's/^([^:]+):.*/\1/')
+    # Apply the stash by number
+    git stash apply $stash_number
+}
+# Autocomplete for git-stash-apply
+function _git-stash-apply(){
+    local cur_word="${COMP_WORDS[COMP_CWORD]}"
+    local IFS=$'\n'  # Set Internal Field Separator to newline
+    local stashes=$(git stash list --pretty=format:"%gd: %s" | awk -F ': ' '{if (NF > 1) print $NF}' | grep -v '^$')
+    COMPREPLY=($(compgen -W "${stashes}" -- "${cur_word}"))
+}
+complete -F _git-stash-apply git-stash-apply
+
+# Autocomplete for git-stash-add
+complete -F _git-stash-apply git-stash-add
+
+# Autocomplete for git-stash-rm
+complete -F _git-stash-apply git-stash-rm
+
 # Merge
 function gmf(){
     # Get current branch name

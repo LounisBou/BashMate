@@ -18,3 +18,9 @@ scripts/
 
 # Remove Podfile.lock (Apple App dependencies file lock)
 Podfile.lock
+
+# XCode project configuration
+**/*pbxproj
+**/IDEWorkspaceChecks.plist
+dist/ios-app/App/App.xcodeproj/project.pbxproj
+

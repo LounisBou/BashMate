@@ -116,3 +116,46 @@ alias ip="ipconfig getifaddr en0"
 alias IP="curl -4 icanhazip.com"
 # External IP V6 address 
 alias IP6="curl -6 icanhazip.com"
+
+# ! NETWORK
+
+# Check if a remote port is open
+function net-port-check(){
+  # Check if the host argument is empty
+  if [ -z $1 ]; then
+    echo "${YELLOW}Please provide a IP or host name.${NC}"
+    return 1
+  fi
+  # Check if the port argument is empty
+  if [ -z $2 ]; then
+    echo "${YELLOW}Please provide a port number.${NC}"
+    return 1
+  fi
+  # Check if the remote port is open
+  if nc -z $1 $2; then
+    echo "${GREEN}Port $2 is open on $1${NC}"
+  else
+    echo "${RED}Port $2 is closed on $1${NC}"
+  fi
+}
+
+# Wait while a remote port is open
+function net-port-wait(){
+  # Check if the host argument is empty
+  if [ -z $1 ]; then
+    echo "${YELLOW}Please provide a IP or host name.${NC}"
+    return 1
+  fi
+  # Check if the port argument is empty
+  if [ -z $2 ]; then
+    echo "${YELLOW}Please provide a port number.${NC}"
+    return 1
+  fi
+  # Wait while the remote port is open
+  while ! nc -z $1 $2; do
+    echo "${YELLOW}Waiting for port $2 to open on $1${NC}"
+    sleep 1
+  done
+  echo "${GREEN}Port $2 is open on $1${NC}"
+}
+
