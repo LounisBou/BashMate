@@ -1,0 +1,72 @@
+# The server will listen on port 80 and respond with "Hello, World!" for all requests.
+:80 {
+    respond "Access denied !"
+}
+
+# Redirect from HTTP to HTTPS
+#http://example.com {
+#    redir https://example.com{uri}
+#}
+
+# Serve a static site from a directory
+#https://example.com {
+#    root * /path/to/your/site
+#    file_server
+#}
+
+# Reverse proxy to another server
+# https://tautulli.iznogoudatall.xyz {
+#     reverse_proxy localhost:8181
+# }
+
+# Basic auth on a reverse proxy
+# https://secure.example.com {
+#     basicauth {
+#         user1 JDJhJDE0JFdydDNZbU5xZUhIdm92azZIQXUuZHBCakQ5Vk1PYm8wMWhla1pldXhEa0hrcEVUSjZGak1z
+#     }
+#     reverse_proxy localhost:8181
+# }
+
+# TauTulli
+https://tautulli.iznogoudatall.xyz {
+    reverse_proxy localhost:8181
+}
+
+# Plex
+https://plex.iznogoudatall.xyz {
+    reverse_proxy localhost:32400
+}
+
+# Sonarr
+https://sonarr.iznogoudatall.xyz {
+    reverse_proxy localhost:8989
+}
+
+# Radarr
+https://radarr.iznogoudatall.xyz {
+    reverse_proxy localhost:7878
+}
+
+# Jackett
+https://jackett.iznogoudatall.xyz {
+    basicauth {
+        izno $2y$10$yUsyp5C7VnNpuzugSLsQd.k9abxtk9yv9hOvmS.qy3pIepRNYx.6O
+    }
+    reverse_proxy localhost:9117
+}
+
+# Calibre
+https://calibre.iznogoudatall.xyz {
+    reverse_proxy localhost:8083
+}
+
+# Qbittorrent
+https://torrent.iznogoudatall.xyz {
+    reverse_proxy localhost:8081
+}
+
+# Openhab
+https://openhab.iznogoudatall.xyz {
+    reverse_proxy localhost:8080
+}
+

@@ -1,6 +1,9 @@
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+# Temporary path
+export TMPDIR=/tmp
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -133,6 +136,9 @@ export PATH="${HOME}/Library/Android/sdk/tools:${HOME}/Library/Android/sdk/platf
 export PATH="${HOME}/.local/bin:${PATH}"
 # Pipx auto-completion
 eval "$(register-python-argcomplete pipx)"
+
+# X11 
+export PATH="/opt/X11/bin:$PATH"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh

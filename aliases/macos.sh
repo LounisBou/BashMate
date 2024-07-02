@@ -30,6 +30,186 @@ if [[ $(uname) == "Darwin" ]]; then
   }
 
   # ----------------------------------
+  # ! Mac OS Launch Daemon User Services
+
+  # Load Launch Daemon User Service
+  function services-load(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Load service
+    launchctl load -w $HOME/Library/LaunchAgents/$1
+  }
+  # Load Launch Daemon User Service auto-completion
+  function _services-load(){
+    _files -W $HOME/Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-load services-load
+
+  # Unload Launch Daemon User Service
+  function services-unload(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Unload service
+    launchctl unload -w $HOME/Library/LaunchAgents/$1
+  }
+  # Unload Launch Daemon User Service auto-completion
+  function _services-unload(){
+    _files -W $HOME/Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-unload services-unload
+
+  # Restart Launch Daemon User Service
+  function services-reload(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Unload/Load service
+    launchctl unload -w $HOME/Library/LaunchAgents/$1
+    launchctl load -w $HOME/Library/LaunchAgents/$1
+  }
+  # Restart Launch Daemon User Service auto-completion
+  function _services-reload(){
+    _files -W $HOME/Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-reload services-reload
+
+  # List Launch Daemon User Services
+  function services-list(){
+    # List services
+    launchctl list | grep -v com.apple
+  }
+
+  # Check Launch Daemon User Service Status
+  function services-status(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Check service status
+    launchctl list | grep $1
+  }
+  # Check Launch Daemon User Service Status auto-completion
+  function _services-status(){
+    _files -W $HOME/Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-status services-status
+
+  # Check Launch Daemon User Service File Syntax
+  function services-syntax(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Check service file syntax
+    launchctl print $1
+  }
+  # Check Launch Daemon User Service File Syntax auto-completion
+  function _services-syntax(){
+    _files -W $HOME/Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-syntax services-syntax
+
+  # ----------------------------------
+  # ! Mac OS Launch Daemon Global Services
+
+  # Load Launch Daemon Global Service
+  function services-global-load(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Load service
+    launchctl load -w /Library/LaunchAgents/$1
+  }
+  # Load Launch Daemon Global Service auto-completion
+  function _services-global-load(){
+    _files -W /Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-global-load services-global-load
+
+  # Unload Launch Daemon Global Service
+  function services-global-unload(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Unload service
+    launchctl unload -w /Library/LaunchAgents/$1
+  }
+  # Unload Launch Daemon Global Service auto-completion
+  function _services-global-unload(){
+    _files -W /Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-global-unload services-global-unload
+
+  # Restart Launch Daemon Global Service
+  function services-global-reload(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Unload/Load service
+    launchctl unload -w /Library/LaunchAgents/$1
+    launchctl load -w /Library/LaunchAgents/$1
+  }
+  # Restart Launch Daemon Global Service auto-completion
+  function _services-global-reload(){
+    _files -W /Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-global-reload services-global-reload
+
+  # List Launch Daemon Global Services
+  function services-global-list(){
+    # List services
+    launchctl list | grep com.apple
+  }
+
+  # Check Launch Daemon Global Service Status
+  function services-global-status(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Check service status
+    launchctl list | grep $1
+  }
+  # Check Launch Daemon Global Service Status auto-completion
+  function _services-global-status(){
+    _files -W /Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-global-status services-global-status
+
+  # Check Launch Daemon Global Service File Syntax
+  function services-global-syntax(){
+    # Check if service name is empty
+    if [ -z "$1" ]; then
+      echo "Service name is required."
+      return
+    fi
+    # Check service file syntax
+    launchctl print $1
+  }
+  # Check Launch Daemon Global Service File Syntax auto-completion
+  function _services-global-syntax(){
+    _files -W /Library/LaunchAgents/ -g '*.plist' -/
+  }
+  compdef _services-global-syntax services-global-syntax
+
+  # ----------------------------------
   # ! Open in Apps
 
   # Open in Finder
