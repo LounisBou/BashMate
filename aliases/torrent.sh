@@ -4,6 +4,9 @@
 # GLOBAL VARIABLES
 
 # ToSort directory
+TOSORT_PATH="/Users/izno/Downloads/A TRIER"
+
+# ToSort sub-directories
 TOSORT_MOVIES="001 FILMS"
 TOSORT_TVSHOWS="002 SERIES"
 
@@ -453,6 +456,8 @@ function torrent-sort-dirs() {
 
 # Treat all directories and files of the current directory
 function torrent-process() {
+    # Go to the ToSort directory
+    cd "${TOSORT_PATH}"
     # Unpack then pack elements of the current directory
     torrent-unpack-pack
     # Sort all directories of the current directory
