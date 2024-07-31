@@ -302,6 +302,7 @@ function torrent-pack() {
         base=$(torrent-clean "$1")
         # Create a directory with the base name if it does not exist
         [ -d "$base" ] || mkdir "$base"
+        echo "${YELLOW}Packing ${1} into ${base} ${NC}"
         # Move the file into the directory
         mv "$1" "$base"
     fi
@@ -344,6 +345,7 @@ function torrent-pack-tvshow() {
 
 # Unpack = Move all files from a directory to the parent directory
 function torrent-unpack() {
+    echo "${YELLOW}Unpacking ${1} ${NC}"
     # Get the directory name
     dir="${1}"
     # Clear the directory name
@@ -420,9 +422,11 @@ function torrent-sort(){
     # Check if the directory contains a tv show
     if torrent-dir-is-tv-show "${1}"; then
         # Move the directory to the tv shows directory
+        echo "${YELLOW}Moving ${1} to ${TOSORT_TVSHOWS} ${NC}"
         mv "${1}" "${TOSORT_TVSHOWS}"
     else
         # Move the directory to the movies directory
+        echo "${YELLOW}Moving ${1} to ${TOSORT_MOVIES} ${NC}"
         mv "${1}" "${TOSORT_MOVIES}"
     fi
 }
