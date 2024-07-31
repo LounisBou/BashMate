@@ -3,6 +3,10 @@
 
 # GLOBAL VARIABLES
 
+# ToSort directory
+TOSORT_MOVIES="001 FILMS"
+TOSORT_TVSHOWS="002 SERIES"
+
 # List of medias extensions
 MEDIA_EXTENSIONS=(
     "avi" "mkv" "mp4" "mpg" "mpeg" "mov" "wmv" "flv" "webm" "m4v" 
@@ -192,9 +196,10 @@ function torrent-is-media() {
 # Check if a file is a tv show
 function torrent-is-tv-show() {
     # Strtolower
-    base=$(echo "$base" | tr '[:upper:]' '[:lower:]')
+    base=$(echo "$1" | tr '[:upper:]' '[:lower:]')
     # Check if file is media
-    if ! torrent-is-media "$1"; then
+    if ! torrent-is-media "$base"; then
+        echo "Not a media file"
         return 1
     fi
     # Check if the file name contains a season and an episode
@@ -203,6 +208,28 @@ function torrent-is-tv-show() {
     else
         return 1
     fi
+}
+
+# Check if directory contains a tv show
+function torrent-dir-is-tv-show() {
+    # Get the directory name
+    dir="${1}"
+    # Check if the directory exists
+    [ -d "${dir}" ] || return 1
+    # Check if the directory contains a tv show
+    for file in "${dir}"/*; do
+        # Only check files
+        if [ -f "${file}" ]; then
+            # Only check if not starting with a dot
+            if [[ "${file}" != .* ]]; then
+                # Check if the file is a tv show
+                if torrent-is-tv-show "${file}"; then
+                    return 0
+                fi
+            fi
+        fi
+    done
+    return 1
 }
 
 # - CLEAN
@@ -382,4 +409,48 @@ function torrent-unpack-pack() {
             fi
         fi
     done
+}
+
+# - SORT
+
+# Sort a directory between movies and tv shows
+function torrent-sort(){
+    # Check if the directory exists
+    [ -d "${1}" ] || return 1
+    # Check if the directory contains a tv show
+    if torrent-dir-is-tv-show "${1}"; then
+        # Move the directory to the tv shows directory
+        mv "${1}" "${TOSORT_TVSHOWS}"
+    else
+        # Move the directory to the movies directory
+        mv "${1}" "${TOSORT_MOVIES}"
+    fi
+}
+
+# Sort all directories of the current directory
+function torrent-sort-dirs() {
+    # Get all directories in the current directory
+    for element in *; do
+        # Only sort directories
+        if [ -d "${element}" ]; then
+            # Not starting with a dot
+            if [[ "${element}" != .* ]]; then
+                # Only sort if not starting with a 0
+                if [[ "${element}" != 0* ]]; then
+                    # Sort the directory
+                    torrent-sort "${element}"
+                fi
+            fi
+        fi
+    done
+}
+
+# - TREATMENT
+
+# Treat all directories and files of the current directory
+function torrent-process() {
+    # Unpack then pack elements of the current directory
+    torrent-unpack-pack
+    # Sort all directories of the current directory
+    torrent-sort-dirs
 }
