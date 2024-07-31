@@ -334,6 +334,25 @@ function torrent-unpack() {
     rm -rf "${dir}"
 }
 
+# - CLEAR
+
+# Remove non media files from a directory
+function torrent-clear-non-media() {
+    # Get the directory name
+    dir="${1}"
+    # Check if the directory exists
+    [ -d "${dir}" ] || return 1
+    # Remove all files that are not media files
+    for file in "${dir}"/*; do
+        # Only remove files
+        [ -f "${file}" ] &&
+        # Only remove files that are not media files
+        ! torrent-is-media "${file}" &&
+        # Remove the file
+        rm "${file}"
+    done
+}
+
 # - PACK/UNPACK
 
 # Unpack then pack elements of the current directory
@@ -364,23 +383,3 @@ function torrent-unpack-pack() {
         fi
     done
 }
-
-# - CLEAR
-
-# Remove non media files from a directory
-function torrent-clear-non-media() {
-    # Get the directory name
-    dir="${1}"
-    # Check if the directory exists
-    [ -d "${dir}" ] || return 1
-    # Remove all files that are not media files
-    for file in "${dir}"/*; do
-        # Only remove files
-        [ -f "${file}" ] &&
-        # Only remove files that are not media files
-        ! torrent-is-media "${file}" &&
-        # Remove the file
-        rm "${file}"
-    done
-}
-
