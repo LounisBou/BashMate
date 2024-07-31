@@ -9,6 +9,19 @@
 alias rebash="source ~/.bashrc"
 # Restart zsh
 alias rezsh="source ~/.zshrc"
+# Restart current shell
+function re(){
+  # Check if the current shell is bash
+  if [ -n "$BASH_VERSION" ]; then
+    rebash
+  # Check if the current shell is zsh
+  elif [ -n "$ZSH_VERSION" ]; then
+    rezsh
+  # Default case
+  else
+    echo "${RED}Unsupported shell${NC}"
+  fi
+}
 
 # Shutdown and reboot
 alias shutdown="sudo shutdown -h now"

@@ -19,3 +19,13 @@ function dir-rm() {
 function dir-cd() {
     cd "$1" && ll
 }
+
+# List directories
+function dir-ls() {
+    ls -da */
+}
+
+# List directories with details
+function dir-ll() {
+    ls -lda */
+}
