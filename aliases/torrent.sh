@@ -463,3 +463,8 @@ function torrent-process() {
     # Sort all directories of the current directory
     torrent-sort-dirs
 }
+
+function torrent-streamer-converter() {
+    # Call TorrentMate/torrentstreamerconverter.py
+    python3 ~/BashMate/TorrentMate/torrentstreamerconverter.py $*
+}
