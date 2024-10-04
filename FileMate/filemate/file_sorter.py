@@ -6,8 +6,7 @@ import shutil
 import sys
 from pathlib import Path
 from typing import List
-from filetype import FileType
-from filecleaner import FileCleaner
+from filemate import FileType, FileCleaner
 
 class FileSorter:
     """

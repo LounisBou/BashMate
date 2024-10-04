@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum as enum
-from filetype import FileType
 from pathlib import Path
+from filemate import FileType
 
 class FileTypeExtensions(enum):
 

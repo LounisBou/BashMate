@@ -465,6 +465,5 @@ function torrent-process() {
 }
 
 function torrent-streamer-converter() {
-    # Call TorrentMate/torrentstreamerconverter.py
-    python3 ~/BashMate/TorrentMate/torrentstreamerconverter.py $*
+    python3 ~/BashMate/TorrentMate/torrentmate/torrent_streamer_converter.py $*
 }

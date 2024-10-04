@@ -8,8 +8,7 @@ import shutil
 import time
 from collections import Counter
 from typing import Dict, Iterator, Union
-from filetype import FileType
-from file import File
+from filemate import File, FileType
 
 @dataclass
 class Directory:

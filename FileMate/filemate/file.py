@@ -5,8 +5,7 @@ from dataclasses import dataclass
 import math
 from pathlib import Path
 import time
-from filetype import FileType
-from filecleaner import FileCleaner
+from filemate import FileType, FileCleaner
 
 @dataclass
 class File:
