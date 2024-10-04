@@ -242,3 +242,27 @@ function ffmpeg-add-subtitles(){
     # Add subtitles to video
     ffmpeg -i $1 -i $2 -c copy -c:s mov_text ${file_name}_subtitles.mp4
 }
+
+# Convert to H.265 720p 1Mbps
+function ffmpeg-convert-h265-720p(){
+    # Retrieve file name without extension
+    file_name=$(basename -- "$1")
+    # Convert to H.265 720p 1Mbps
+    ffmpeg -i $1 -c:v libx265 -preset slow -crf 28  -vf scale=-1:720 -c:a aac -b:a 128k $2
+}
+
+# Convert to H.265 1080p 3Mbps
+function ffmpeg-convert-h265-1080p(){
+    # Retrieve file name without extension
+    file_name=$(basename -- "$1")
+    # Convert to H.265 1080p 3Mbps
+    ffmpeg -i $1 -c:v libx265 -preset slow -crf 28  -vf scale=-1:1080 -c:a aac -b:a 128k $2
+}
+
+# Convert to H.265 4k 10Mbps
+function ffmpeg-convert-h265-4k(){
+    # Retrieve file name without extension
+    file_name=$(basename -- "$1")
+    # Convert to H.265 4k 10Mbps
+    ffmpeg -i $1 -c:v libx265 -preset slow -crf 28  -vf scale=-1:2160 -c:a aac -b:a 128k $2
+}
