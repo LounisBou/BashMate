@@ -169,6 +169,15 @@ export PATH="/opt/metasploit-framework/bin/:$PATH"
 # Add /usr/local/bin to the PATH for programs installed by Homebrew.
 export PATH=$PATH:/usr/local/bin
 
+# Boost
+export PYTHON_EXECUTABLE=$(pyenv which python3)
+export OPENSSL_ROOT_DIR=$(brew --prefix openssl@1.1)
+export BOOST_ROOT=$(brew --prefix boost)
+export CPLUS_INCLUDE_PATH="$BOOST_ROOT/include:$OPENSSL_ROOT_DIR/include"
+export LIBRARY_PATH="$BOOST_ROOT/lib:$OPENSSL_ROOT_DIR/lib"
+export LDFLAGS="-L$BOOST_ROOT/lib -L$OPENSSL_ROOT_DIR/lib"
+export CPPFLAGS="-I$BOOST_ROOT/include -I$OPENSSL_ROOT_DIR/include"
+
 # NVM 
 export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh
