@@ -18,4 +18,4 @@ aliases_private/
 ./BrewMate/opt/homebrew/etc/httpd/ssl/**/*
 
 # Ignore PHP versions
-./BrewMate/opt/homebrew/etc/php/**/*
+./BrewMate/opt/homebrew/etc/php/**
