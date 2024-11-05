@@ -1,10 +1,11 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
+import re
 from typing import List
 from pathlib import Path
 
-class FileCleaner:
+class FileNameCleaner:
 
     """
     A class to clean filenames by removing unwanted characters and words.
@@ -41,7 +42,7 @@ class FileCleaner:
         :param replacement: Character to replace unwanted characters with. Default is a space.
         :return: The file stem with unwanted characters removed.
         """
-        for char in FileCleaner.CHARS_TO_CLEAN:
+        for char in FileNameCleaner.CHARS_TO_CLEAN:
             file_stem = file_stem.replace(char, ' ')
         return file_stem
 
@@ -54,7 +55,7 @@ class FileCleaner:
         :param replacement: Character to replace unwanted words with. Default is a space.
         :return: The file stem with unwanted words removed.
         """
-        for word in FileCleaner.WORDS_TO_CLEAN:
+        for word in FileNameCleaner.WORDS_TO_CLEAN:
             file_stem = file_stem.replace(f" {word} ", ' ')
         return file_stem.strip()
 
@@ -67,9 +68,12 @@ class FileCleaner:
         :return: The cleaned file stem.
         """
         file_stem = file_stem.lower()
-        file_stem = FileCleaner.__clean_file_stem_chars(file_stem)
-        file_stem = FileCleaner.__clean_file_stem_words(file_stem)
-        return file_stem
+        file_stem = FileNameCleaner.__clean_file_stem_chars(file_stem)
+        file_stem = FileNameCleaner.__clean_file_stem_words(file_stem)
+        # Remove multiple spaces in a row
+        file_stem = re.sub(r'\s+', ' ', file_stem)
+        # Remove leading and trailing spaces
+        return file_stem.strip()
     
     # Public methods
 
@@ -81,7 +85,7 @@ class FileCleaner:
         :param filepath: The full path of the file.
         :return: The cleaned file stem.
         """
-        return FileCleaner.__clean_file_stem(filepath.stem)
+        return FileNameCleaner.__clean_file_stem(filepath.stem)
     
     @staticmethod
     def get_cleaned_file_name(filepath: Path) -> str:
@@ -91,5 +95,5 @@ class FileCleaner:
         :param filepath: The full path of the file.
         :return: The cleaned file name.
         """
-        return FileCleaner.__clean_file_stem(filepath.stem) + filepath.suffix
+        return FileNameCleaner.__clean_file_stem(filepath.stem) + filepath.suffix
 

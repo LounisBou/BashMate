@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import List
 from .file_type import FileType
-from .file_cleaner import FileCleaner
+from .file_name_cleaner import FileNameCleaner
 from .directory import Directory
 
 class FileSorter:
@@ -94,7 +94,7 @@ class FileSorter:
         """
         if path.is_file():
             # Target directory path is cleaned basename of the file in the same directory
-            cleaned_file_stem = FileCleaner.get_cleaned_file_stem(path)
+            cleaned_file_stem = FileNameCleaner.get_cleaned_file_stem(path)
             target_dir = path.parent.joinpath(cleaned_file_stem)
             # Create the target directory if it does not exist
             os.makedirs(target_dir, exist_ok=True)
@@ -173,7 +173,7 @@ class FileSorter:
             # Determine if the file is an allowed type
             if FileType.get(filepath) in FileSorter.ALLOWED_TYPES[type]:
                 # Determine the cleaned file stem
-                cleaned_file_stem = FileCleaner.get_cleaned_file_stem(filepath)
+                cleaned_file_stem = FileNameCleaner.get_cleaned_file_stem(filepath)
                 # DEBUG
                 print(f"Cleaned file stem: {cleaned_file_stem}")
                 # Determine the target path

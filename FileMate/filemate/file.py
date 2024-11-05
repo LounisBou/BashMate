@@ -6,7 +6,6 @@ import re
 from .file_system_node import FileSystemNode
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions
-from .file_cleaner import FileCleaner
 
 @dataclass
 class File(FileSystemNode):
@@ -30,11 +29,7 @@ class File(FileSystemNode):
         if not self.path.is_file():
             raise ValueError(f"The path {self.path} is not a file.")
         # Set the file attributes
-        self.name_cleaned = FileCleaner.get_cleaned_file_name(self.path)
-        self.stem = self.path.stem
-        self.stem_cleaned = FileCleaner.get_cleaned_file_stem(self.path)
         self.extension = self.path.suffix[1:].lower()  # Remove leading dot and convert to lowercase
-        self.size = self.path.stat().st_size / (1024 * 1024) # Convert size to MB
         self.modification_time = self.path.stat().st_mtime
 
     def __del__(self) -> None:
@@ -55,6 +50,9 @@ class File(FileSystemNode):
         """
         return (f"File: {self.path}\n"
                 f"Name: {self.name}\n"
+                f"Cleaned Name: {self.name_cleaned}\n"
+                f"Stem: {self.stem}\n"
+                f"Cleaned Stem: {self.stem_cleaned}\n"
                 f"Extension: {self.extension}\n"
                 f"Size: {self.human_readable_size()}\n"
                 f"Last Modified: {self.formatted_modification_time()}\n"

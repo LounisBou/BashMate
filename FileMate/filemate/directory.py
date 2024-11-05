@@ -36,6 +36,8 @@ class Directory(FileSystemNode):
             raise ValueError(f"The path {self.path} is not a directory.")
         # Stem is the name without year in parentheses
         self.stem = self.name.split(' (')[0]
+        # Get directory size
+        self.size = self.__get_size()
         # Year is the year in parentheses if it exists at the end of the name and is a 4-digit number else 0
         self.year = 0
         match = re.search(r'\((\d{4})\)$', self.name)
@@ -63,7 +65,9 @@ class Directory(FileSystemNode):
         """
         return (f"Directory: {self.path}\n"
                 f"Name: {self.name}\n"
+                f"Name Cleaned: {self.name_cleaned}\n"
                 f"Stem: {self.stem}\n"
+                f"Stem Cleaned: {self.stem_cleaned}\n"
                 f"Year: {self.year}\n"
                 f"Size: {self.human_readable_size()}\n"
                 f"Items: {self.count()}\n"
@@ -276,6 +280,13 @@ class Directory(FileSystemNode):
                 except (FileNotFoundError, ValueError) as e:
                     print(f"Error processing file {file_path}: {e}")
 
+    def __get_size(self) -> int:
+        """
+        Gets the total size of the directory in bytes by us
+        :return: The total size of the directory in bytes.
+        """
+        return sum(file.size for file in self.__get_files())
+        
     # Public methods
     
     def get_type(self) -> FileType:
