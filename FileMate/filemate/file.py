@@ -13,7 +13,6 @@ class File(FileSystemNode):
 
     # Attributes specific to files
     extension: str = None
-    file_type: FileType = None
 
     # Special methods
     
@@ -35,7 +34,6 @@ class File(FileSystemNode):
         self.extension = self.path.suffix[1:].lower()  # Remove leading dot and convert to lowercase
         self.size = self.path.stat().st_size / (1024 * 1024) # Convert size to MB
         self.modification_time = self.path.stat().st_mtime
-        self.file_type = FileType.get(self.path)
 
     def __del__(self) -> None:
         """
@@ -44,7 +42,6 @@ class File(FileSystemNode):
         """
         super().__del__()
         del self.extension
-        del self.file_type
 
     # - String representation
 
@@ -59,7 +56,7 @@ class File(FileSystemNode):
                 f"Extension: {self.extension}\n"
                 f"Size: {self.human_readable_size()}\n"
                 f"Last Modified: {self.formatted_modification_time()}\n"
-                f"Type: {self.file_type.value}")
+                f"Type: {self.get_type()}")
     
     def __repr__(self) -> str:
         """
@@ -89,5 +86,5 @@ class File(FileSystemNode):
         Gets the type of the directory based on its contents.
         :return: The FileType of the directory
         """
-        return self.file_type
+        return FileType.get(self.path)
     
