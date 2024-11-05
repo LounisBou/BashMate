@@ -1,7 +1,6 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-import os
 from typing import List
 from pathlib import Path
 
@@ -30,6 +29,8 @@ class FileCleaner:
         "vff", "vfi", "vfq", "vlis", "vmpp", "vo", "vof", "vost", "vostfr", "web", "web dl", "webdl", 
         "webrip", "x264", "x265", "xvid", "zeusfaber", "zone80", "zza"
     ]
+
+    # Private methods
 
     @staticmethod
     def __clean_file_stem_chars(file_stem: str, replacement = ' ') -> str:
@@ -70,6 +71,8 @@ class FileCleaner:
         file_stem = FileCleaner.__clean_file_stem_words(file_stem)
         return file_stem
     
+    # Public methods
+
     @staticmethod
     def get_cleaned_file_stem(filepath: Path) -> str:
         """

@@ -5,6 +5,24 @@
 
 # COMMANDS
 
+# Get the file size
+function file-size() {
+    # Get the file size
+    du -h $1
+}
+
+# Get the file type
+function file-type() {
+    # Get the file type
+    file $1
+}
+
+# Get file name without extension
+function file-name() {
+    # Get the file name without extension
+    echo $1 | rev | cut -d'.' -f2- | rev
+}
+
 # Create a new file and open it with vim
 function file-create() {
     touch $1 && vim $1
@@ -136,4 +154,30 @@ function file-compare() {
         file-diff-show $@
         return 1
     fi
+}
+
+# Pack a file in a directory
+function file-pack() {
+    # File path
+    file_path=$1
+    # File directory
+    file_dir=$(dirname $file_path)
+    # Create a directory with the file name without extension
+    file_name=$(file-name $file_path)
+    mkdir $file_name
+    # Move the file to the directory
+    mv $file_path $file_dir/$file_name/
+}
+
+# Pack all files of a directory
+function file-pack-all() {
+    # Directory path
+    dir_path=$1
+    # For all files in the directory check if it is a file
+    for file in $dir_path/*; do
+        if [ -f $file ]; then
+            # Pack the file
+            file-pack $file
+        fi
+    done
 }

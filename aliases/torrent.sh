@@ -7,8 +7,8 @@
 TOSORT_PATH="/Users/izno/Downloads/A TRIER"
 
 # ToSort sub-directories
-TOSORT_MOVIES="001 FILMS"
-TOSORT_TVSHOWS="002 SERIES"
+TOSORT_MOVIES="001-MOVIES"
+TOSORT_TVSHOWS="002-TVSHOWS"
 
 # List of medias extensions
 MEDIA_EXTENSIONS=(

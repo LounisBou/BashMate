@@ -4,9 +4,10 @@
 import re
 import shutil
 import sys
+import os
 from pathlib import Path
 from typing import List
-from filemate import FileType, FileCleaner
+from filemate import FileType, FileCleaner, Directory
 
 class FileSorter:
     """
@@ -41,6 +42,8 @@ class FileSorter:
         FileType.ANDROID: [FileType.ANDROID],
         FileType.SCRIPT: [FileType.SCRIPT],
     }
+    
+    # Public methods
     
     @staticmethod
     def is_sorted_dir(path: Path) -> bool:
@@ -182,17 +185,13 @@ class FileSorter:
                 filepath.unlink()
 
     @staticmethod
-    def process(path: Path) -> None:
+    def process(directory: Directory) -> None:
         """
         Processes all directories and files in the 'ToSort' directory. Unpacks, packs, and sorts media files.
 
         :param path: The path of the directory to process.
         :return: None
         """
-
-        # Check if the path is a directory
-        if not path.is_dir():
-            return
 
         # DEGUG
         print(f"Processing directory: {path}")

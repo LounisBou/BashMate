@@ -1,11 +1,10 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-from enum import Enum as enum
-from pathlib import Path
+from enum import Enum
 from filemate import FileType
 
-class FileTypeExtensions(enum):
+class FileTypeExtensions(Enum):
 
     """
     Enum class for file types.
