@@ -65,7 +65,7 @@ class Directory(FileSystemNode):
                 f"  - Subdirectories: {self.count_dirs()}\n"
                 f"Recursive: {self.recursive}\n"
                 f"Last Modified: {self.formatted_modification_time()}\n"
-                f"Type: {self.type.value}")
+                f"Type: {self.get_type()}")
     
     def __repr__(self) -> str:
         """
