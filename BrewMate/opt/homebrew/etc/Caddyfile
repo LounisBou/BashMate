@@ -1,72 +1,76 @@
-# The server will listen on port 80 and respond with "Hello, World!" for all requests.
-:80 {
-    respond "Access denied !"
+{
+    auto_https disable_redirects
 }
 
-# Redirect from HTTP to HTTPS
-#http://example.com {
-#    redir https://example.com{uri}
-#}
-
-# Serve a static site from a directory
-#https://example.com {
-#    root * /path/to/your/site
-#    file_server
-#}
-
-# Reverse proxy to another server
-# https://tautulli.iznogoudatall.xyz {
-#     reverse_proxy localhost:8181
-# }
-
-# Basic auth on a reverse proxy
-# https://secure.example.com {
-#     basicauth {
-#         user1 JDJhJDE0JFdydDNZbU5xZUhIdm92azZIQXUuZHBCakQ5Vk1PYm8wMWhla1pldXhEa0hrcEVUSjZGak1z
-#     }
-#     reverse_proxy localhost:8181
-# }
-
-# TauTulli
-https://tautulli.iznogoudatall.xyz {
-    reverse_proxy localhost:8181
-}
-
-# Plex
-https://plex.iznogoudatall.xyz {
-    reverse_proxy localhost:32400
-}
-
-# Sonarr
-https://sonarr.iznogoudatall.xyz {
-    reverse_proxy localhost:8989
-}
-
-# Radarr
-https://radarr.iznogoudatall.xyz {
-    reverse_proxy localhost:7878
-}
-
-# Jackett
-https://jackett.iznogoudatall.xyz {
-    basicauth {
-        izno $2y$10$yUsyp5C7VnNpuzugSLsQd.k9abxtk9yv9hOvmS.qy3pIepRNYx.6O
+(cors) {
+    @hasOrigin {
+        header Origin *
     }
-    reverse_proxy localhost:9117
+
+    @hasReferrer {
+        header !Origin
+        header Referer *
+    }
+
+    @noOrigin {
+        header !Origin
+        header !Referer
+    }
+
+    header @hasOrigin Access-Control-Allow-Origin {http.request.header.origin}
+    header @hasReferrer Access-Control-Allow-Origin {http.request.header.referer}
+    header @noOrigin Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Headers Authorization
+    header Access-Control-Allow-Credentials true
+    header Access-Control-Allow-Methods GET POST PUT DELETE OPTIONS
+    header Access-Control-Max-Age 3600
+    header Vary Origin
 }
 
-# Calibre
-https://calibre.iznogoudatall.xyz {
-    reverse_proxy localhost:8083
+# GeoNative Mercure Hub
+(mercure) {
+    route /.well-known/mercure {
+        import cors
+        @options {
+            method OPTIONS
+        }
+        respond @options 204
+
+        mercure {
+            transport_url bolt:///tmp/mercure.db
+            publisher_jwt {env.MERCURE_JWT_VERIFICATION_KEY} RS256
+            subscriber_jwt {env.MERCURE_JWT_VERIFICATION_KEY} RS256
+            anonymous
+            subscriptions
+            heartbeat 10s
+        }
+    }
 }
 
-# Qbittorrent
-https://torrent.iznogoudatall.xyz {
-    reverse_proxy localhost:8081
+# GeoNative API
+api.geonative.local {
+	tls internal
+	import mercure
+	root * /Users/izno/dev/www/geonative-api/public
+	php_fastcgi 127.0.0.1:9081
+	file_server
 }
 
-# Openhab
-https://openhab.iznogoudatall.xyz {
-    reverse_proxy localhost:8080
+# GeoNative Admin API
+admin-api.geonative.local {
+	tls internal
+	import mercure
+	root * /Users/izno/dev/www/geonative-api/public
+	php_fastcgi 127.0.0.1:9081
+	file_server
 }
 
+# GeoNative Admin
+admin.geonative.local.app {
+    reverse_proxy localhost:5000
+}
+
+# GeoNative MyGeo
+mygeo.geonative.local {
+    reverse_proxy localhost:5010
+}
