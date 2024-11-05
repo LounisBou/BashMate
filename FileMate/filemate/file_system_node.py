@@ -317,7 +317,7 @@ class FileSystemNode(ABC):
         """
         return self.path.relative_to(other)
     
-    # - File operations
+    # - FileSystem operations
     
     def rename(self, new_name: str) -> None:
         """
