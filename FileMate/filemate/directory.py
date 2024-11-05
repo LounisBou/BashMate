@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass, field
 import os
+import re
 import shutil
 from collections import Counter
 from typing import Iterator
@@ -35,8 +36,13 @@ class Directory(FileSystemNode):
             raise ValueError(f"The path {self.path} is not a directory.")
         # Stem is the name without year in parentheses
         self.stem = self.name.split(' (')[0]
-        # Year is the year in parentheses if it exists
-        self.year = int(self.name.split('(')[-1].split(')')[0]) if '(' in self.name else None
+        # Year is the year in parentheses if it exists at the end of the name and is a 4-digit number else 0
+        self.year = 0
+        match = re.search(r'\((\d{4})\)$', self.name)
+        if match:
+            self.year = int(match.group(1))
+            # Update stem to exclude the year
+            self.stem = self.name[:match.start()].strip()
 
     def __del__(self) -> None:
         """

@@ -31,6 +31,9 @@ def main():
     directory = Directory(path)
     # Print the directory
     print(directory)
+    for node in directory:
+        print('--------------------------------------------------')
+        print(node)
     
     
 # Check if the script is being run directly
