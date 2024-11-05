@@ -4,7 +4,7 @@
 # Import key classes and functions for easier access
 from .file import File
 from .directory import Directory
-from .file_name_cleaner import FileNameCleaner
+from .node_name_cleaner import NodeNameCleaner
 from .file_sorter import FileSorter
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions

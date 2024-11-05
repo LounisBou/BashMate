@@ -5,10 +5,10 @@ import re
 from typing import List
 from pathlib import Path
 
-class FileNameCleaner:
+class NodeNameCleaner:
 
     """
-    A class to clean filenames by removing unwanted characters and words.
+    A class to clean name by removing unwanted characters and words.
     """
 
     CHARS_TO_CLEAN: List[str] = ["5.1", "4.0", ".", "-", "_", "[", "]", "{", "}", "~", "+", "(", ")", "!"]
@@ -34,66 +34,66 @@ class FileNameCleaner:
     # Private methods
 
     @staticmethod
-    def __clean_file_stem_chars(file_stem: str, replacement = ' ') -> str:
+    def __clean_node_stem_chars(node_stem: str, replacement = ' ') -> str:
         """
-        Cleans unwanted characters from the file stem.
+        Cleans unwanted characters from the node stem.
 
-        :param file_stem: Filename without the extension.
+        :param node_stem: Node name without the extension.
         :param replacement: Character to replace unwanted characters with. Default is a space.
-        :return: The file stem with unwanted characters removed.
+        :return: The node stem with unwanted characters removed.
         """
-        for char in FileNameCleaner.CHARS_TO_CLEAN:
-            file_stem = file_stem.replace(char, ' ')
-        return file_stem
+        for char in NodeNameCleaner.CHARS_TO_CLEAN:
+            node_stem = node_stem.replace(char, ' ')
+        return node_stem
 
     @staticmethod
-    def __clean_file_stem_words(file_stem: str, replacement = ' ') -> str:
+    def __clean_node_stem_words(node_stem: str, replacement = ' ') -> str:
         """
-        Cleans unwanted words from the file stem.
+        Cleans unwanted words from the node stem.
 
-        :param file_stem: Filename without the extension.
+        :param node_stem: Node name without the extension.
         :param replacement: Character to replace unwanted words with. Default is a space.
-        :return: The file stem with unwanted words removed.
+        :return: The node stem with unwanted words removed.
         """
-        for word in FileNameCleaner.WORDS_TO_CLEAN:
-            file_stem = file_stem.replace(f" {word} ", ' ')
-        return file_stem.strip()
+        for word in NodeNameCleaner.WORDS_TO_CLEAN:
+            node_stem = node_stem.replace(f" {word} ", ' ')
+        return node_stem.strip()
 
     @staticmethod
-    def __clean_file_stem(file_stem: str) -> str:
+    def __clean_node_stem(node_stem: str) -> str:
         """
-        Cleans both unwanted characters and words from the file stem.
+        Cleans both unwanted characters and words from the node stem.
 
-        :param file_stem: Filename without the extension.
-        :return: The cleaned file stem.
+        :param node_stem: Node name without the extension.
+        :return: The cleaned node stem.
         """
-        file_stem = file_stem.lower()
-        file_stem = FileNameCleaner.__clean_file_stem_chars(file_stem)
-        file_stem = FileNameCleaner.__clean_file_stem_words(file_stem)
+        node_stem = node_stem.lower()
+        node_stem = NodeNameCleaner.__clean_node_stem_chars(node_stem)
+        node_stem = NodeNameCleaner.__clean_node_stem_words(node_stem)
         # Remove multiple spaces in a row
-        file_stem = re.sub(r'\s+', ' ', file_stem)
+        node_stem = re.sub(r'\s+', ' ', node_stem)
         # Remove leading and trailing spaces
-        return file_stem.strip()
+        return node_stem.strip()
     
     # Public methods
 
     @staticmethod
-    def get_cleaned_file_stem(filepath: Path) -> str:
+    def get_cleaned_node_stem(path: Path) -> str:
         """
-        Gets the cleaned file stem of a file.
+        Gets the cleaned node stem of a node.
 
-        :param filepath: The full path of the file.
-        :return: The cleaned file stem.
+        :param path: The full path of the node.
+        :return: The cleaned node stem.
         """
-        return FileNameCleaner.__clean_file_stem(filepath.stem)
+        return NodeNameCleaner.__clean_node_stem(path.stem)
     
     @staticmethod
-    def get_cleaned_file_name(filepath: Path) -> str:
+    def get_cleaned_node_name(path: Path) -> str:
         """
-        Gets the cleaned file name of a file.
+        Gets the cleaned node name of a node.
 
-        :param filepath: The full path of the file.
-        :return: The cleaned file name.
+        :param path: The full path of the node.
+        :return: The cleaned node name.
         """
-        return FileNameCleaner.__clean_file_stem(filepath.stem) + filepath.suffix
+        return NodeNameCleaner.__clean_node_stem(path.stem) + path.suffix
 

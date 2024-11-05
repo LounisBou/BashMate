@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 from dataclasses import dataclass, field
 import time
-from .file_name_cleaner import FileNameCleaner
+from .node_name_cleaner import NodeNameCleaner
 
 @dataclass
 class FileSystemNode(ABC):
@@ -37,9 +37,9 @@ class FileSystemNode(ABC):
         # Set the directory attributes
         self.path = self.path.resolve()
         self.name = self.path.name
-        self.name_cleaned = FileNameCleaner.get_cleaned_file_name(self.path)
+        self.name_cleaned = NodeNameCleaner.get_cleaned_node_name(self.path)
         self.stem = self.path.stem
-        self.stem_cleaned = FileNameCleaner.get_cleaned_file_stem(self.path)
+        self.stem_cleaned = NodeNameCleaner.get_cleaned_node_stem(self.path)
         self.modification_time = self.path.stat().st_mtime
         self.size = self.path.stat().st_size # size of file, in bytes
     
