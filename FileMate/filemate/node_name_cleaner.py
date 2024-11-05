@@ -13,7 +13,7 @@ class NodeNameCleaner:
 
     CHARS_TO_CLEAN: List[str] = ["5.1", "4.0", ".", "-", "_", "[", "]", "{", "}", "~", "+", "(", ")", "!"]
     WORDS_TO_CLEAN = [
-        "1080", "1080i", "1080p", "10bit", "1920x1080", "2160p", "2vf", "480p", "720p", "7sins",
+        "1080", "1080i", "1080p", "10bit", "10-bit", "1920x1080", "2160p", "2ch", "2vf", "480p", "720p", "7sins",
         "4k", "4klight", "6ch", "aac", "aaclc", "abcollection", "ac 3", "ac3", "acc", "acool",
         "amzn", "ark01", "av1", "avc", "bbc", "bbt", "bdrip", "benh4", "bit", "bluray", "bluray1080p",
         "brrip", "btt", "buret", "ccats", "ch", "chris44", "custom", "darkjuju", "dd", "ddp",
@@ -27,7 +27,7 @@ class NodeNameCleaner:
         "owii", "p4t4t3", "pop", "pophd", "Portos", "portos", "qtz", "remastered", "romkent", "se7en", 
         "serqph", "shc23", "slayer", "slay3r", "srt", "stereo", "tf", "title1", "tonyk", "tr", 
         "truefrench", "trunkdu92", "tvwh0res", "unrated", "uptopol", "utt", "version", "vf", "vf2", 
-        "vff", "vfi", "vfq", "vlis", "vmpp", "vo", "vof", "vost", "vostfr", "web", "web dl", "webdl", 
+        "vff", "vfi", "vfq", "vlis", "vmpp", "vo", "vof", "vost", "vostfr", "vp9", "web", "web dl", "webdl", 
         "webrip", "x264", "x265", "xvid", "zeusfaber", "zone80", "zza"
     ]
 
@@ -67,8 +67,17 @@ class NodeNameCleaner:
         :param node_stem: Node name without the extension.
         :return: The cleaned node stem.
         """
+        # Convert to lowercase
         node_stem = node_stem.lower()
+        # Remove elements in brackets
+        node_stem = re.sub(r'\[.*?\]', '', node_stem)
+        # Remove elements in parentheses
+        node_stem = re.sub(r'\(.*?\)', '', node_stem)
+        # Remove leading and trailing spaces
+        node_stem = node_stem.strip()
+        # Remove unwanted characters
         node_stem = NodeNameCleaner.__clean_node_stem_chars(node_stem)
+        # Remove unwanted words
         node_stem = NodeNameCleaner.__clean_node_stem_words(node_stem)
         # Remove multiple spaces in a row
         node_stem = re.sub(r'\s+', ' ', node_stem)

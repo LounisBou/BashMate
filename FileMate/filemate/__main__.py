@@ -28,14 +28,14 @@ def main():
     path = Path(node_path)
     # Node
     node = FileSystemNodeFactory.create_node(path)
-    # Print the directory
-    print(node)
     # Check if the node is a directory
     if node.is_dir():
         # Iterate over sub nodes
         for sub_node in node:
-            print('--------------------------------------------------')
             print(sub_node)
+            print('--------------------------------------------------')
+    else:
+        print(node)
     
     
 # Check if the script is being run directly

@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 import math
 from pathlib import Path
 from dataclasses import dataclass, field
+import shutil
 import time
 from .node_name_cleaner import NodeNameCleaner
 
@@ -225,6 +226,7 @@ class FileSystemNode(ABC):
     
     # Public methods
     
+    # - Reload and existence check
     def reload(self):
         """
         Reloads the file attributes.
@@ -240,6 +242,8 @@ class FileSystemNode(ABC):
         :return: True if the file exists, False otherwise.
         """
         return self.path.exists()
+    
+    # - Format conversion
     
     def human_readable_size(self, force_unit: str = None) -> str:
         """
@@ -262,6 +266,18 @@ class FileSystemNode(ABC):
         """
         return time.strftime(format, time.localtime(self.modification_time))
     
+        # - Type checking
+    
+    # - Type checking
+    
+    @abstractmethod
+    def get_type(self) -> str:
+        """
+        Gets the type of the node.
+        :return: The type of the node.
+        """
+        raise NotImplementedError("The __get_type method must be implemented in the subclass.")
+    
     def is_file(self) -> bool:
         """
         Checks if the node is a file.
@@ -275,12 +291,71 @@ class FileSystemNode(ABC):
         :return: True if the node is a directory, False otherwise.
         """
         return self.path.is_dir()
+    
+    def is_symlink(self) -> bool:
+        """
+        Checks if the node is a symbolic link.
+        :return: True if the node is a symbolic link, False otherwise.
+        """
+        return self.path.is_symlink()
             
-    @abstractmethod
-    def get_type(self) -> str:
+    # - Path operations
+    
+    def joinpath(self, *paths) -> Path:
         """
-        Gets the type of the node.
-        :return: The type of the node.
+        Joins the node path with the given paths.
+        :param paths: The paths to join.
+        :return: The joined path.
         """
-        raise NotImplementedError("The __get_type method must be implemented in the subclass.")
+        return self.path.joinpath(*paths)
+    
+    def relative_to(self, other: Path) -> Path:
+        """
+        Returns a relative path to the node from the other path.
+        :param other: The other path.
+        :return: The relative path to the node from the other path.
+        """
+        return self.path.relative_to(other)
+    
+    # - File operations
+    
+    def rename(self, new_name: str) -> None:
+        """
+        Renames the node.
+        :param new_name: The new name of the node.
+        """
+        self.path.rename(self.path.with_name(new_name))
+        self.reload()
+        
+    def move(self, new_path: Path) -> None:
+        """
+        Moves the node to a new path.
+        :param new_path: The new path of the node.
+        """
+        self.path.rename(new_path)
+        self.reload()
+        
+    def copy(self, new_path: Path) -> None:
+        """
+        Copies the node to a new path.
+        :param new_path: The new path of the node.
+        """
+        shutil.copy(self.path, new_path)
+        
+    def delete(self) -> None:
+        """
+        Deletes the node.
+        """
+        self.path.unlink()
+    
+    def create_symlink(self, target: Path, replace: bool = False) -> None:
+        """
+        Creates a symbolic link to the node.
+        :param target: The target of the symbolic link.
+        :param replace: True to replace an existing symbolic link, False otherwise.
+        """
+        if replace:
+            self.path.unlink()
+        self.path.symlink_to(target)
+        self.reload()
         

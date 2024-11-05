@@ -218,11 +218,12 @@ class Directory(FileSystemNode):
 
     # Private methods
 
-    def __get_content(self, recursive: bool = True) -> Iterator[FileSystemNode]:
+    def __get_content(self, recursive: bool = True, hidden: bool = False) -> Iterator[FileSystemNode]:
         """
         Generator that yields FileSystemNode instances for the contents of the directory.
 
         :param recursive: If True, recursively includes contents of subdirectories.
+        :param hidden: If True, includes hidden files and directories.
         :yield: An iterator over FileSystemNode instances.
         """
         if recursive:
@@ -233,52 +234,44 @@ class Directory(FileSystemNode):
         for node_path in nodes_iterator:
             if node_path.is_file():
                 try:
+                    # Check if hidden files are included
+                    if not hidden and node_path.name.startswith('.'):
+                        continue
                     yield File(node_path)
                 except (FileNotFoundError, ValueError) as e:
                     print(f"Error processing file {node_path}: {e}")
             elif node_path.is_dir():
                 try:
+                    # Check if hidden directories are included
+                    if not hidden and node_path.name.startswith('.'):
+                        continue
                     yield Directory(node_path)
                 except (FileNotFoundError, ValueError) as e:
                     print(f"Error processing directory {node_path}: {e}")
 
-    def __get_directories(self, recursive: bool = True) -> Iterator['Directory']:
+    def __get_directories(self, recursive: bool = True, hidden: bool = False) -> Iterator['Directory']:
         """
         Generator that yields Directory instances for all subdirectories in the directory.
 
         :param recursive: If True, recursively includes subdirectories of subdirectories.
+        :param hidden: If True, includes hidden directories.
         :yield: An iterator over Directory instances.
         """
-        if recursive:
-            dirs_iterator = self.path.rglob('*')
-        else:
-            dirs_iterator = self.path.iterdir()
-
-        for dir_path in dirs_iterator:
-            if dir_path.is_dir():
-                try:
-                    yield Directory(dir_path)
-                except (FileNotFoundError, ValueError) as e:
-                    print(f"Error processing directory {dir_path}: {e}")
+        for node in self.__get_content(recursive=recursive, hidden=hidden):
+            if node.is_dir():
+                yield node
     
-    def __get_files(self, recursive: bool = True) -> Iterator[File]:
+    def __get_files(self, recursive: bool = True, hidden: bool = False) -> Iterator[File]:
         """
         Generator that yields File instances for all files in the directory.
 
         :param recursive: If True, recursively includes files in subdirectories.
+        :param hidden: If True, includes hidden files.
         :yield: An iterator over File instances.
         """
-        if recursive:
-            files_iterator = self.path.rglob('*')
-        else:
-            files_iterator = self.path.iterdir()
-
-        for file_path in files_iterator:
-            if file_path.is_file():
-                try:
-                    yield File(file_path)
-                except (FileNotFoundError, ValueError) as e:
-                    print(f"Error processing file {file_path}: {e}")
+        for node in self.__get_content(recursive=recursive, hidden=hidden):
+            if node.is_file():
+                yield node
 
     def __get_size(self) -> int:
         """
