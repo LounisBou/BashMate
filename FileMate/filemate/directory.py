@@ -283,7 +283,7 @@ class Directory(FileSystemNode):
         Gets the type of the directory based on its contents.
         :return: The FileType of the directory
         """
-        file_types = Counter([file.file_type for file in self.__get_files()])
+        file_types = Counter([file.get_type() for file in self.__get_files()])
         if file_types:
             return max(file_types, key=file_types.get)
         return FileType.OTHER
