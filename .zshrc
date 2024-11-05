@@ -7,6 +7,9 @@ export TMPDIR=/tmp
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+# Export Geonative API Mercure JWT Token
+export MERCURE_JWT_VERIFICATION_KEY=$(cat ~/dev/www/geonative-api/config/jwt/public.pem)
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -123,6 +126,9 @@ export PATH="/opt/homebrew/bin/brew:$PATH"
 
 # Local binaries
 export PATH="~/bin:$PATH"
+
+# Go
+export PATH="$PATH:$HOME/go/bin"
 
 # JAVA HOME
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-19.jdk/Contents/Home
