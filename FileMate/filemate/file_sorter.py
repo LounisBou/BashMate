@@ -7,7 +7,9 @@ import sys
 import os
 from pathlib import Path
 from typing import List
-from filemate import FileType, FileCleaner, Directory
+from .file_type import FileType
+from .file_cleaner import FileCleaner
+from .directory import Directory
 
 class FileSorter:
     """

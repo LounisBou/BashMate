@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-from filemate import FileSystemNode, FileType, FileCleaner
+from .file_system_node import FileSystemNode
+from .file_type import FileType
+from .file_cleaner import FileCleaner
 
 @dataclass
 class File(FileSystemNode):

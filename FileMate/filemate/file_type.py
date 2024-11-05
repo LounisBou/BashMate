@@ -4,7 +4,7 @@
 from enum import Enum
 from pathlib import Path
 import re
-from filemate import FileTypeExtensions
+from .file_type_extensions import FileTypeExtensions
 
 class FileType(Enum):
     """

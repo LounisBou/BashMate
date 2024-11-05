@@ -6,7 +6,9 @@ import os
 import shutil
 from collections import Counter
 from typing import Iterator
-from filemate import FileSystemNode, File, FileType
+from .file_system_node import FileSystemNode
+from .file import File
+from .file_type import FileType
 
 @dataclass
 class Directory(FileSystemNode):
