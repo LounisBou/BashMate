@@ -3,8 +3,7 @@
 
 import argparse
 from pathlib import Path
-from .directory import Directory
-
+from .file_system_node_factory import FileSystemNodeFactory
 
 def main():
     """
@@ -13,7 +12,7 @@ def main():
     
     # Create the parser
     parser = argparse.ArgumentParser(description='FileMate - A file management tool.')
-    parser.add_argument('directory', type=Path, help='Path to the directory to process')
+    parser.add_argument('path', type=Path, help='Path to the fileSystem node to process')
     parser.add_argument('--clean', action='store_true', required=False, help='Clean file names')
     parser.add_argument('--sort', action='store_true', required=False, help='Sort files into subdirectories')
     parser.add_argument('--delete-empty', action='store_true', required=False, help='Delete empty subdirectories')
@@ -23,17 +22,20 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
     
-    # Directory path
-    directory_path = args.directory
+    # Node path
+    node_path = args.path
     # Path 
-    path = Path(directory_path)
-    # Directory
-    directory = Directory(path)
+    path = Path(node_path)
+    # Node
+    node = FileSystemNodeFactory.create_node(path)
     # Print the directory
-    print(directory)
-    for node in directory:
-        print('--------------------------------------------------')
-        print(node)
+    print(node)
+    # Check if the node is a directory
+    if node.is_dir():
+        # Iterate over sub nodes
+        for sub_node in node:
+            print('--------------------------------------------------')
+            print(sub_node)
     
     
 # Check if the script is being run directly
