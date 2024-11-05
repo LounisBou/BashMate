@@ -17,8 +17,6 @@ class FileTypeExtensions(Enum):
         "ogv", "oga", "ogx", "ogm", "spx", "opus", "flac", "wav", "mp3", "wma",
         "aac", "ac3", "dts", "pcm", "mka", "mks", "weba", "ra", "rmvb"
     ]
-    TVSHOW = VIDEO
-    MOVIE = VIDEO
     AUDIO = [
         "mp3", "wav", "flac", "ogg", "m4a", "wma", "aac", "ac3", "dts", "pcm",
         "mka", "mks", "weba", "ra", "rmvb"
@@ -35,6 +33,7 @@ class FileTypeExtensions(Enum):
         "py", "sh", "bat", "cmd", "ps1", "vbs", "js", "php", "pl", "rb", "java", "cpp", "cs",
         "html", "css", "xml", "json", "yaml", "yml", "toml", "ini", "cfg", "conf", "log", "md", "rst"
     ]
+    OTHER = []
     
     @classmethod
     def types(cls) -> dict:
@@ -43,6 +42,13 @@ class FileTypeExtensions(Enum):
         @return: A dict with all the enum members.
         """
         return cls.__members__
+    
+    @classmethod
+    def keys(cls):
+        """"
+        Returns the keys of the enum.
+        """
+        return cls.__members__.keys()
     
     @classmethod
     def get_file_type(cls, extension):

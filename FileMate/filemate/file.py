@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
+import re
 from .file_system_node import FileSystemNode
 from .file_type import FileType
+from .file_type_extensions import FileTypeExtensions
 from .file_cleaner import FileCleaner
 
 @dataclass
@@ -83,8 +85,25 @@ class File(FileSystemNode):
     
     def get_type(self) -> FileType:
         """
-        Gets the type of the directory based on its contents.
-        :return: The FileType of the directory
+        Gets the type of a file based on its extension.
+        :param filepath: Path of the file.
+        :return: The type of the file.
         """
-        return FileType.get(self.path)
+
+        # Get the file type based on the extension
+        file_type = FileTypeExtensions.get_file_type(self.extension)
+        
+        # Check if the file type is None
+        if file_type is None:
+            return FileType.OTHER.name
+        
+        # Override the file type for specific cases
+        if file_type.name == FileTypeExtensions.VIDEO.name:
+            if re.search(r's\d{2}e\d{2}', self.name) or re.search(r'\d{3,4}p', self.name):
+                file_type = FileType.TVSHOW
+            else:
+                file_type = FileType.MOVIE
+            
+        # Return the file type
+        return file_type.name
     
