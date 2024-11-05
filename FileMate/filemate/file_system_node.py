@@ -36,6 +36,9 @@ class FileSystemNode(ABC):
         # Set the directory attributes
         self.path = self.path.resolve()
         self.name = self.path.name
+        self.name_cleaned = self.path.name
+        self.stem = self.path.stem
+        self.stem_cleaned = self.path.stem
         self.modification_time = self.path.stat().st_mtime
         self.size = self.path.stat().st_size / (1024 * 1024)  # Convert size to MB
     

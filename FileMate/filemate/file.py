@@ -84,3 +84,10 @@ class File(FileSystemNode):
 
     # Public methods
     
+    def get_type(self) -> FileType:
+        """
+        Gets the type of the directory based on its contents.
+        :return: The FileType of the directory
+        """
+        return self.file_type
+    

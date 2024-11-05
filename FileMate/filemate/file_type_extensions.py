@@ -37,12 +37,12 @@ class FileTypeExtensions(Enum):
     ]
     
     @classmethod
-    def types(cls) -> list:
+    def types(cls) -> dict:
         """
         Allow to get all the enum members to iterate.
-        @return: A list of all enum members.
+        @return: A dict with all the enum members.
         """
-        return list(cls)
+        return cls.__members__
     
     @classmethod
     def get_file_type(cls, extension):

@@ -60,9 +60,9 @@ class Directory(FileSystemNode):
                 f"Stem: {self.stem}\n"
                 f"Year: {self.year}\n"
                 f"Size: {self.human_readable_size()}\n"
-                f"Items: {self.number_of_items}\n"
-                f"  - Files: {self.number_of_files}\n"
-                f"  - Subdirectories: {self.number_of_subdirectories}\n"
+                f"Items: {self.count()}\n"
+                f"  - Files: {self.count_files()}\n"
+                f"  - Subdirectories: {self.count_dirs()}\n"
                 f"Recursive: {self.recursive}\n"
                 f"Last Modified: {self.formatted_modification_time()}\n"
                 f"Type: {self.type.value}")
@@ -289,7 +289,7 @@ class Directory(FileSystemNode):
         """
         return sum(1 for _ in self.__get_content(recursive=False))
     
-    def count_dir(self) -> int:
+    def count_dirs(self) -> int:
         """
         Returns the number of subdirectories in the directory.
         :return: The number of subdirectories in the directory.
