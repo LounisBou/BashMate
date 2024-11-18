@@ -33,7 +33,7 @@ class FileTypeExtensions(Enum):
         "py", "sh", "bat", "cmd", "ps1", "vbs", "js", "php", "pl", "rb", "java", "cpp", "cs",
         "html", "css", "xml", "json", "yaml", "yml", "toml", "ini", "cfg", "conf", "log", "md", "rst"
     ]
-    OTHER = []
+    OTHER = ["nfo", "url", "torrent", "csv"]
     
     @classmethod
     def types(cls) -> dict:

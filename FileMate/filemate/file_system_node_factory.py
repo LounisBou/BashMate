@@ -12,8 +12,7 @@ class FileSystemNodeFactory():
     A class to create file system nodes.
     """
     
-    @staticmethod
-    def create_node(path: Path) -> FileSystemNode:
+    def __new__(cls, path: Path) -> FileSystemNode:
         """
         Creates a file system node based on the type of the path.
         :param path: Path of the file system node.
@@ -25,4 +24,5 @@ class FileSystemNodeFactory():
             return Directory(path)
         else:
             raise ValueError(f"The path {path} is not a file or directory.")
+    
         

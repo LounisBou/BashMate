@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 import shutil
 import time
 from .node_name_cleaner import NodeNameCleaner
+from .file_type import FileType
 
 @dataclass
 class FileSystemNode(ABC):
@@ -43,6 +44,7 @@ class FileSystemNode(ABC):
         self.stem_cleaned = NodeNameCleaner.get_cleaned_node_stem(self.path)
         self.modification_time = self.path.stat().st_mtime
         self.size = self.path.stat().st_size # size of file, in bytes
+        self.parent = self.path.parent.resolve()
     
     def __del__(self) -> None:
         """
@@ -55,7 +57,31 @@ class FileSystemNode(ABC):
         del self.stem_cleaned
         del self.size
         del self.modification_time
-        
+        del self.parent
+    
+    # - Class check
+    
+    def _is(self, object: 'FileSystemNode') -> bool:
+        """
+        Checks if the node is an instance of the given class.
+        Example: node.is(File)
+        :param object: The class to check.
+        :return: True if the node is an instance of the given class, False otherwise.
+        """
+        return isinstance(self, object)
+    
+    def _instanceof(self) -> 'FileSystemNode':
+        """
+        Returns the class of the node
+        Example: node.instanceof()
+        :return: The class of the node
+        """
+        # Check if the node is a FileSystemNode
+        if isinstance(self, FileSystemNode):
+            return self.__class__
+        # If the node is not a FileSystemNode, raise an error
+        raise ValueError("The node is not an instance of File or Directory.")
+    
     # - Comparison
         
     def __hash__(self) -> int:
@@ -234,7 +260,7 @@ class FileSystemNode(ABC):
         try:
             self.__post_init__()
         except FileNotFoundError as e:
-            print(f"Error reloading file: {e}")
+            raise FileNotFoundError(f"The file {self.path} does not exist.") from e
             
     def exists(self) -> bool:
         """
@@ -271,26 +297,12 @@ class FileSystemNode(ABC):
     # - Type checking
     
     @abstractmethod
-    def get_type(self) -> str:
+    def get_type(self) -> FileType:
         """
         Gets the type of the node.
         :return: The type of the node.
         """
         raise NotImplementedError("The __get_type method must be implemented in the subclass.")
-    
-    def is_file(self) -> bool:
-        """
-        Checks if the node is a file.
-        :return: True if the node is a file, False otherwise.
-        """
-        return self.path.is_file()
-    
-    def is_dir(self) -> bool:
-        """
-        Checks if the node is a directory.
-        :return: True if the node is a directory, False otherwise.
-        """
-        return self.path.is_dir()
     
     def is_symlink(self) -> bool:
         """
@@ -298,7 +310,14 @@ class FileSystemNode(ABC):
         :return: True if the node is a symbolic link, False otherwise.
         """
         return self.path.is_symlink()
-            
+    
+    def get_year(self) -> int:
+        """
+        Check if node name contains a year. If it does, return the year. Otherwise, return 0.
+        Patern: yyyy
+        """
+        return NodeNameCleaner.get_year_from_node_name(self.path)
+                
     # - Path operations
     
     def joinpath(self, *paths) -> Path:
@@ -324,7 +343,10 @@ class FileSystemNode(ABC):
         Renames the node.
         :param new_name: The new name of the node.
         """
-        self.path.rename(self.path.with_name(new_name))
+        new_path = self.path.parent.joinpath(new_name)
+        self.path.rename(new_path)
+        # Update the path
+        self.path = new_path
         self.reload()
         
     def move(self, new_path: Path) -> None:
@@ -333,6 +355,8 @@ class FileSystemNode(ABC):
         :param new_path: The new path of the node.
         """
         self.path.rename(new_path)
+        # Update the path
+        self.path = new_path
         self.reload()
         
     def copy(self, new_path: Path) -> None:
@@ -357,5 +381,13 @@ class FileSystemNode(ABC):
         if replace:
             self.path.unlink()
         self.path.symlink_to(target)
-        self.reload()
-        
+
+    # - Cleanup operations
+    
+    def clean_name(self) -> None:
+        """
+        Cleans the name of the node.
+        """
+        new_name = NodeNameCleaner.get_cleaned_node_name(self.path)
+        self.rename(new_name)
+    

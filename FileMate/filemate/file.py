@@ -41,8 +41,17 @@ class File(FileSystemNode):
         del self.extension
 
     # - String representation
-
+    
     def __str__(self) -> str:
+        """
+        Returns a string representation of the file.
+        Examples: str(dir) returns a string representation of the directory.
+        :return: A string representation of the file.
+        """
+        return f"File: {self.path.name}"
+    
+    def __repr__(self) -> str:
+        
         """
         Returns a string representation of the file.
         Example: str(file)
@@ -57,14 +66,6 @@ class File(FileSystemNode):
                 f"Size: {self.human_readable_size()}\n"
                 f"Last Modified: {self.formatted_modification_time()}\n"
                 f"Type: {self.get_type()}")
-    
-    def __repr__(self) -> str:
-        """
-        Returns a string representation of the file.
-        Example: repr(file)
-        :return: A string representation of the file.
-        """
-        return f"File({self.path!r})"
     
     # - Comparison
 
@@ -89,19 +90,42 @@ class File(FileSystemNode):
         """
 
         # Get the file type based on the extension
-        file_type = FileTypeExtensions.get_file_type(self.extension)
+        file_type_ext = FileTypeExtensions.get_file_type(self.extension)
         
         # Check if the file type is None
-        if file_type is None:
-            return FileType.OTHER.name
+        if file_type_ext is None:
+            return FileType.OTHER
         
         # Override the file type for specific cases
-        if file_type.name == FileTypeExtensions.VIDEO.name:
+        if file_type_ext.name == FileTypeExtensions.VIDEO.name:
             if re.search(r's\d{2}e\d{2}', self.name) or re.search(r'\d{3,4}p', self.name):
-                file_type = FileType.TVSHOW
+                return FileType.TVSHOW
             else:
-                file_type = FileType.MOVIE
+                return FileType.MOVIE
             
-        # Return the file type
-        return file_type.name
+        # Check if there is a file type matching the file type extension
+        if not hasattr(FileType, file_type_ext.name):
+            return FileType.OTHER
+            
+        # Return the file type matching the file type extension based their name
+        return FileType[file_type_ext.name] 
+      
+    def pack(self, includes: set[FileSystemNode] = None) -> str:
+        """
+        Pack the file into a dictionary with the same name as the file.
+        :param includes: A set containing nodes to include in the packing.
+        :return: The pack directory path.
+        """
+        # Create a directory with the same name as the file
+        directory = self.path.parent / self.stem
+        directory.mkdir(exist_ok=True)
+        # Move the file to the directory
+        self.move(directory / self.path.name)
+        # Check if there is nodes to include
+        if includes is not None:
+            for node in includes:
+                # Move the node to the directory
+                node.move(directory / node.path.name)
+        # Return the pack directory path
+        return directory
     

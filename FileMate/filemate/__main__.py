@@ -4,6 +4,7 @@
 import argparse
 from pathlib import Path
 from .file_system_node_factory import FileSystemNodeFactory
+from .file_sorter import FileSorter
 
 def main():
     """
@@ -18,6 +19,8 @@ def main():
     parser.add_argument('--delete-empty', action='store_true', required=False, help='Delete empty subdirectories')
     parser.add_argument('--delete-duplicates', action='store_true', required=False, help='Delete duplicate files')
     parser.add_argument('--delete-small', action='store_true', required=False, help='Delete small files')
+    parser.add_argument('--verbose', action='store_true', required=False, help='Verbose output')
+    parser.add_argument('--dry-run', action='store_true', required=False, help='Dry run')
     
     # Parse the arguments
     args = parser.parse_args()
@@ -27,15 +30,10 @@ def main():
     # Path 
     path = Path(node_path)
     # Node
-    node = FileSystemNodeFactory.create_node(path)
-    # Check if the node is a directory
-    if node.is_dir():
-        # Iterate over sub nodes
-        for sub_node in node:
-            print(sub_node)
-            print('--------------------------------------------------')
-    else:
-        print(node)
+    node = FileSystemNodeFactory(path)
+    # Sort nodes
+    file_sorter = FileSorter(node, verbose=args.verbose, dry_run=args.dry_run)
+    file_sorter.process()
     
     
 # Check if the script is being run directly
