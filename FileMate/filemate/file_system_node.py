@@ -46,8 +46,7 @@ class FileSystemNode(ABC):
         self.stem = self.path.stem
         self.stem_cleaned = NodeNameCleaner.get_cleaned_node_stem(self.path)
         self.modification_time = self.path.stat().st_mtime # last modification time
-        self.size = self.path.stat().st_size # size of file, in bytes
-    
+
     # - Class check
     
     def _is(self, object: 'FileSystemNode') -> bool:
@@ -252,6 +251,12 @@ class FileSystemNode(ABC):
             raise FileNotFoundError(f"The file {self.path} does not exist.") from e
     
     # - Format conversion
+    
+    def get_size(self) -> int:
+        """
+        Gets the size of the node.
+        """
+        raise NotImplementedError("The get_size method must be implemented in the subclass.")
     
     def human_readable_size(self, force_unit: str = None) -> str:
         """

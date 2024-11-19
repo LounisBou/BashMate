@@ -74,6 +74,15 @@ class File(FileSystemNode):
 
     # Public methods
     
+    def get_size(self):
+        """
+        Gets the size of the file.
+        :return: The size of the file.
+        """
+        if self.size is None:
+            self.size = self.path.stat().st_size
+        return self.size
+    
     def get_type(self) -> FileType:
         """
         Gets the type of a file based on its extension.

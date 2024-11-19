@@ -125,16 +125,17 @@ class NodeNameCleaner:
             return NodeNameCleaner.__clean_node_stem(path.stem) + path.suffix
     
     @staticmethod
-    def get_year_from_node_name(node_name: str) -> str:
+    def get_year_from_node_name(node_name: str) -> int|None:
         """
         Gets the year from the node name if it exists. Otherwise, returns None.
         Allowed Paterns: 19xx or 20xx
         :param node_name: The name of the node.
-        :return: The year from the node name.
+        :return: The year from the node name, if it exists. Otherwise, None.
         """
         # Get the year from the node name
         year = re.search(r'\b(19|20)\d{2}\b', node_name, flags=re.IGNORECASE)
-        return year.group() if year else None
+        # Return the year as an integer if it exists
+        return int(year.group()) if year else None
     
     @staticmethod
     def get_season_and_episode_from_node_name(node_name: str) -> tuple[int|None, int|None]:

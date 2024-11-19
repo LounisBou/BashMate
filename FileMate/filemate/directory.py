@@ -13,6 +13,7 @@ from .file_system_node import FileSystemNode
 from .file import File
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions
+from .node_name_cleaner import NodeNameCleaner
 
 @dataclass
 class Directory(FileSystemNode):
@@ -39,16 +40,9 @@ class Directory(FileSystemNode):
             raise ValueError(f"The path {self.path} is not a directory.")
         # Stem is the name without year in parentheses
         self.stem = self.name.split(' (')[0]
-        # Get directory size
-        self.size = self.__get_size()
         # Year is the year in parentheses if it exists at the end of the name and is a 4-digit number else 0
-        self.year = 0
-        match = re.search(r'\((\d{4})\)$', self.name)
-        if match:
-            self.year = int(match.group(1))
-            # Update stem to exclude the year
-            self.stem = self.name[:match.start()].strip()
-
+        self.year = NodeNameCleaner.get_year_from_node_name(self.name)
+    
     # - String representation
     
     def __str__(self) -> str:
@@ -290,14 +284,16 @@ class Directory(FileSystemNode):
             if node._is(File):
                 yield node
 
-    def __get_size(self) -> int:
+    # Public methods
+    
+    def get_size(self) -> int:
         """
         Gets the total size of the directory in bytes by us
         :return: The total size of the directory in bytes.
         """
-        return sum(file.size for file in self.__get_files())
-        
-    # Public methods
+        if self.size is None:
+            self.size = sum(file.get_size() for file in self.__get_files())
+        return self.size
     
     def get_type(self) -> FileType:
         """
