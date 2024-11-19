@@ -5,6 +5,7 @@
 # Ignore .env file
 .env
 **/.env
+**/*.env.*
 
 # Ignore aliases private
 aliases_private/

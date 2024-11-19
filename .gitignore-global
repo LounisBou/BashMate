@@ -1,3 +1,9 @@
+# Ignore all gitignore folders
+**/gitignore/**
+**/Gitignore/**
+**/gitIgnore/**
+**/GitIgnore/**
+
 # Remove all .DS_Store files
 **/.DS_Store
 
@@ -13,6 +19,16 @@
 # Remove all .nvmrc files
 **/.nvmrc
 
+# Remove all .env, *.env and *.env.*
+**/.env
+**/*.env
+**/*.env.*
+
+# Add .env.example & .env.*.example files
+!**/.env.example
+!**/*.env.example
+!**/*.env.*.example
+
 # Remove scripts folder & all files within
 scripts/
 
@@ -23,4 +39,7 @@ Podfile.lock
 **/*pbxproj
 **/IDEWorkspaceChecks.plist
 dist/ios-app/App/App.xcodeproj/project.pbxproj
-
+/dist/ios-app/App/capacitor.build.gradle
+/dist/ios-app/App/src/**
+/dist/ios-app/capacitor-cordova-android-plugins/**
+/dist/ios-app/capacitor.settings.gradle
