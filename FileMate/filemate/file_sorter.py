@@ -1,11 +1,13 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
+import os
+from dotenv import load_dotenv
 from enum import Enum
+from dataclasses import dataclass, field
 from pathlib import Path
 from .file_type import FileType
 from .file_system_node import FileSystemNode
-from .file_system_node_factory import FileSystemNodeFactory
 from .node_name_cleaner import NodeNameCleaner
 from .directory import Directory
 from .file import File
@@ -21,50 +23,65 @@ class Colors(Enum):
     CYAN = 'cyan'
     WHITE = 'white'
 
+@dataclass
 class FileSorter:
     """
     A class to sort files corresponding directories based on their filename and extension.
     The class can clean filenames, pack files into directories, and sort them accordingly.
     """
     
-    # Directories by file type
-    SORTED_DIR = {
-        FileType.MOVIE: "001-MOVIES",
-        FileType.TVSHOW: "002-TVSHOWS",
-        FileType.EBOOK: "003-EBOOKS",
-        FileType.AUDIO: "004-AUDIO",
-        FileType.APP: "005-APPS",
-        FileType.ANDROID: "006-ANDROID",
-        FileType.SCRIPT: "099-SCRIPTS",
-    }
-
-    # Allowed file types for directory sorting
-    ALLOWED_TYPES = {
-        FileType.MOVIE: [FileType.SUBTITLE],
-        FileType.TVSHOW: [FileType.MOVIE, FileType.SUBTITLE],
-        FileType.EBOOK: [],
-        FileType.AUDIO: [],
-        FileType.APP: [],
-        FileType.IMAGE: [],
-        FileType.ISO: [],
-        FileType.ANDROID: [],
-        FileType.SCRIPT: [],
-    }
+    # Attributes & initialization
     
-    # Constructor
+    root_node: FileSystemNode = field(init=True, metadata={"help": "The root node to sort."})
+    verbose: bool = field(init=True, default=False, metadata={"help": "True for verbose output, False otherwise."})
+    dry_run: bool = field(init=True, default=False, metadata={"help": "True for dry run, False otherwise."})
+    sorted_dir_names: dict = field(init=False, default_factory=dict, metadata={"help": "Sorted directories by file type."})
+    allowed_types: dict = field(init=False, default_factory=dict, metadata={"help": "Allowed types for each file type."})
     
-    def __init__(self, root_node: FileSystemNode, verbose: bool = False, dry_run: bool = False):
+    def __post_init__(self):
         """
-        Initializes the FileSorter object.
-        :param root_node: The root node to sort.
-        :param verbose: True for verbose output, False otherwise. (default is False)
-        :param dry_run: True for dry run, False otherwise. (default is False)
+        Post initialization method.
         """
-        self.root_node = root_node
-        self.verbose = verbose
-        self.dry_run = dry_run
+        # Defined sorted directories
+        self.__defined_sorted_dir()
+        # Defined allowed types
+        self.__defined_allowed_types()
     
     # Private methods
+    
+    def __defined_sorted_dir(self) -> bool:
+        """
+        Import sorted directories names from .env file.
+        """
+        load_dotenv()
+        # Directories by file type
+        self.sorted_dir_names = {
+            FileType.MOVIE: os.getenv("MOVIE_DIR"),
+            FileType.TVSHOW: os.getenv("TVSHOW_DIR"),
+            FileType.EBOOK: os.getenv("EBOOK_DIR"),
+            FileType.AUDIO: os.getenv("AUDIO_DIR"),
+            FileType.APP: os.getenv("APP_DIR"),
+            FileType.IMAGE: os.getenv("IMAGE_DIR"),
+            FileType.ISO: os.getenv("ISO_DIR"),
+            FileType.ANDROID: os.getenv("ANDROID_DIR"),
+            FileType.SCRIPT: os.getenv("SCRIPT_DIR"),
+        }
+        
+    def __defined_allowed_types(self) -> bool:
+        """
+        Define allowed types for each file type.
+        """
+        self.allowed_types = {
+            FileType.MOVIE: [FileType.SUBTITLE],
+            FileType.TVSHOW: [FileType.MOVIE, FileType.SUBTITLE],
+            FileType.EBOOK: [],
+            FileType.AUDIO: [],
+            FileType.APP: [],
+            FileType.IMAGE: [],
+            FileType.ISO: [],
+            FileType.ANDROID: [],
+            FileType.SCRIPT: [],
+        }
     
     def __check_node_type(self, node: FileSystemNode) -> FileType|None:
         """
@@ -80,14 +97,14 @@ class FileSorter:
             print(colored(f"Node type: {node_type}", Colors.YELLOW.value))
         
         # Check if the file type is not allowed
-        if not node_type in FileSorter.ALLOWED_TYPES.keys():
+        if not node_type in self.allowed_types.keys():
             # Verbosity
             if self.verbose:
                 print(colored(f"File type {node_type} is not allowed.", Colors.RED.value))
             return None
         
         # Check if there is a sorted directory for the file type
-        if node_type not in FileSorter.SORTED_DIR.keys():
+        if node_type not in self.sorted_dir_names.keys():
             # Verbosity
             if self.verbose:
                 print(colored(f"No sorted directory for file type {node_type}", Colors.RED.value))
@@ -104,9 +121,9 @@ class FileSorter:
         """
         if not node._is(Directory):
             return False
-        return any([node.name == sorted_dir for sorted_dir in FileSorter.SORTED_DIR.values()])
+        return any([node.name == sorted_dir for sorted_dir in self.sorted_dir_names.values()])
     
-    def __get_sorted_dir(self, node: FileSystemNode) -> Path:
+    def __get_sorted_dir_node(self, node: FileSystemNode) -> FileSystemNode:
         """
         Gets the sorted directory path for a node based on its type.
         :param node: The node to get the destination path for.
@@ -116,23 +133,22 @@ class FileSorter:
         # Get the file type of the node
         file_type = node.get_type()
         
-        # Get the sorted directory for the file type
-        sorted_dir = node.parent.joinpath(FileSorter.SORTED_DIR[file_type])
+        # Get the sorted directory name as string
+        sorted_dir_name = self.sorted_dir_names[file_type]
         
-        # Check if the sorted directory exists
-        if not sorted_dir.exists():
-            raise FileNotFoundError(f"The sorted directory {sorted_dir} does not exist.")
+        # Get the sorted directory for the file type
+        sorted_dir = self.root_node / sorted_dir_name
         
         return sorted_dir
     
-    def __get_node_destination(self, node: FileSystemNode) -> Path:
+    def __get_node_destination_path(self, node: FileSystemNode) -> Path:
         """
         Gets the destination path for a node based on its type.
         :param node: The node to get the destination path for.
-        :return: The destination path.
+        :return: The destination Path.
         """
-        # Get the sorted directory for the node
-        sorted_dir = self.__get_sorted_dir(node)
+        # Get the sorted Directory for the node
+        sorted_dir = self.__get_sorted_dir_node(node)
         
         # Node type
         node_type = node.get_type()
@@ -149,25 +165,61 @@ class FileSorter:
                     # Movie folder name without the year
                     movie_folder_name = node.stem_cleaned
                 # Destination is a directory with the same name as the node in the sorted directory
-                return sorted_dir / movie_folder_name
+                return sorted_dir.path / movie_folder_name.capitalize()
             else:
                 # Destination is a directory with the same name as the node in the sorted directory
-                return sorted_dir
+                return sorted_dir.path
         
         # Check if the node is a TVSHOW
         if node_type == FileType.TVSHOW:
             # Destination is a directory with the same name as the node in the sorted directory
-            return sorted_dir / NodeNameCleaner.get_name_without_season_and_episode(node.stem_cleaned)
+            return sorted_dir.path / NodeNameCleaner.get_name_without_season_and_episode(node.stem_cleaned).capitalize()
+            
 
         # default
-        return sorted_dir
+        return sorted_dir.path
+    
+    def __get_node_elements_to_sort(self, node: FileSystemNode, node_type: FileType) -> list[FileSystemNode]|None:
+        """
+        Get the elements of a node to sort.
+        :param node: The node to get the elements for.
+        :param node_type: The type of the node.
+        :return: A list of elements for the node, None if the element to sort is the node itself.
+        """
+        # Check if the node is a file
+        if node._is(File):
+            return None
+        
+        # Check node type
+        
+        # - TVSHOW
+        if node_type == FileType.TVSHOW:
+            elements = []
+            for child_node in node:
+                if child_node.get_type() == FileType.TVSHOW:
+                    elements.append(child_node)
+            return elements
+        
+        # All other cases
+        return None
+                
         
     # Public methods
+    
+    def set_allowed_types(self, file_type: FileType, allowed_types: list[FileType]) -> None:
+        """
+        Set the allowed types for a file type.
+        :param file_type: The file type to set the allowed types for.
+        :param allowed_types: The allowed types for the file type.
+        :return: None
+        """
+        self.allowed_types[file_type] = allowed_types
 
-    def sort(self, node: FileSystemNode) -> None:
+    def sort(self, node: FileSystemNode, delete_remaining_element: bool = False) -> None:
         """
         Sorts nodes into either the corresponding file type directory.
         :param node: The node to sort.
+        :param delete_remaining_element: True to delete the remaining element, False otherwise.
         :return: None
         """
         
@@ -192,29 +244,49 @@ class FileSorter:
             return
         
         # Get the sorted directory for the file type
-        sorted_dir = node.parent.joinpath(FileSorter.SORTED_DIR[node_type])
-        
-        # Check if the sorted directory exists
-        if not sorted_dir.exists():
-            raise FileNotFoundError(f"The sorted directory {sorted_dir} does not exist.")
-        
+        sorted_dir = node.parent.joinpath(self.sorted_dir_names[node_type])
         
         # Get the destination path for the node
-        destination = self.__get_node_destination(node)
+        destination_path = self.__get_node_destination_path(node)
         
         # Verbosity
         if self.verbose:
             print(colored(f"Cleaned node name: {node.name_cleaned}", Colors.YELLOW.value))
             print(colored(f"Sorted directory: {sorted_dir}", Colors.YELLOW.value))
-            print(colored(f"Destination: {destination / node.name_cleaned}", Colors.GREEN.value))
+            print(colored(f"Destination path: {destination_path}", Colors.YELLOW.value))
+            
+        # Elements to sort
+        elements = self.__get_node_elements_to_sort(node, node_type)
+        if elements is not None:
+            for element in elements:
+                # Verbosity
+                if self.verbose:
+                    print(colored(f"Element to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}", Colors.GREEN.value))
+                # Move the node to the sorted directory
+                if not self.dry_run:
+                    element.move(destination_path / element.name_cleaned)
+            # Delete remaining element
+            if delete_remaining_element:
+                # Verbosity
+                if self.verbose:
+                    print(colored(f"Deleting remaining element: {node}", Colors.RED.value))
+                if not self.dry_run:
+                    # Delete remaining node
+                    node.delete(recursive=True)
+        else:
+            # Verbosity
+            if self.verbose:
+                print(colored(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}", Colors.GREEN.value))
+            # Move the node to the sorted directory
+            if not self.dry_run:
+                node.move(destination_path / node.name_cleaned)
+                
         
-        # Move the node to the sorted directory
-        if not self.dry_run:
-            node.move(destination / node.name_cleaned)
 
-    def process(self) -> None:
+    def process(self, delete_remaining_element: bool = False) -> None:
         """
         Processes a node by sorting it into the corresponding directory.
+        :param delete_remaining_element: True to delete the remaining element, False otherwise.
         :return: None
         """
         
@@ -239,7 +311,7 @@ class FileSorter:
                 print(colored(f"Processing directory: {self.root_node}", Colors.GREY.value))
             # Process each child node
             for node in self.root_node:
-                self.sort(node)
+                self.sort(node, delete_remaining_element)
             return
         
         # Error

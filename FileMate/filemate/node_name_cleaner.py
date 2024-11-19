@@ -70,9 +70,9 @@ class NodeNameCleaner:
         # Convert to lowercase
         node_stem = node_stem.lower()
         # Remove elements in brackets
-        node_stem = re.sub(r'\[.*?\]', '', node_stem)
+        node_stem = re.sub(r'\[.*?\]', '', node_stem, flags=re.IGNORECASE)
         # Remove elements in parentheses
-        node_stem = re.sub(r'\(.*?\)', '', node_stem)
+        node_stem = re.sub(r'\(.*?\)', '', node_stem, flags=re.IGNORECASE)
         # Remove leading and trailing spaces
         node_stem = node_stem.strip()
         # Remove unwanted characters
@@ -80,11 +80,21 @@ class NodeNameCleaner:
         # Remove unwanted words
         node_stem = NodeNameCleaner.__clean_node_stem_words(node_stem)
         # Remove multiple spaces in a row
-        node_stem = re.sub(r'\s+', ' ', node_stem)
+        node_stem = NodeNameCleaner.cleanup_extra_space(node_stem)
         # Remove leading and trailing spaces
         return node_stem.strip()
     
     # Public methods
+    
+    @staticmethod
+    def cleanup_extra_space(node_name: str) -> str:
+        """
+        Cleans extra spaces from the node name.
+
+        :param node_name: The name of the node.
+        :return: The node name without extra spaces.
+        """
+        return re.sub(r'\s+', ' ', node_name)
 
     @staticmethod
     def get_cleaned_node_stem(path: Path) -> str:
@@ -123,11 +133,11 @@ class NodeNameCleaner:
         :return: The year from the node name.
         """
         # Get the year from the node name
-        year = re.search(r'\b(19|20)\d{2}\b', node_name)
+        year = re.search(r'\b(19|20)\d{2}\b', node_name, flags=re.IGNORECASE)
         return year.group() if year else None
     
     @staticmethod
-    def get_season_and_episode_from_node_name(node_name: str) -> set[int, int]:
+    def get_season_and_episode_from_node_name(node_name: str) -> tuple[int|None, int|None]:
         """
         Gets the season and episode from the node name if it exists. Otherwise, returns None.
         Allowed paterns: sxxexx, sxxexxx, saison xx episode xx, saison xx episode xxx
@@ -135,8 +145,25 @@ class NodeNameCleaner:
         :return: The season from the node name.
         """
         # Get the season and episode from the node name
-        season_episode = re.search(r'\bs(\d{2})e(\d{2,3})\b', node_name)
-        return (int(season_episode.group(1)), int(season_episode.group(2))) if season_episode else None
+        pattern = r"(?i)(?:s(?:aison|eason)?\s*(\d{1,2}))?|(?:e(?:pisode)?\s*(\d{1,2}))|(?:\b(\d{1,2})\b)"
+        match = re.findall(pattern, node_name, flags=re.IGNORECASE)
+        
+        # Extract season and episode from matches
+        season = None
+        episode = None
+
+        for groups in match:
+            # If a season marker exists, use it
+            if groups[0]:
+                season = int(groups[0])
+            # If an episode marker exists, use it
+            elif groups[1]:
+                episode = int(groups[1])
+            # If there's a standalone number, consider it as season if season is still None
+            elif groups[2] and season is None:
+                season = int(groups[2])
+                
+        return season, episode
 
     @staticmethod
     def get_name_without_year(node_name: str) -> str:
@@ -145,8 +172,16 @@ class NodeNameCleaner:
         :param node_name: The name of the node.
         :return: The node name without the year.
         """
-        name_without_year = re.sub(r'\b(19|20)\d{2}\b', '', node_name).strip()
-        return re.sub(r'\s+', ' ', name_without_year)
+        # Pattern to match year information
+        pattern = r"\b(19|20)\d{2}\b"
+        
+        # Remove matches from the node name
+        cleaned_name = re.sub(pattern, "", node_name, flags=re.IGNORECASE).strip()
+        
+        # Clean up extra spaces
+        cleaned_name = NodeNameCleaner.cleanup_extra_space(cleaned_name)
+        
+        return cleaned_name
     
     @staticmethod
     def get_name_without_season_and_episode(node_name: str) -> str:
@@ -155,5 +190,13 @@ class NodeNameCleaner:
         :param node_name: The name of the node.
         :return: The node name without the season and episode.
         """
-        name_without_season_and_episode = re.sub(r'\bs(\d{2})e(\d{2,3})\b', '', node_name).strip()
-        return re.sub(r'\s+', ' ', name_without_season_and_episode)
+        # Pattern to match season and episode information
+        pattern = r"(?i)(?:s(?:aison|eason)?\s*\d{1,2})|(?:e(?:pisode)?\s*\d{1,2})|(?:\b\d{1,2}\b)"
+        
+        # Remove matches from the node name
+        cleaned_name = re.sub(pattern, "", node_name, flags=re.IGNORECASE).strip()
+        
+        # Clean up extra spaces
+        cleaned_name = NodeNameCleaner.cleanup_extra_space(cleaned_name)
+        
+        return cleaned_name

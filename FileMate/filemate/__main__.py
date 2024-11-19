@@ -14,13 +14,10 @@ def main():
     # Create the parser
     parser = argparse.ArgumentParser(description='FileMate - A file management tool.')
     parser.add_argument('path', type=Path, help='Path to the fileSystem node to process')
-    parser.add_argument('--clean', action='store_true', required=False, help='Clean file names')
-    parser.add_argument('--sort', action='store_true', required=False, help='Sort files into subdirectories')
-    parser.add_argument('--delete-empty', action='store_true', required=False, help='Delete empty subdirectories')
-    parser.add_argument('--delete-duplicates', action='store_true', required=False, help='Delete duplicate files')
-    parser.add_argument('--delete-small', action='store_true', required=False, help='Delete small files')
     parser.add_argument('--verbose', action='store_true', required=False, help='Verbose output')
     parser.add_argument('--dry-run', action='store_true', required=False, help='Dry run')
+    parser.add_argument('--clean', action='store_true', required=False, help='Delete remaining elements of a sorted directory')
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
     
     # Parse the arguments
     args = parser.parse_args()
@@ -33,7 +30,7 @@ def main():
     node = FileSystemNodeFactory(path)
     # Sort nodes
     file_sorter = FileSorter(node, verbose=args.verbose, dry_run=args.dry_run)
-    file_sorter.process()
+    file_sorter.process(delete_remaining_element=args.clean)
     
     
 # Check if the script is being run directly

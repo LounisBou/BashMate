@@ -1,12 +1,14 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass, field
 import os
 import re
 import shutil
+from dataclasses import dataclass, field
+from typing import Union
 from collections import Counter
 from typing import Iterator
+from pathlib import Path
 from .file_system_node import FileSystemNode
 from .file import File
 from .file_type import FileType
@@ -46,15 +48,6 @@ class Directory(FileSystemNode):
             self.year = int(match.group(1))
             # Update stem to exclude the year
             self.stem = self.name[:match.start()].strip()
-
-    def __del__(self) -> None:
-        """
-        Frees the resources used by the directory.
-        Examples: del dir frees the resources used by the directory.
-        """
-        super().__del__()
-        del self.year
-        del self.recursive
 
     # - String representation
     
@@ -164,6 +157,29 @@ class Directory(FileSystemNode):
         raise KeyError(f"No node {search} in the directory {self.path}")
         
     # - File and directory operations via mathematical operators
+    
+    def __truediv__(self, other: Union[str, Path, FileSystemNode]) -> FileSystemNode:
+        """
+        Concatenates the directory path with a string, path, or node.
+        example: dir / 'file.txt' returns a file named 'file.txt' in the directory.
+        :param other: The string, path, or node to concatenate.
+        :return: A FileSystemNode instance for the concatenated path.
+        """
+        
+        if isinstance(other, str):
+            path = self.path / other
+        elif isinstance(other, Path):
+            path = self.path / other
+        elif isinstance(other, Directory):
+            path = self.path / other.name
+        elif isinstance(other, File):
+            path = self.path / other.name
+        else:
+            raise TypeError(f"Unsupported type {type(other)} for concatenation.")
+        if path.is_dir():
+            return Directory(path)
+        elif path.is_file():
+            return File(path)
     
     def __pow__(self, other: 'Directory') -> 'Directory':
         """
@@ -325,13 +341,9 @@ class Directory(FileSystemNode):
         :param recursive: If True, removes the directory and its contents.
         """
         if recursive is True:
-            for node in self:
-                node.delete(recursive=recursive)
+            shutil.rmtree(self.path)
         else:
-            if not os.listdir(self.path):
-                super().delete()
-            else:
-                raise OSError(f"Directory {self.path} is not empty.")
+            self.path.rmdir()
     
     def unpack(self, clean: bool = False, file_only: bool = False, dir_only: bool = False) -> set[FileSystemNode]:
         """

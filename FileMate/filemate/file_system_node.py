@@ -36,28 +36,17 @@ class FileSystemNode(ABC):
         """
         if not isinstance(self.path, Path):
             raise TypeError("path must be a pathlib.Path instance")
+        if not self.path.exists():
+            raise FileNotFoundError(f"The node {self.path} does not exist.")
         # Set the directory attributes
         self.path = self.path.resolve()
+        self.parent = self.path.parent.resolve()
         self.name = self.path.name
         self.name_cleaned = NodeNameCleaner.get_cleaned_node_name(self.path)
         self.stem = self.path.stem
         self.stem_cleaned = NodeNameCleaner.get_cleaned_node_stem(self.path)
-        self.modification_time = self.path.stat().st_mtime
+        self.modification_time = self.path.stat().st_mtime # last modification time
         self.size = self.path.stat().st_size # size of file, in bytes
-        self.parent = self.path.parent.resolve()
-    
-    def __del__(self) -> None:
-        """
-        Frees the resources used by the node.
-        """
-        del self.path
-        del self.name
-        del self.name_cleaned
-        del self.stem
-        del self.stem_cleaned
-        del self.size
-        del self.modification_time
-        del self.parent
     
     # - Class check
     
@@ -261,13 +250,6 @@ class FileSystemNode(ABC):
             self.__post_init__()
         except FileNotFoundError as e:
             raise FileNotFoundError(f"The file {self.path} does not exist.") from e
-            
-    def exists(self) -> bool:
-        """
-        Checks if the file exists.
-        :return: True if the file exists, False otherwise.
-        """
-        return self.path.exists()
     
     # - Format conversion
     
@@ -354,6 +336,9 @@ class FileSystemNode(ABC):
         Moves the node to a new path.
         :param new_path: The new path of the node.
         """
+        # Move the node to the new path and create the parent directories if they don't exist
+        new_path.parent.mkdir(parents=True, exist_ok=True)
+        new_path = new_path.resolve()
         self.path.rename(new_path)
         # Update the path
         self.path = new_path
@@ -366,11 +351,11 @@ class FileSystemNode(ABC):
         """
         shutil.copy(self.path, new_path)
         
-    def delete(self) -> None:
+    def delete(self, recursive=False) -> None:
         """
         Deletes the node.
         """
-        self.path.unlink()
+        raise NotImplementedError("The delete method must be implemented in the subclass.")
     
     def create_symlink(self, target: Path, replace: bool = False) -> None:
         """

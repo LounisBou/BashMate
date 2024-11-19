@@ -32,14 +32,6 @@ class File(FileSystemNode):
         self.extension = self.path.suffix[1:].lower()  # Remove leading dot and convert to lowercase
         self.modification_time = self.path.stat().st_mtime
 
-    def __del__(self) -> None:
-        """
-        Frees the resources used by the file.
-        Example: del file
-        """
-        super().__del__()
-        del self.extension
-
     # - String representation
     
     def __str__(self) -> str:
@@ -109,6 +101,12 @@ class File(FileSystemNode):
             
         # Return the file type matching the file type extension based their name
         return FileType[file_type_ext.name] 
+    
+    def delete(self, recursive=False) -> None:
+        """
+        Deletes the file.
+        """
+        self.path.unlink()
       
     def pack(self, includes: set[FileSystemNode] = None) -> str:
         """
