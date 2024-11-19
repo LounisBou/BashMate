@@ -91,20 +91,26 @@ class Directory(FileSystemNode):
     
     def __contains__(self, node: FileSystemNode) -> bool:
         """
-        Checks if an node is in the directory.
+        Checks if a node is in the directory.
         Example: file in dir checks if the file is in the directory.
         :param node: The node to check.
         :return: True if the node is in the directory, False otherwise.
         """
+        # Get the target name
+        target_name = node.path.name
+
         # Check if item is in the current directory
-        if node in os.listdir(self.path):
-            return True
-        
-        # If recursive is True, check subdirectories
-        if self.recursive is True:
-            for root, dirs, files in os.walk(self.path):
-                if node in files or node in dirs:
+        with os.scandir(self.path) as entries:
+            for entry in entries:
+                if entry.name == target_name:
                     return True
+
+        # If recursive is True, check subdirectories
+        if getattr(self, 'recursive', False):  # Check if the `recursive` attribute exists and is True
+            for root, dirs, files in os.walk(self.path):
+                if target_name in files or target_name in dirs:
+                    return True
+
         return False
     
     def __getitem__(self, search: str) -> FileSystemNode:
@@ -237,28 +243,27 @@ class Directory(FileSystemNode):
         :param hidden: If True, includes hidden files and directories.
         :yield: An iterator over FileSystemNode instances.
         """
-        if recursive is True:
-            nodes_iterator = self.path.rglob('*')
-        else:
-            nodes_iterator = self.path.iterdir()
+        try:
+            # Use appropriate iterator based on recursive flag
+            nodes_iterator = self.path.rglob('*') if recursive else self.path.iterdir()
 
-        for node_path in nodes_iterator:
-            if node_path.is_file():
+            for node_path in nodes_iterator:
+                # Skip hidden files/directories unless `hidden` is True
+                if not hidden and node_path.name.startswith('.'):
+                    continue
+
+                # Use FileSystemNodeFactory to dynamically create nodes
                 try:
-                    # Check if hidden files are included
-                    if not hidden and node_path.name.startswith('.'):
-                        continue
-                    yield File(node_path)
+                    if node_path.is_file():
+                        yield File(node_path)
+                    elif node_path.is_dir():
+                        yield Directory(node_path)
                 except (FileNotFoundError, ValueError) as e:
-                    raise ValueError(f"Error processing file {node_path}: {e}")
-            elif node_path.is_dir():
-                try:
-                    # Check if hidden directories are included
-                    if not hidden and node_path.name.startswith('.'):
-                        continue
-                    yield Directory(node_path)
-                except (FileNotFoundError, ValueError) as e:
-                    raise ValueError(f"Error processing directory {node_path}: {e}")
+                    raise ValueError(f"Error processing {node_path}: {e}")
+
+        except Exception as e:
+            raise RuntimeError(f"Error accessing contents of {self.path}: {e}")
+
 
     def __get_directories(self, recursive: bool = False, hidden: bool = False) -> Iterator['Directory']:
         """
