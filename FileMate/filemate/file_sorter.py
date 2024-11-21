@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import logging
 from dotenv import load_dotenv
 from enum import Enum
 from dataclasses import dataclass, field
@@ -46,8 +47,48 @@ class FileSorter:
         self.__defined_sorted_dir()
         # Defined allowed types
         self.__defined_allowed_types()
+        # Initialize the logger
+        self.__init_logger(console=True)
+        
     
     # Private methods
+    
+    def __init_logger(self, console: bool = False, file: bool = False) -> None:
+        """
+        Initializes the logger.
+        """
+        # Determine logging level based on verbosity
+        logging_level = logging.INFO if getattr(self, 'verbose', False) else logging.DEBUG
+
+        # Initialize the logger
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging_level)
+
+        # Disable propagation to avoid duplicate logs
+        self.logger.propagate = False
+
+        # Check if handlers are already added
+        if not self.logger.hasHandlers():
+            # Create formatter
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+            # Add console handler
+            if console:
+                console_handler = logging.StreamHandler()
+                console_handler.setLevel(logging_level)
+                console_handler.setFormatter(formatter)
+                self.logger.addHandler(console_handler)
+
+            # Add file handler
+            if file:
+                try:
+                    file_handler = logging.FileHandler('filemate.log')
+                    file_handler.setLevel(logging_level)
+                    file_handler.setFormatter(formatter)
+                    self.logger.addHandler(file_handler)
+                except Exception as e:
+                    print(f"Failed to create file handler: {e}")
+
     
     def __defined_sorted_dir(self) -> bool:
         """
@@ -92,22 +133,19 @@ class FileSorter:
         # Get the node type
         node_type = node.get_type()
         
-        # Verbosity
-        if self.verbose:
-            print(colored(f"Node type: {node_type}", Colors.YELLOW.value))
+        # Logging
+        self.logger.info(colored(f"Node type: {node_type}", Colors.YELLOW.value))
         
         # Check if the file type is not allowed
         if not node_type in self.allowed_types.keys():
-            # Verbosity
-            if self.verbose:
-                print(colored(f"File type {node_type} is not allowed.", Colors.RED.value))
+            # Logging
+            self.logger.info(colored(f"File type {node_type} is not allowed.", Colors.RED.value))
             return None
         
         # Check if there is a sorted directory for the file type
         if node_type not in self.sorted_dir_names.keys():
-            # Verbosity
-            if self.verbose:
-                print(colored(f"No sorted directory for file type {node_type}", Colors.RED.value))
+            # Logging
+            self.logger.info(colored(f"No sorted directory for file type {node_type}", Colors.RED.value))
             return None
         
         return node_type
@@ -223,23 +261,18 @@ class FileSorter:
         :return: None
         """
         
-        # Verbosity
-        if self.verbose:
-            # Separator
-            print(colored("-" * 100, Colors.WHITE.value, attrs=["bold"]))
-            print(colored(f"Sorting node: {node}", Colors.YELLOW.value))
+        # Logging
+        self.logger.info(colored("-" * 100, Colors.WHITE.value, attrs=["bold"]))
+        self.logger.info(colored(f"Sorting node: {node}", Colors.YELLOW.value))
 
         # Check if the node is sorted directory
         if self.__is_sorted_dir(node):
-            # Verbosity
-            if self.verbose:
-                print(colored(f"Node {node} is a sorted directory.", Colors.CYAN.value))
+            # Logging
+            self.logger.info(colored(f"Node {node} is a sorted directory.", Colors.CYAN.value))
             return
         
         # Get the node type
         node_type = self.__check_node_type(node)
-        
-        # Verbosity
         if node_type is None:
             return
         
@@ -249,34 +282,30 @@ class FileSorter:
         # Get the destination path for the node
         destination_path = self.__get_node_destination_path(node)
         
-        # Verbosity
-        if self.verbose:
-            print(colored(f"Cleaned node name: {node.name_cleaned}", Colors.YELLOW.value))
-            print(colored(f"Sorted directory: {sorted_dir}", Colors.YELLOW.value))
-            print(colored(f"Destination path: {destination_path}", Colors.YELLOW.value))
+        # Logging
+        self.logger.info(colored(f"Cleaned node name: {node.name_cleaned}", Colors.YELLOW.value))
+        self.logger.info(colored(f"Sorted directory: {sorted_dir}", Colors.YELLOW.value))
+        self.logger.info(colored(f"Destination path: {destination_path}", Colors.YELLOW.value))
             
         # Elements to sort
         elements = self.__get_node_elements_to_sort(node, node_type)
         if elements is not None:
             for element in elements:
-                # Verbosity
-                if self.verbose:
-                    print(colored(f"Element to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}", Colors.GREEN.value))
+                # Logging
+                self.logger.info(colored(f"Element to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}", Colors.GREEN.value))
                 # Move the node to the sorted directory
                 if not self.dry_run:
                     element.move(destination_path / element.name_cleaned)
             # Delete remaining element
             if delete_remaining_element:
-                # Verbosity
-                if self.verbose:
-                    print(colored(f"Deleting remaining element: {node}", Colors.RED.value))
+                # Logging
+                self.logger.warning(colored(f"Deleting remaining element: {node}", Colors.RED.value))
                 if not self.dry_run:
                     # Delete remaining node
                     node.delete(recursive=True)
         else:
-            # Verbosity
-            if self.verbose:
-                print(colored(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}", Colors.GREEN.value))
+            # Logging
+            self.logger.info(colored(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}", Colors.GREEN.value))
             # Move the node to the sorted directory
             if not self.dry_run:
                 node.move(destination_path / node.name_cleaned)
@@ -290,25 +319,21 @@ class FileSorter:
         :return: None
         """
         
-        # Verbosity
-        if self.verbose:
-            print(colored(f"Processing node: {self.root_node}", Colors.YELLOW.value))
-            # Get node class name
-            print(colored(f"Class: {self.root_node.__class__.__name__}", Colors.YELLOW.value))
+        # Logging
+        self.logger.info(colored(f"Processing node: {self.root_node}", Colors.YELLOW.value))
+        self.logger.info(colored(f"Class: {self.root_node.__class__.__name__}", Colors.YELLOW.value))
         
         # Check if the root node is a file
         if self.root_node._is(File):
-            # Verbosity
-            if self.verbose:
-                print(colored(f"Processing file: {self.root_node}", Colors.BLUE.value))
+            # Logging
+            self.logger.info(colored(f"Processing file: {self.root_node}", Colors.BLUE.value))
             self.sort(self.root_node)
             return
         
         # Check if the root node is a directory
         if self.root_node._is(Directory):
-            # Verbosity
-            if self.verbose:
-                print(colored(f"Processing directory: {self.root_node}", Colors.GREY.value))
+            # Logging
+            self.logger.info(colored(f"Processing directory: {self.root_node}", Colors.GREY.value))
             # Process each child node
             for node in self.root_node:
                 self.sort(node, delete_remaining_element)

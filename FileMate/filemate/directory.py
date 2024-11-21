@@ -80,14 +80,14 @@ class Directory(FileSystemNode):
         Returns an iterator over the contents of the directory.
         Example: iter(dir) returns an iterator over the nodes of the directory.
         """
-        return self.__get_content(recursive=self.recursive)
+        return self.iter(recursive=self.recursive)
     
     def __next__(self) -> FileSystemNode:
         """
         Returns the next node in the directory.
         Example: next(dir) returns the next node in the directory.
         """
-        return next(self.__get_content(recursive=self.recursive))
+        return next(self.iter(recursive=self.recursive))
     
     def __contains__(self, node: FileSystemNode) -> bool:
         """
@@ -120,7 +120,7 @@ class Directory(FileSystemNode):
         :param search: The name or hash of the item to get.
         :return: The node in the directory.
         """
-        for node in self.__get_content(recursive=self.recursive):
+        for node in self.iter(recursive=self.recursive):
             if node.name == search or hash(node) == search:
                 return node
         raise KeyError(f"No node {search} in the directory {self.path}")
@@ -132,7 +132,7 @@ class Directory(FileSystemNode):
         :param search: The name or hash of the node to replace.
         :param new_node: The new node to replace the old node
         """
-        for node in self.__get_content(recursive=self.recursive):
+        for node in self.iter(recursive=self.recursive):
             if node.name == search or hash(node) == search:
                 node.move(new_node.path)
                 return
@@ -144,7 +144,7 @@ class Directory(FileSystemNode):
         Example: del dir['file.txt'] deletes the file 'file.txt' from the directory.
         :param search: The name or hash of the node to delete.
         """
-        for node in self.__get_content(recursive=self.recursive):
+        for node in self.iter(recursive=self.recursive):
             if node.name == search or hash(node) == search:
                 # Check if the node is a file or a directory
                 if node.path.is_dir():
@@ -212,7 +212,7 @@ class Directory(FileSystemNode):
         :param other: The other directory to compare.
         :return: A set of files and directories that are in both directories.
         """
-        return set(self.__get_content(recursive=self.recursive)) & set(other.__get_content(other.recursive))
+        return set(self.iter(recursive=self.recursive)) & set(other.iter(other.recursive))
     
     def __or__(self, other: 'Directory') -> 'Directory':
         """
@@ -233,9 +233,9 @@ class Directory(FileSystemNode):
         """
         return set(self) ^ set(self)
 
-    # Private methods
+    # Public methods
 
-    def __get_content(self, recursive: bool = False, hidden: bool = False) -> Iterator[FileSystemNode]:
+    def iter(self, recursive: bool = False, hidden: bool = False) -> Iterator[FileSystemNode]:
         """
         Generator that yields FileSystemNode instances for the contents of the directory.
 
@@ -265,7 +265,7 @@ class Directory(FileSystemNode):
             raise RuntimeError(f"Error accessing contents of {self.path}: {e}")
 
 
-    def __get_directories(self, recursive: bool = False, hidden: bool = False) -> Iterator['Directory']:
+    def iter_dir(self, recursive: bool = False, hidden: bool = False) -> Iterator['Directory']:
         """
         Generator that yields Directory instances for all subdirectories in the directory.
 
@@ -273,11 +273,11 @@ class Directory(FileSystemNode):
         :param hidden: If True, includes hidden directories.
         :yield: An iterator over Directory instances.
         """
-        for node in self.__get_content(recursive=recursive, hidden=hidden):
+        for node in self.iter(recursive=recursive, hidden=hidden):
             if node._is(Directory):
                 yield node
     
-    def __get_files(self, recursive: bool = False, hidden: bool = False) -> Iterator[File]:
+    def iter_files(self, recursive: bool = False, hidden: bool = False) -> Iterator[File]:
         """
         Generator that yields File instances for all files in the directory.
 
@@ -285,11 +285,9 @@ class Directory(FileSystemNode):
         :param hidden: If True, includes hidden files.
         :yield: An iterator over File instances.
         """
-        for node in self.__get_content(recursive=recursive, hidden=hidden):
+        for node in self.iter(recursive=recursive, hidden=hidden):
             if node._is(File):
                 yield node
-
-    # Public methods
     
     def get_size(self) -> int:
         """
@@ -297,7 +295,7 @@ class Directory(FileSystemNode):
         :return: The total size of the directory in bytes.
         """
         if self.size is None:
-            self.size = sum(file.get_size() for file in self.__get_files())
+            self.size = sum(file.get_size() for file in self.iter_files())
         return self.size
     
     def get_type(self) -> FileType:
@@ -305,7 +303,7 @@ class Directory(FileSystemNode):
         Gets the type of the directory based on its contents.
         :return: The FileType of the directory
         """
-        files = list(self.__get_files())
+        files = list(self.iter_files())
         # Remove files with no extension or with extensions to ignored
         extension_to_ignore = [None, '', '.DS_Store'] + FileTypeExtensions.OTHER.value + FileTypeExtensions.IMAGE.value + FileTypeExtensions.DOCUMENT.value
         files_to_ignore = [file for file in files if file.extension in extension_to_ignore]
@@ -320,21 +318,21 @@ class Directory(FileSystemNode):
         Returns the number of nodes in the directory.
         :return: The number of nodes in the directory.
         """
-        return sum(1 for _ in self.__get_content(recursive=False))
+        return sum(1 for _ in self.iter(recursive=False))
     
     def count_dirs(self) -> int:
         """
         Returns the number of subdirectories in the directory.
         :return: The number of subdirectories in the directory.
         """
-        return sum(1 for _ in self.__get_directories(recursive=False))
+        return sum(1 for _ in self.iter_dir(recursive=False))
     
     def count_files(self) -> int:
         """
         Returns the number of files in the directory.
         :return: The number of files in the directory.
         """
-        return sum(1 for _ in self.__get_files(recursive=False))
+        return sum(1 for _ in self.iter_files(recursive=False))
     
     def delete(self, recursive = False) -> None:
         """
