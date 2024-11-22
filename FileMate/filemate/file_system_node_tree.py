@@ -3,7 +3,6 @@
 
 from pathlib import Path
 import json
-import asyncio
 import logging
 import time
 import functools
@@ -25,21 +24,7 @@ def timeit(func):
         end_time = time.perf_counter()
         total_time = end_time - start_time
         # first item in the args, ie `args[0]` is `self`
-        print(f'Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds')
-        return result
-    return wrapper
-
-def async_timeit(func):
-    """
-    A decorator to measure the execution time of an asynchronous function.
-    """
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        start_time = time.perf_counter()
-        result = await func(*args, **kwargs)
-        end_time = time.perf_counter()
-        total_time = end_time - start_time
-        print(f"Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds")
+        print(f'Function {func.__name__}{args} Took {total_time:.4f} seconds')
         return result
     return wrapper
 
@@ -75,14 +60,6 @@ class FileSystemNodeTree():
         self.root_tree_node = FileSystemNodeTree.create_node(self.root_node)
         self.__build_tree_recursive(self.root_node, self.root_tree_node)
     
-    @async_timeit
-    async def __async_build_tree(self) -> None:
-        """
-        Asynchronously builds the tree of file system nodes.
-        """
-        self.root_tree_node = FileSystemNodeTree.create_node(self.root_node)
-        await self.__async_build_tree_recursive(self.root_node, self.root_tree_node)
-    
     def __build_tree_recursive(self, node: Directory, tree_node: TreeNode) -> None:
         """
         Builds the tree of file system nodes recursively.
@@ -99,31 +76,6 @@ class FileSystemNodeTree():
             except Exception as e:
                 self.logger.info(colored(f"Skipping node {child_node.path.name} due to error: {e}"), "yellow")
                 
-    async def __async_build_tree_recursive(self, dir_node: Directory, tree_node: TreeNode) -> None:
-        """
-        Asynchronously builds the tree of file system nodes recursively using multithreading.
-        :param dir_node: The directory node being processed.
-        :param tree_node: The corresponding tree node in the hierarchy.
-        """
-        tasks = []
-
-        # Process child nodes
-        for child_node in dir_node.iter(recursive=False, hidden=False):
-            try:
-                # Use a thread for creating the node
-                child_tree_node = await asyncio.to_thread(
-                    FileSystemNodeTree.create_node, child_node, tree_node
-                )
-                # If it's a directory, add a task for further processing
-                if child_node._is(Directory):
-                    tasks.append(self.__async_build_tree_recursive(child_node, child_tree_node))
-            except Exception as e:
-                self.logger.info(colored(f"Skipping node {child_node.path.name} due to error: {e}"), "yellow")
-
-        # Run tasks concurrently
-        if tasks:
-            await asyncio.gather(*tasks)
-            
     def __str__(self) -> str:
         """
         Returns a string representation of the file system node tree.
@@ -140,12 +92,6 @@ class FileSystemNodeTree():
         Builds the tree of file system nodes.
         """
         self.__build_tree()
-        
-    async def async_build(self) -> None:
-        """
-        Asynchronously builds the tree of file system nodes.
-        """
-        await self.__async_build_tree()
     
     # - Add & Remove nodes
     

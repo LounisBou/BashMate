@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import asyncio
 import logging
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
 from .file_system_node_factory import FileSystemNodeFactory
 from .file_system_node_tree import FileSystemNodeTree
 from .file_sorter import FileSorter
@@ -50,7 +48,7 @@ def get_logger(verbose: bool = False, console: bool = False, file: bool = False)
     # Return the logger
     return logger
 
-async def main(console: bool = False) -> None:
+def main(console: bool = False) -> None:
     """
     Entry point for the FileMate application.
     """
@@ -61,7 +59,6 @@ async def main(console: bool = False) -> None:
     parser.add_argument('--sort', action='store_true', required=False, help='Sort the directory')
     parser.add_argument('--tree', action='store_true', required=False, help='Build the tree of the directory')
     parser.add_argument('--show-tree', action='store_true', required=False, help='Show the tree of the directory')
-    parser.add_argument('--asynchronous', action='store_true', required=False, help='Build the tree of the directory asynchronously')
     parser.add_argument('--clean', action='store_true', required=False, help='Delete remaining elements of a sorted directory')
     parser.add_argument('--verbose', action='store_true', required=False, help='Verbose output')
     parser.add_argument('--dry-run', action='store_true', required=False, help='Dry run')
@@ -72,9 +69,6 @@ async def main(console: bool = False) -> None:
     
     # Get the logger
     logger = get_logger(verbose=args.verbose, console=True)
-    
-    # Max threads for the ThreadPoolExecutor
-    max_threads = 6
     
     # Node path
     node_path = args.path
@@ -90,34 +84,16 @@ async def main(console: bool = False) -> None:
             # Load the tree
             file_system_node_tree = FileSystemNodeTree.restore(node.name)
         else:
-            # If async is requested
-            if args.asynchronous:
-                # Create a ThreadPoolExecutor for multithreading
-                with ThreadPoolExecutor(max_workers=max_threads) as executor:
-                    # Set the default executor for asyncio
-                    loop = asyncio.get_running_loop()
-                    loop.set_default_executor(executor)
-                    # Create the tree
-                    file_system_node_tree = FileSystemNodeTree(
-                        node, 
-                        verbose=args.verbose, 
-                        logger=logger
-                    )
-                    # Build the tree
-                    await file_system_node_tree.async_build()
-                    # Save the tree
-                    file_system_node_tree.save()
-            else:
-                # Create the tree
-                file_system_node_tree = FileSystemNodeTree(
-                    node, 
-                    verbose=args.verbose, 
-                    logger=logger
-                )
-                # Build the tree
-                file_system_node_tree.build()
-                # Save the tree
-                file_system_node_tree.save()
+            # Create the tree
+            file_system_node_tree = FileSystemNodeTree(
+                node, 
+                verbose=args.verbose, 
+                logger=logger
+            )
+            # Build the tree
+            file_system_node_tree.build()
+            # Save the tree
+            file_system_node_tree.save()
         # Print the node tree
         if args.show_tree:
             file_system_node_tree.show()
@@ -137,4 +113,4 @@ async def main(console: bool = False) -> None:
 # Check if the script is being run directly
 if __name__ == "__main__":
     # Run the main function
-    asyncio.run(main(console=True))
+    main()
