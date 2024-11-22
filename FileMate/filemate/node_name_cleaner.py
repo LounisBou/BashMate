@@ -146,7 +146,7 @@ class NodeNameCleaner:
         :return: The season from the node name.
         """
         # Get the season and episode from the node name
-        pattern = r"(?i)(?:s(?:aison|eason)?\s*(\d{1,2}))?|(?:e(?:pisode)?\s*(\d{1,2}))|(?:\b(\d{1,2})\b)"
+        pattern = r"(?i)(?:\bs(?:aison|eason)?\s*(\d{1,2}))|(?:\be(?:pisode)?\s*(\d{1,2}))|(?:\b(\d{1,2})(?!\b))"
         match = re.findall(pattern, node_name, flags=re.IGNORECASE)
         
         # Extract season and episode from matches
@@ -187,15 +187,21 @@ class NodeNameCleaner:
     @staticmethod
     def get_name_without_season_and_episode(node_name: str) -> str:
         """
-        Gets the node name without the season and episode.
+        Gets the node name without the season and/or episode.
         :param node_name: The name of the node.
         :return: The node name without the season and episode.
         """
         # Pattern to match season and episode information
-        pattern = r"(?i)(?:s(?:aison|eason)?\s*\d{1,2})|(?:e(?:pisode)?\s*\d{1,2})|(?:\b\d{1,2}\b)"
+        pattern_season = r"(?i)(?:\bs(?:aison|eason)?\s*\d{1,2})"
         
         # Remove matches from the node name
-        cleaned_name = re.sub(pattern, "", node_name, flags=re.IGNORECASE).strip()
+        cleaned_name = re.sub(pattern_season, "", node_name, flags=re.IGNORECASE).strip()
+        
+        # Pattern to match episode information
+        pattern_episode = r"(?i)(?:\be(?:pisode)?\s*\d{1,2})"
+        
+        # Remove matches from the node name
+        cleaned_name = re.sub(pattern_episode, "", cleaned_name, flags=re.IGNORECASE).strip()
         
         # Clean up extra spaces
         cleaned_name = NodeNameCleaner.cleanup_extra_space(cleaned_name)
