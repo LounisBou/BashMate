@@ -38,6 +38,7 @@ class FileSorter:
     dry_run: bool = field(init=True, default=False, metadata={"help": "True for dry run, False otherwise."})
     sorted_dir_names: dict = field(init=False, default_factory=dict, metadata={"help": "Sorted directories by file type."})
     allowed_types: dict = field(init=False, default_factory=dict, metadata={"help": "Allowed types for each file type."})
+    logger: logging.Logger = field(init=True, default_factory=logging.Logger, metadata={"help": "The logger."})
     
     def __post_init__(self):
         """
@@ -47,48 +48,8 @@ class FileSorter:
         self.__defined_sorted_dir()
         # Defined allowed types
         self.__defined_allowed_types()
-        # Initialize the logger
-        self.__init_logger(console=True)
-        
     
     # Private methods
-    
-    def __init_logger(self, console: bool = False, file: bool = False) -> None:
-        """
-        Initializes the logger.
-        """
-        # Determine logging level based on verbosity
-        logging_level = logging.INFO if getattr(self, 'verbose', False) else logging.DEBUG
-
-        # Initialize the logger
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging_level)
-
-        # Disable propagation to avoid duplicate logs
-        self.logger.propagate = False
-
-        # Check if handlers are already added
-        if not self.logger.hasHandlers():
-            # Create formatter
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-            # Add console handler
-            if console:
-                console_handler = logging.StreamHandler()
-                console_handler.setLevel(logging_level)
-                console_handler.setFormatter(formatter)
-                self.logger.addHandler(console_handler)
-
-            # Add file handler
-            if file:
-                try:
-                    file_handler = logging.FileHandler('filemate.log')
-                    file_handler.setLevel(logging_level)
-                    file_handler.setFormatter(formatter)
-                    self.logger.addHandler(file_handler)
-                except Exception as e:
-                    print(f"Failed to create file handler: {e}")
-
     
     def __defined_sorted_dir(self) -> bool:
         """

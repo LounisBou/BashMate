@@ -6,11 +6,42 @@ import json
 import asyncio
 import logging
 import time
+import functools
 from bigtree import Node as TreeNode
 from bigtree import print_tree, tree_to_dict, dict_to_tree
 from dataclasses import dataclass, field
+from termcolor import colored
 from .file_system_node import FileSystemNode
 from .directory import Directory
+
+def timeit(func):
+    """
+    A decorator to measure the execution time of a function.
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+        # first item in the args, ie `args[0]` is `self`
+        print(f'Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds')
+        return result
+    return wrapper
+
+def async_timeit(func):
+    """
+    A decorator to measure the execution time of an asynchronous function.
+    """
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = await func(*args, **kwargs)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+        print(f"Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds")
+        return result
+    return wrapper
 
 @dataclass
 class FileSystemNodeTree():
@@ -23,8 +54,9 @@ class FileSystemNodeTree():
     
     root_node: FileSystemNode = field(init=True, metadata={"help": "The root node to sort."})
     verbose: bool = field(init=True, default=False, metadata={"help": "Verbose output."})
-    root_tree_node: TreeNode = field(init=False, repr=False)
-        
+    root_tree_node: TreeNode = field(init=False, default=None, metadata={"help": "The root tree node."})
+    logger: logging.Logger = field(init=True, default_factory=logging.Logger, metadata={"help": "The logger."})
+    
     def __post_init__(self) -> None:
         """
         Initializes the file system node tree.
@@ -32,13 +64,24 @@ class FileSystemNodeTree():
         # Check if the root node is a directory
         if not self.root_node._is(Directory):
             raise ValueError(f"The root node {self.root_node} is not a directory.")
-        # Build tree
-        self.root_tree_node = FileSystemNodeTree.create_node(self.root_node)
-        self.__build_tree_recursive(self.root_node, self.root_tree_node)
-        # Initialize the logger
-        self.logger = logging.getLogger(__name__)
     
     # Private methods
+    
+    @timeit
+    def __build_tree(self) -> None:
+        """
+        Builds the tree of file system nodes.
+        """
+        self.root_tree_node = FileSystemNodeTree.create_node(self.root_node)
+        self.__build_tree_recursive(self.root_node, self.root_tree_node)
+    
+    @async_timeit
+    async def __async_build_tree(self) -> None:
+        """
+        Asynchronously builds the tree of file system nodes.
+        """
+        self.root_tree_node = FileSystemNodeTree.create_node(self.root_node)
+        await self.__async_build_tree_recursive(self.root_node, self.root_tree_node)
     
     def __build_tree_recursive(self, node: Directory, tree_node: TreeNode) -> None:
         """
@@ -54,28 +97,30 @@ class FileSystemNodeTree():
                 if child_node._is(Directory):
                     self.__build_tree_recursive(child_node, child_tree_node)
             except Exception as e:
-                print(f"Skipping node {child_node.path.name} due to error: {e}")
+                self.logger.info(colored(f"Skipping node {child_node.path.name} due to error: {e}"), "yellow")
                 
     async def __async_build_tree_recursive(self, dir_node: Directory, tree_node: TreeNode) -> None:
         """
-        Asynchronously builds the tree of file system nodes recursively.
+        Asynchronously builds the tree of file system nodes recursively using multithreading.
         :param dir_node: The directory node being processed.
         :param tree_node: The corresponding tree node in the hierarchy.
         """
         tasks = []
+
+        # Process child nodes
         for child_node in dir_node.iter(recursive=False, hidden=False):
             try:
-                # Create tree node for the child
-                child_tree_node = FileSystemNodeTree.create_node(child_node, parent=tree_node)
-                # If it's a directory, add a task to process it recursively
+                # Use a thread for creating the node
+                child_tree_node = await asyncio.to_thread(
+                    FileSystemNodeTree.create_node, child_node, tree_node
+                )
+                # If it's a directory, add a task for further processing
                 if child_node._is(Directory):
-                    tasks.append(
-                        self.__build_tree_recursive(child_node, child_tree_node)
-                    )
+                    tasks.append(self.__async_build_tree_recursive(child_node, child_tree_node))
             except Exception as e:
-                print(f"Skipping node {child_node.path.name} due to error: {e}")
+                self.logger.info(colored(f"Skipping node {child_node.path.name} due to error: {e}"), "yellow")
 
-        # Run all tasks concurrently
+        # Run tasks concurrently
         if tasks:
             await asyncio.gather(*tasks)
             
@@ -87,6 +132,20 @@ class FileSystemNodeTree():
         return f"File System Node Tree: {self.root_node.path}"
         
     # Public methods
+    
+    # - Build tree
+    
+    def build(self) -> None:
+        """
+        Builds the tree of file system nodes.
+        """
+        self.__build_tree()
+        
+    async def async_build(self) -> None:
+        """
+        Asynchronously builds the tree of file system nodes.
+        """
+        await self.__async_build_tree()
     
     # - Add & Remove nodes
     
@@ -199,6 +258,7 @@ class FileSystemNodeTree():
     
     # - Utility methods
     
+    @timeit
     def save(self) -> None:
         """
         Saves the tree to a JSON file in saved-tree folder.
@@ -215,6 +275,7 @@ class FileSystemNodeTree():
         self.export(f"saved-tree/{self.root_node.name}.json")
 
     @staticmethod
+    @timeit
     def restore(node_name: str) -> 'FileSystemNodeTree':
         """
         Restores the tree from a JSON file in saved-tree folder.
