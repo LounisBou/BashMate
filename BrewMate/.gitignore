@@ -1,0 +1,2 @@
+# Ignore brew php config
+./opt/homebrew/etc/php/**
