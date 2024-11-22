@@ -303,7 +303,7 @@ class Directory(FileSystemNode):
         Gets the type of the directory based on its contents.
         :return: The FileType of the directory
         """
-        files = list(self.iter_files())
+        files = list(self.iter_files(recursive=True))
         # Remove files with no extension or with extensions to ignored
         extension_to_ignore = [None, '', '.DS_Store'] + FileTypeExtensions.OTHER.value + FileTypeExtensions.IMAGE.value + FileTypeExtensions.DOCUMENT.value
         files_to_ignore = [file for file in files if file.extension in extension_to_ignore]
