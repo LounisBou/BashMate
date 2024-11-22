@@ -13,7 +13,6 @@ from .file_system_node import FileSystemNode
 from .file import File
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions
-from .node_name_cleaner import NodeNameCleaner
 
 @dataclass
 class Directory(FileSystemNode):
@@ -22,8 +21,8 @@ class Directory(FileSystemNode):
 
     # Attributes specific to the directory
 
-    year: int = field(init=False)
-    recursive: bool = field(default=False)
+    year: int|None = field(init=False, default=0, metadata="The year in the directory name.")
+    recursive: bool = field(init=False, default=False, metadata="If True, includes contents of subdirectories.")
 
     # Special methods
     
@@ -41,7 +40,7 @@ class Directory(FileSystemNode):
         # Stem is the name without year in parentheses
         self.stem = self.name.split(' (')[0]
         # Year is the year in parentheses if it exists at the end of the name and is a 4-digit number else 0
-        self.year = NodeNameCleaner.get_year_from_node_name(self.name)
+        self.year = self.name_cleaner.get_year_from_node_name(self.name)
     
     # - String representation
     

@@ -39,6 +39,7 @@ class FileSorter:
     sorted_dir_names: dict = field(init=False, default_factory=dict, metadata={"help": "Sorted directories by file type."})
     allowed_types: dict = field(init=False, default_factory=dict, metadata={"help": "Allowed types for each file type."})
     logger: logging.Logger = field(init=True, default_factory=logging.Logger, metadata={"help": "The logger."})
+    name_cleaner: NodeNameCleaner = field(init=False, default_factory=NodeNameCleaner, metadata={"help": "The node name cleaner."})
     
     def __post_init__(self):
         """
@@ -153,10 +154,10 @@ class FileSorter:
         if node_type == FileType.MOVIE:
             if node._is(File):
                 # Movie year
-                movie_year = NodeNameCleaner.get_year_from_node_name(node.stem_cleaned)
+                movie_year = self.name_cleaner.get_year_from_node_name(node.stem_cleaned)
                 if movie_year is not None:
                     # Movie folder name with the year in parentheses
-                    movie_folder_name = f"{NodeNameCleaner.get_name_without_year(node.stem_cleaned)} ({movie_year})"
+                    movie_folder_name = f"{self.name_cleaner.get_name_without_year(node.stem_cleaned)} ({movie_year})"
                 else:
                     # Movie folder name without the year
                     movie_folder_name = node.stem_cleaned
@@ -169,7 +170,7 @@ class FileSorter:
         # Check if the node is a TVSHOW
         if node_type == FileType.TVSHOW:
             # Destination is a directory with the same name as the node in the sorted directory
-            return sorted_dir.path / NodeNameCleaner.get_name_without_season_and_episode(node.stem_cleaned).capitalize()
+            return sorted_dir.path / self.name_cleaner.get_name_without_season_and_episode(node.stem_cleaned).capitalize()
             
 
         # default

@@ -1,10 +1,7 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
-import re
-
-from filemate.node_name_cleaner import NodeNameCleaner
+from dataclasses import dataclass, field
 from .file_system_node import FileSystemNode
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions
@@ -15,7 +12,7 @@ class File(FileSystemNode):
     """A class to represent a file."""
 
     # Attributes specific to files
-    extension: str = None
+    extension: str|None = field(init=False, default=None, metadata="The extension of the file.")
 
     # Special methods
     
@@ -101,7 +98,7 @@ class File(FileSystemNode):
         
         # Override the file type for specific cases
         if file_type_ext.name == FileTypeExtensions.VIDEO.name:
-            season, episode = NodeNameCleaner.get_season_and_episode_from_node_name(self.stem_cleaned)
+            season, episode = self.name_cleaner.get_season_and_episode_from_node_name(self.stem_cleaned)
             if season is not None or episode is not None:
                 return FileType.TVSHOW
             else:

@@ -19,12 +19,13 @@ class FileSystemNode(ABC):
     # Attributes
     
     path: Path
-    name: str = field(init=False)
-    name_cleaned: str = field(init=False)
-    stem: str = field(init=False)
-    stem_cleaned: str = field(init=False)
-    size: int = field(init=False, default=0)
-    modification_time: float = field(init=False)
+    name: str = field(init=False, default="", metadata="The name of the node.")
+    name_cleaned: str = field(init=False, default="", metadata="The cleaned name of the node.")
+    stem: str = field(init=False, default="", metadata="The name of the node, without the extension.")
+    stem_cleaned: str = field(init=False, default="", metadata="The cleaned name of the node, without the extension.")
+    size: int = field(init=False, default=0, metadata="The size of the node.")
+    modification_time: float = field(init=False, default=0, metadata="The last modification time of the node.")
+    name_cleaner: NodeNameCleaner = field(init=False, default=NodeNameCleaner(), metadata="The node name cleaner.")
     
     # Special methods
     
@@ -42,9 +43,9 @@ class FileSystemNode(ABC):
         self.path = self.path.resolve()
         self.parent = self.path.parent.resolve()
         self.name = self.path.name
-        self.name_cleaned = NodeNameCleaner.get_cleaned_node_name(self.path)
+        self.name_cleaned = self.name_cleaner.get_cleaned_node_name(self.path)
         self.stem = self.path.stem
-        self.stem_cleaned = NodeNameCleaner.get_cleaned_node_stem(self.path)
+        self.stem_cleaned = self.name_cleaner.get_cleaned_node_stem(self.path)
         self.modification_time = self.path.stat().st_mtime # last modification time
 
     # - Class check
@@ -303,7 +304,7 @@ class FileSystemNode(ABC):
         Check if node name contains a year. If it does, return the year. Otherwise, return 0.
         Patern: yyyy
         """
-        return NodeNameCleaner.get_year_from_node_name(self.path)
+        return self.name_cleaner.get_year_from_node_name(self.path)
                 
     # - Path operations
     
@@ -378,6 +379,6 @@ class FileSystemNode(ABC):
         """
         Cleans the name of the node.
         """
-        new_name = NodeNameCleaner.get_cleaned_node_name(self.path)
+        new_name = self.name_cleaner.get_cleaned_node_name(self.path)
         self.rename(new_name)
     
