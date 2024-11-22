@@ -16,7 +16,7 @@ class NodeNameCleaner:
         "1080", "1080i", "1080p", "10bit", "10-bit", "1920x1080", "2160p", "2ch", "2vf", "480p", "720p", "7sins",
         "4k", "4klight", "6ch", "aac", "aaclc", "abcollection", "ac 3", "ac3", "acc", "acool",
         "amzn", "ark01", "av1", "avc", "bbc", "bbt", "bdrip", "benh4", "bit", "blank", "bluray", "bluray1080p",
-        "brrip", "btt", "buret", "ccats", "ch", "chris44", "custom", "cut", "darkjuju", "dd", "ddp",
+        "brrip", "btt", "buret", "ccats", "ch", "chill", "chris44", "custom", "cut", "darkjuju", "dd", "ddp",
         "directors cut", "dl", "dolby vision", "dread team", "dts", "dvdrip", "dvd rip", "eac3", 
         "eaulive", "elcrackito", "en", "eng", "extended", "extreme", "fasandraeberne", "fervex", "final cut", "flaskepost",
         "fr", "fre", "french", "french(vff)", "frosties", "ftmvhd", "fw", "gbx", "ght", "ghz", 
@@ -155,6 +155,7 @@ class NodeNameCleaner:
         season = None
         episode = None
 
+        # Loop through the groups in the match
         for groups in match:
             # Handle groups for both season and episode
             if groups[0] and groups[1]:  # Case: s01e04
