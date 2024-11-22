@@ -8,7 +8,6 @@ from .file_system_node_factory import FileSystemNodeFactory
 from .file_system_node_tree import FileSystemNodeTree
 from .file_sorter import FileSorter
 
-
 def get_logger(verbose: bool = False, console: bool = False, file: bool = False) -> None:
     """
     Create a logger.

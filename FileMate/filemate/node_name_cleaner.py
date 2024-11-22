@@ -6,7 +6,6 @@ import os
 import re
 from typing import List
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 @dataclass
