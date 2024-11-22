@@ -3,6 +3,8 @@
 
 from dataclasses import dataclass
 import re
+
+from filemate.node_name_cleaner import NodeNameCleaner
 from .file_system_node import FileSystemNode
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions
@@ -99,7 +101,8 @@ class File(FileSystemNode):
         
         # Override the file type for specific cases
         if file_type_ext.name == FileTypeExtensions.VIDEO.name:
-            if re.search(r's\d{2}e\d{2}', self.name) or re.search(r'\d{3,4}p', self.name):
+            season, episode = NodeNameCleaner.get_season_and_episode_from_node_name(self.stem_cleaned)
+            if season is not None or episode is not None:
                 return FileType.TVSHOW
             else:
                 return FileType.MOVIE

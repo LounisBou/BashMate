@@ -23,7 +23,7 @@ class NodeNameCleaner:
         "gismo65", "gwen", "h264", "h265", "h4s5s", "hd", "hdl", "hdlight", "hdma", "hdr", "hdtv", 
         "he", "hevc", "hush", "integral", "integrale", "internal", "jiheff", "k7", "kaf", "kfl", 
         "kvinden", "lazarus", "lcds", "libertad", "luminus", "mhd", "mhdgz", "mkv", "mm91", "moe", 
-        "mtl666", "multi", "multi3", "nf", "noex", "nobodyperfect", "non censurée", "notag", "nyu", 
+        "mtl666", "multi", "multi3", "nf", "noex", "nobodyperfect", "non censurée", "none", "notag", "nyu", 
         "owii", "p4t4t3", "pop", "pophd", "Portos", "portos", "qtz", "remastered", "repack", "romkent", "se7en", 
         "serqph", "shc23", "slayer", "slay3r", "sn2p", "srt", "stereo", "tf", "title1", "tonyk", "tr", 
         "truefrench", "trunkdu92", "tvwh0res", "unrated", "uptopol", "utt", "version", "vf", "vf2", 
@@ -146,23 +146,25 @@ class NodeNameCleaner:
         :return: The season from the node name.
         """
         # Get the season and episode from the node name
-        pattern = r"(?i)(?:\bs(?:aison|eason)?\s*(\d{1,2}))|(?:\be(?:pisode)?\s*(\d{1,2}))|(?:\b(\d{1,2})(?!\b))"
-        match = re.findall(pattern, node_name, flags=re.IGNORECASE)
+        pattern = r"(?i)s(?:aison|eason)?\s*(\d{1,2})e(?:pisode)?\s*(\d{1,2})|s(?:aison|eason)?\s*(\d{1,2})|e(?:pisode)?\s*(\d{1,2})"
         
-        # Extract season and episode from matches
+        # Match the pattern
+        match = re.findall(pattern, node_name)
+
+        # Initialize season and episode
         season = None
         episode = None
 
         for groups in match:
-            # If a season marker exists, use it
-            if groups[0]:
+            # Handle groups for both season and episode
+            if groups[0] and groups[1]:  # Case: s01e04
                 season = int(groups[0])
-            # If an episode marker exists, use it
-            elif groups[1]:
                 episode = int(groups[1])
-            # If there's a standalone number, consider it as season if season is still None
-            elif groups[2] and season is None:
-                season = int(groups[2])
+                break  # Stop after finding both season and episode
+            elif groups[0]:  # Case: saison 1 or s01
+                season = int(groups[0])
+            elif groups[1]:  # Case: e04
+                episode = int(groups[1])
                 
         return season, episode
 
@@ -174,10 +176,10 @@ class NodeNameCleaner:
         :return: The node name without the year.
         """
         # Pattern to match year information
-        pattern = r"\b(19|20)\d{2}\b"
+        pattern_year = r"\b(19|20)\d{2}\b"
         
         # Remove matches from the node name
-        cleaned_name = re.sub(pattern, "", node_name, flags=re.IGNORECASE).strip()
+        cleaned_name = re.sub(pattern_year, "", node_name, flags=re.IGNORECASE).strip()
         
         # Clean up extra spaces
         cleaned_name = NodeNameCleaner.cleanup_extra_space(cleaned_name)
@@ -193,14 +195,11 @@ class NodeNameCleaner:
         """
         # Pattern to match season and episode information
         pattern_season = r"(?i)(?:\bs(?:aison|eason)?\s*\d{1,2})"
-        
-        # Remove matches from the node name
-        cleaned_name = re.sub(pattern_season, "", node_name, flags=re.IGNORECASE).strip()
-        
         # Pattern to match episode information
         pattern_episode = r"(?i)(?:\be(?:pisode)?\s*\d{1,2})"
         
         # Remove matches from the node name
+        cleaned_name = re.sub(pattern_season, "", node_name, flags=re.IGNORECASE).strip()
         cleaned_name = re.sub(pattern_episode, "", cleaned_name, flags=re.IGNORECASE).strip()
         
         # Clean up extra spaces
