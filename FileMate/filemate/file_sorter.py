@@ -94,9 +94,6 @@ class FileSorter:
         # Get the node type
         node_type = node.get_type()
         
-        # Logging
-        self.logger.info(colored(f"Node type: {node_type}", Colors.YELLOW.value))
-        
         # Check if the file type is not allowed
         if not node_type in self.allowed_types.keys():
             # Logging
@@ -221,21 +218,24 @@ class FileSorter:
         :param delete_remaining_element: True to delete the remaining element, False otherwise.
         :return: None
         """
-        
-        # Logging
-        self.logger.info(colored("-" * 100, Colors.WHITE.value, attrs=["bold"]))
-        self.logger.info(colored(f"Sorting node: {node}", Colors.YELLOW.value))
 
         # Check if the node is sorted directory
         if self.__is_sorted_dir(node):
             # Logging
-            self.logger.info(colored(f"Node {node} is a sorted directory.", Colors.CYAN.value))
+            #self.logger.info(colored(f"Node {node} is a sorted directory.", Colors.CYAN.value))
             return
+        
+        # Logging
+        self.logger.info(colored("-" * 100, Colors.WHITE.value, attrs=["bold"]))
+        self.logger.info(colored(f"Sorting node: {node}", Colors.YELLOW.value))
         
         # Get the node type
         node_type = self.__check_node_type(node)
         if node_type is None:
             return
+        
+        # Logging
+        self.logger.info(colored(f"Node type: {node_type}", Colors.YELLOW.value))
         
         # Get the sorted directory for the file type
         sorted_dir = node.parent.joinpath(self.sorted_dir_names[node_type])
@@ -281,20 +281,20 @@ class FileSorter:
         """
         
         # Logging
-        self.logger.info(colored(f"Processing node: {self.root_node}", Colors.YELLOW.value))
-        self.logger.info(colored(f"Class: {self.root_node.__class__.__name__}", Colors.YELLOW.value))
+        #self.logger.info(colored(f"Processing node: {self.root_node}", Colors.YELLOW.value))
+        #self.logger.info(colored(f"Class: {self.root_node.__class__.__name__}", Colors.YELLOW.value))
         
         # Check if the root node is a file
         if self.root_node._is(File):
             # Logging
-            self.logger.info(colored(f"Processing file: {self.root_node}", Colors.BLUE.value))
+            #self.logger.info(colored(f"Processing file: {self.root_node}", Colors.BLUE.value))
             self.sort(self.root_node)
             return
         
         # Check if the root node is a directory
         if self.root_node._is(Directory):
             # Logging
-            self.logger.info(colored(f"Processing directory: {self.root_node}", Colors.GREY.value))
+            #self.logger.info(colored(f"Processing directory: {self.root_node}", Colors.GREY.value))
             # Process each child node
             for node in self.root_node:
                 self.sort(node, delete_remaining_element)
