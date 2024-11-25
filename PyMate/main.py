@@ -41,7 +41,7 @@ def main():
     
     # Check arguments
     parser = argparse.ArgumentParser(description='PyMate - A collection of Python utilities.')
-    parser.add_argument('utility', required=False, help='Utility to test')
+    parser.add_argument('utility', type=str, nargs='?', help='Name of the utility to test.')
     args = parser.parse_args()
     
     # Log the start of the test
