@@ -4,6 +4,8 @@
 import logging
 import os
 from typing import Optional
+from termcolor import colored
+from .colors import Colors
 
 class LogIt:
     """
@@ -64,19 +66,52 @@ class LogIt:
         except Exception as e:
             print(f"Failed to create file handler: {e}")
 
-    def get_logger(self) -> logging.Logger:
+    def debug(self, message: str, color: Colors = Colors.CYAN) -> None:
         """
-        Get the configured logger.
-        Returns:
-            logging.Logger: The configured logger instance.
+        Log a debug message.
+        Args:
+            message (str): The message to log.
         """
-        return self.logger
+        self.logger.debug(colored(message, color.value))
+        
+    def info(self, message: str, color: Colors = Colors.WHITE) -> None:
+        """
+        Log an info message.
+        Args:
+            message (str): The message to log.
+        """
+        self.logger.info(colored(message, color.value))
+    
+    def warning(self, message: str, color: Colors = Colors.YELLOW) -> None:
+        """
+        Log a warning message.
+        Args:
+            message (str): The message to log.
+        """
+        self.logger.warning(colored(message, color.value))
+        
+    def error(self, message: str, color: Colors = Colors.RED) -> None:
+        """
+        Log an error message.
+        Args:
+            message (str): The message to log.
+        """
+        self.logger.error(colored(message, color.value))
+        
+    def critical(self, message: str, color: Colors = Colors.MAGENTA) -> None:
+        """
+        Log a critical message.
+        Args:
+            message (str): The message to log.
+        """
+        self.logger.critical(colored(message, color.value))
+        
 
 # Main function to test the decorator
 if __name__ == '__main__':
     
     # Usage
-    logger = LogIt(name='MyLogger', level=logging.DEBUG, console=True, file=True).get_logger()
+    logger = LogIt(level=logging.DEBUG, console=True, file=True)
     
     # Test the logger
     logger.debug("This is a debug message.")
