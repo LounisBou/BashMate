@@ -6,6 +6,7 @@ import os
 from typing import Optional
 from termcolor import colored
 from .colors import Colors
+from .infos import Infos
 
 class LogIt:
     """
@@ -22,8 +23,13 @@ class LogIt:
             file (bool): If True, logs to a file named 'logit.log'.
         """
         
+        # Check if name is provided
+        if name is None:
+            # Get executed script name
+            name = Infos.get_script_package_name()
+        
         # Check if LogIt directory exists
-        self.name = name if name else __name__
+        self.name = name
         self.logger = logging.getLogger(self.name)
         self.logger.setLevel(level if level else logging.INFO)
         self.logger.propagate = False  # Avoid duplicate logs
