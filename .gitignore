@@ -20,3 +20,7 @@ aliases_private/
 
 # Ignore PHP versions 
 ./BrewMate/opt/homebrew/etc/php/**/*
+
+# Ignore all __*__ folders
+__*__/
+**/__*__/
