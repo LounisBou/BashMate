@@ -4,7 +4,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from typing import Union
+from typing import Optional, Union
 import redis
 import sqlite3
 import pickle
@@ -14,7 +14,13 @@ class SaveIt:
     """
     A helper library for storing and retrieving Python primitive types in Redis or SQLite.
     """
-    def __init__(self, backend: str = 'redis', redis_config: dict = None, sqlite_db_name: str = 'saveit.db'):
+    
+    database_systems = [
+        REDIS := 'redis',
+        SQLITE := 'sqlite'
+    ]
+    
+    def __init__(self, backend: str = 'redis', redis_config: dict = None, sqlite_db_name: Optional[str] = None):
         """
         Initialize SaveIt with Redis or SQLite.
         Args:
@@ -31,28 +37,11 @@ class SaveIt:
         # Redis configuration
         if self.backend == 'redis':
             
-            # Check if redis database is installed on the system
-            try:
-                redis.StrictRedis()
-            except redis.ConnectionError:
-                raise ValueError("Redis is not installed on your system.")
-            
             # Check if redis_config is provided
             if not redis_config:
                 redis_config = {'host': 'localhost', 'port': 6379, 'db': 0}
-                
-            # Connect to Redis
-            self.redis_client = redis.StrictRedis(
-                host=redis_config['host'],
-                port=redis_config['port'],
-                db=redis_config['db'],
-                decode_responses=False
-            )
-            # Test connection
-            try:
-                self.redis_client.ping()  
-            except Exception as e:
-                raise RuntimeError(f"Failed to connect to Redis on {redis_config['host']}:{redis_config['port']}")
+            
+            self._init_redis(**redis_config)
         
         # SQLite configuration
         if self.backend == 'sqlite':
@@ -63,20 +52,62 @@ class SaveIt:
             except sqlite3.Error:
                 raise ValueError("SQLite is not installed on your system.")
             
-            # SaveIt sqlite databases directory
-            directory = '__saveit__'
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            self._init_sqlite(sqlite_db_name)
+        
+    def _init_redis(self, host: str = 'localhost', port: int = 6379, db: int = 0) -> None:
+        """
+        Initialize Redis connection.
+        Args:
+            host (str): Redis host.
+            port (int): Redis port.
+            db (int): Redis database number
+        """
+        
+        # Check if redis database is installed on the system
+        try:
+            redis.StrictRedis()
+        except redis.ConnectionError:
+            raise ValueError("Redis is not installed on your system.")
             
-            # Initialize SQLite
-            self.sqlite_db_name = sqlite_db_name
-            self.sqlite_db = f"{directory}/{sqlite_db_name}.db"
+        # Connect to Redis
+        self.redis_client = redis.StrictRedis(
+            host=host,
+            port=port,
+            db=db,
+            decode_responses=False
+        )
+        # Test connection
+        try:
+            self.redis_client.ping()  
+        except Exception as e:
+            raise RuntimeError(f"Failed to connect to Redis on {host}:{port}: {e}")
+
+    def _init_sqlite(self, sqlite_db_name: Optional[str] = None) -> None:
+        """
+        Initialize SQLite connection.
+        Args:
+            sqlite_db_name (str): SQLite database name.
+        """
+        
+        # SaveIt sqlite databases directory
+        directory = '__saveit__'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
             
-            # Test connection
-            try:
-                self._initialize_sqlite()
-            except Exception as e:
-                raise ValueError(f"Failed to initialize SQLite: {e}")
+        # Database file
+        if sqlite_db_name is None:
+            # Get package name as database name
+            sqlite_db_name = os.path.basename(os.path.dirname(__file__))
+        
+        # Initialize SQLite
+        self.sqlite_db_name = sqlite_db_name
+        self.sqlite_db = f"{directory}/{sqlite_db_name}.db"
+        
+        # Test connection
+        try:
+            self._initialize_sqlite()
+        except Exception as e:
+            raise ValueError(f"Failed to initialize SQLite: {e}")
 
     @contextmanager
     def _sqlite_connection(self):
@@ -202,7 +233,7 @@ if __name__ == '__main__':
     saveit_redis.flush_all()
     
     # Test with SQLite
-    saveit_sqlite = SaveIt(backend='sqlite', sqlite_db_name='saveit')
+    saveit_sqlite = SaveIt(backend='sqlite')
     saveit_sqlite.set('key2', [1, 2, 3])
     data = saveit_sqlite.get('key2')
     print(data)  # Output: [1, 2, 3]
