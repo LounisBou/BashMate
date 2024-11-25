@@ -3,6 +3,7 @@
 
 import argparse
 import logging
+import pymate
 from pathlib import Path
 from filemate.file_system_node_factory import FileSystemNodeFactory
 from filemate.file_system_node_tree import FileSystemNodeTree
@@ -67,7 +68,7 @@ def main(console: bool = False) -> None:
     args = parser.parse_args()
     
     # Get the logger
-    logger = get_logger(verbose=args.verbose, console=True)
+    logger = pymate.LogIt(console=True)
     
     # Node path
     node_path = args.path
