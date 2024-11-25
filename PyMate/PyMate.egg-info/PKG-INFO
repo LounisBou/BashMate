@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: PyMate
+Version: 0.0.1
+Summary: A library of utilities for python.
+Home-page: https://github.com/lounisbou/PyMate
+Author: LounisBou
+Author-email: lounis.bou@gmail.com
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: diskcache
+Requires-Dist: redis
+Requires-Dist: setuptools
+Requires-Dist: termcolor

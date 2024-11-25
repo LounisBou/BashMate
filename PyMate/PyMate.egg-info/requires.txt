@@ -1,0 +1,4 @@
+diskcache
+redis
+setuptools
+termcolor

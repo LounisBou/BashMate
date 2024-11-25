@@ -1,0 +1,2 @@
+[console_scripts]
+filemate = filemate.__main__:main
