@@ -150,6 +150,11 @@ class FileSorter:
         # Node type
         node_type = node.get_type()
         
+        # Check if the sorted directory exists
+        if sorted_dir is None:
+            self.logger.info(colored(f"Sorted directory for type {node_type.value} does not exist.", Colors.RED.value))
+            return None
+        
         # Check if the node is a MOVIE
         if node_type == FileType.MOVIE:
             if node._is(File):
@@ -243,6 +248,8 @@ class FileSorter:
         
         # Get the destination path for the node
         destination_path = self.__get_node_destination_path(node)
+        if destination_path is None:
+            return
         
         # Logging
         self.logger.info(colored(f"Cleaned node name: {node.name_cleaned}", Colors.YELLOW.value))
