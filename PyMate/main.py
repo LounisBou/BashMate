@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import argparse
 import os
 import subprocess
 import logging
@@ -37,19 +38,32 @@ def main():
     """
     Entry point for running PyMate utilities.
     """
+    
+    # Check arguments
+    parser = argparse.ArgumentParser(description='PyMate - A collection of Python utilities.')
+    parser.add_argument('utility', required=False, help='Utility to test')
+    args = parser.parse_args()
+    
+    # Log the start of the test
     logging.info(colored("PyMate - A collection of Python utilities.", "green"))
     logging.info(colored("Testing PyMate utilities...\n", "yellow"))
 
     # Discover utilities dynamically
     utilities = discover_pymate_utilities()
-
     if not utilities:
         logging.warning(colored("No PyMate utilities found.", "red"))
         return
-
-    logging.info(colored(f"Found {len(utilities)} PyMate utilities:", "yellow"))
-    for utility in utilities:
-        logging.info(f" - {utility}")
+    
+    # Check if utility argument is provided and exists
+    if args.utility:
+        if args.utility not in utilities:
+            logging.error(colored(f"Utility '{args.utility}' not found.", "red"))
+            return
+        utilities = [args.utility]
+    else:
+        logging.info(colored(f"Found {len(utilities)} PyMate utilities:", "yellow"))
+        for utility in utilities:
+            logging.info(f" - {utility}")
 
     # Test each utility
     nb_errors = 0

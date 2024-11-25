@@ -3,6 +3,7 @@
 
 # Import key classes and functions for easier access
 from .cacheit import CacheIt
+from .colors import Colors
 from .debugit import DebugIt
 from .lazyit import LazyIt
 from .logit import LogIt
