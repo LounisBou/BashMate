@@ -14,7 +14,12 @@ setup(
     url='https://github.com/lounisbou/PyMate',  
     license='MIT',                      
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+        'diskcache',
+        'redis',
+        'setuptools',
+        'termcolor',
+    ],
     entry_points={
         'console_scripts': [
             'filemate=filemate.__main__:main',  # Command-line entry point
