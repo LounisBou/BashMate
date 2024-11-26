@@ -2,51 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import logging
 import pymate
 from pathlib import Path
 from filemate.file_system_node_factory import FileSystemNodeFactory
 from filemate.file_system_node_tree import FileSystemNodeTree
 from filemate.sorter import Sorter
-
-def get_logger(verbose: bool = False, console: bool = False, file: bool = False) -> None:
-    """
-    Create a logger.
-    """
-    # Determine logging level based on verbosity
-    logging_level = logging.INFO if verbose else logging.DEBUG
-
-    # Initialize the logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging_level)
-
-    # Disable propagation to avoid duplicate logs
-    logger.propagate = False
-
-    # Check if handlers are already added
-    if not logger.hasHandlers():
-        # Create formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-        # Add console handler
-        if console:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging_level)
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
-
-        # Add file handler
-        if file:
-            try:
-                file_handler = logging.FileHandler('filemate.log')
-                file_handler.setLevel(logging_level)
-                file_handler.setFormatter(formatter)
-                logger.addHandler(file_handler)
-            except Exception as e:
-                print(f"Failed to create file handler: {e}")
-    
-    # Return the logger
-    return logger
 
 def main(console: bool = False) -> None:
     """
