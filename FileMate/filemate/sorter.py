@@ -220,7 +220,7 @@ class Sorter:
             return
         
         # Logging
-        self.logger.info("-" * 100)
+        self.logger.separator()
         self.logger.info(f"Sorting node: {node}")
         
         # Get the node type
