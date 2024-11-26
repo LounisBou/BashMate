@@ -65,12 +65,22 @@ class SaveIt:
         
         # Check if redis database is installed on the system
         try:
-            redis.StrictRedis()
+            redis.Redis()
         except redis.ConnectionError:
             raise ValueError("Redis is not installed on your system.")
+        
+        # Check if the connection details are valid
+        if not isinstance(port, int) or not isinstance(db, int):
+            raise ValueError("Port and database number must be integers.")
+        if port < 0 or port > 65535:
+            raise ValueError("Port number must be between 0 and 65535.")
+        if db < 0 or db > 15:
+            raise ValueError("Database number must be between 0 and 15.")
+        if not isinstance(host, str):
+            raise ValueError("Host must be a string.")
             
         # Connect to Redis
-        self.redis_client = redis.StrictRedis(
+        self.redis_client = redis.Redis(
             host=host,
             port=port,
             db=db,
@@ -238,19 +248,21 @@ class SaveIt:
 if __name__ == '__main__':
     
     # Test with Redis
-    saveit_redis = SaveIt(backend='redis', redis_config={'host': 'localhost', 'port': 6379, 'db': 0})
-    saveit_redis.set('key1', {'name': 'Alice', 'age': 30}, expiry_seconds=3600)
-    data = saveit_redis.get('key1')
+    print(f"\n{'='*10} REDIS EXAMPLE {'='*10}")
+    saveit_redis = SaveIt(backend='redis', redis_config={'host': 'localhost', 'port': 6379})
+    saveit_redis.set('example_key_1', {'name': 'Alice', 'age': 30}, expiry_seconds=3600)
+    data = saveit_redis.get('example_key_1')
     print(data)  # Output: {'name': 'Alice', 'age': 30}
-    saveit_redis.delete('key1')
-    print(saveit_redis.exists('key1'))  # Output: False
+    saveit_redis.delete('example_key_1')
+    print(saveit_redis.exists('example_key_1'))  # Output: False
     saveit_redis.flush_all()
     
     # Test with SQLite
+    print(f"\n{'='*10} SQLITE EXAMPLE {'='*10}")
     saveit_sqlite = SaveIt(backend='sqlite')
-    saveit_sqlite.set('key2', [1, 2, 3])
-    data = saveit_sqlite.get('key2')
+    saveit_sqlite.set('example_key_2', [1, 2, 3])
+    data = saveit_sqlite.get('example_key_2')
     print(data)  # Output: [1, 2, 3]
-    saveit_sqlite.delete('key2')
-    print(saveit_sqlite.exists('key2'))  # Output: False
+    saveit_sqlite.delete('example_key_2')
+    print(saveit_sqlite.exists('example_key_2'))  # Output: False
     saveit_sqlite.flush_all()
