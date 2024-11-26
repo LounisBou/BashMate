@@ -9,6 +9,10 @@ class LazyIt:
         self.func = func
         self.result = None
         self.evaluated = False
+        
+    def __get__(self, instance, owner):
+        """Handle method binding for instance methods."""
+        return functools.partial(self.__call__, instance)
 
     def __call__(self, *args, **kwargs):
         if not self.evaluated:

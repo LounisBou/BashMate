@@ -8,10 +8,14 @@ class TimeIt:
     """
     A class-based decorator to measure the execution time of a function.
     """
-    def __init__(self, func):
+    def __init__(self, func: callable):
         """Initialize the decorator with the given function."""
         functools.update_wrapper(self, func)  # Preserve metadata of the decorated function
         self.func = func
+
+    def __get__(self, instance, owner):
+        """Handle method binding for instance methods."""
+        return functools.partial(self.__call__, instance)
 
     def __call__(self, *args, **kwargs):
         """Call the decorated function and measure its execution time."""

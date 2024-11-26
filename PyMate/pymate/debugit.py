@@ -8,6 +8,15 @@ class DebugIt:
     """
     A class-based decorator to print debug information about a function call. 
     """
+    
+    def __init__(self):
+        """Initialize the decorator."""
+        pass
+    
+    def __get__(self, instance, owner):
+        """Handle method binding for instance methods."""
+        return functools.partial(self.__call__, instance)
+    
     def __call__(self, func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
