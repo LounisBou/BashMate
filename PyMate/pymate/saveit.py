@@ -181,6 +181,20 @@ class SaveIt:
                     self.delete(key)  # Delete expired key
                     return None
                 return pickle.loads(serialized_value)
+            
+    def get_all_keys(self):
+        """
+        Retrieve all keys from the storage backend.
+        Returns:
+            List of keys.
+        """
+        if self.backend == 'redis':
+            keys = self.redis_client.keys('*')
+            return [key.decode('utf-8') if isinstance(key, bytes) else key for key in keys]
+        elif self.backend == 'sqlite':
+            with self._sqlite_connection() as cursor:
+                cursor.execute(f"SELECT key FROM {self.sqlite_db_name}")
+                return [row[0] for row in cursor.fetchall()]
 
     def delete(self, key: str) -> None:
         """
