@@ -3,7 +3,7 @@
 
 import functools
 from diskcache import Cache
-from typing import Any
+from typing import Any, Optional
 from pymate.saveit import SaveIt
 
 class CacheIt:
@@ -15,22 +15,29 @@ class CacheIt:
     # Class-level cache for diskcache
     cache = Cache('__cacheit__')
     
-    def __init__(self, max_duration=3600, backend=None, redis_config=None, sqlite_db_name='cacheit'):
+    def __init__(
+        self, 
+        max_duration: int = 3600, 
+        backend: str = 'diskcache', 
+        redis_config : Optional[dict] = None, 
+        sqlite_db_name: str = 'cacheit'
+    ):
         """
         Initialize the cache parameters.
         Arguments:
             max_duration (int): Cache duration in seconds.
-            backend (str): 'redis', 'sqlite', or None.
+            backend (str): 'redis', 'sqlite', or 'diskcache'.
             redis_config (dict): Redis connection details.
             sqlite_db_name (str): SQLite database name.
         """
         self.max_duration = max_duration
+        self.saveit = None
         self.backend = backend.lower() if backend else None
-        if self.backend and self.backend not in ['redis', 'sqlite']:
-            raise ValueError("Backend must be either 'redis', 'sqlite', or None")
+        if self.backend not in ['redis', 'sqlite', 'diskcache']:
+            raise ValueError("Backend must be either 'redis', 'sqlite', or 'diskcache'.")
         
         # Initialize SaveIt instance if backend is specified
-        if self.backend:
+        if self.backend in ['redis', 'sqlite']:
             self.saveit = SaveIt(backend=self.backend, redis_config=redis_config, sqlite_db_name=sqlite_db_name)
     
     def __call__(self, func):
@@ -41,7 +48,7 @@ class CacheIt:
             key = (func.__name__, args, frozenset(kwargs.items()))
             key_str = repr(key)  # Convert key to string for storage
 
-            if self.backend:
+            if self.saveit:
                 # Use SaveIt as the backend
                 if self.saveit.exists(key_str):
                     print(f"Cache hit for {func.__name__}{args}")
@@ -67,7 +74,7 @@ class CacheIt:
         # Expose cache management methods
         def clear_cache():
             """Clear the cache."""
-            if self.backend:
+            if self.saveit:
                 self.saveit.flush_all()
             else:
                 CacheIt.cache.clear()
@@ -75,7 +82,7 @@ class CacheIt:
 
         def get_cache():
             """Get the keys stored in the cache."""
-            if self.backend:
+            if self.saveit:
                 return self.saveit.get_all_keys()
             else:
                 return list(CacheIt.cache.iterkeys())
