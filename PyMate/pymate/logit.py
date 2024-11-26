@@ -13,7 +13,14 @@ class LogIt:
     A helper class to create and configure loggers.
     """
 
-    def __init__(self, name: Optional[str] = None, level: Optional[int] = None, console: bool = True, file: bool = False):
+    def __init__(
+        self, 
+        name: Optional[str] = None, 
+        level: Optional[int] = None, 
+        console: bool = True, 
+        file: bool = False, 
+        format: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ):
         """
         Initialize the logger with the specified configuration.
         Args:
@@ -21,6 +28,7 @@ class LogIt:
             level (int, optional): Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
             console (bool): If True, logs to the console.
             file (bool): If True, logs to a file named 'logit.log'.
+            format (str): Format of the log message.
         """
         
         # Check if name is provided
@@ -36,7 +44,7 @@ class LogIt:
 
         # Check if handlers are already added
         if not self.logger.hasHandlers():
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            formatter = logging.Formatter(format)
 
             # Add console handler
             if console:
@@ -95,6 +103,14 @@ class LogIt:
             message (str): The message to log.
         """
         self.logger.warning(colored(message, color.value))
+        
+    def warn(self, message: str, color: Colors = Colors.YELLOW) -> None:
+        """
+        Alias for warning.
+        Args:
+            message (str): The message to log.
+        """
+        self.warning(message, color)
         
     def error(self, message: str, color: Colors = Colors.RED) -> None:
         """
