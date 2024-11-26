@@ -4,6 +4,7 @@
 import os
 import psutil
 import functools
+from pymate.convertit import ConvertIt
 
 class MemIt:
     
@@ -36,20 +37,10 @@ class MemIt:
         memory_used = memory_after - memory_before
         
         # Print the memory usage
-        print(f"Memory usage: {self._human_readable_size(memory_used)}")
+        print(f"Memory usage: {ConvertIt.size_human_readable(memory_used)}")
         
         return result
-    
-    def _human_readable_size(self, size):
-        """
-        Convert the size in bytes to a human-readable format.
-        """
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-            if size < 1024.0:
-                break
-            size /= 1024.0
-        return f"{size:.2f} {unit}"
-        
+            
 # Main function to test the decorator
 if __name__ == '__main__':
     
