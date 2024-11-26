@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import shutil
 from dataclasses import dataclass, field
 from typing import Union
 from collections import Counter
 from typing import Iterator
 from pathlib import Path
-from .file_system_node import FileSystemNode
-from .file import File
-from .file_type import FileType
-from .file_type_extensions import FileTypeExtensions
+from filemate.file_system_node import FileSystemNode
+from filemate.file import File
+from filemate.file_type import FileType
+from filemate.file_type_extensions import FileTypeExtensions
 
 @dataclass
 class Directory(FileSystemNode):

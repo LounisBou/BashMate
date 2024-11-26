@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass, field
-from .file_system_node import FileSystemNode
-from .file_type import FileType
-from .file_type_extensions import FileTypeExtensions
+from filemate.file_system_node import FileSystemNode
+from filemate.file_type import FileType
+from filemate.file_type_extensions import FileTypeExtensions
 
 @dataclass
 class File(FileSystemNode):

@@ -6,11 +6,11 @@ import logging
 from dotenv import load_dotenv
 from dataclasses import dataclass, field
 from pathlib import Path
-from .file_type import FileType
-from .file_system_node import FileSystemNode
-from .node_name_cleaner import NodeNameCleaner
-from .directory import Directory
-from .file import File
+from filemate.file_type import FileType
+from filemate.file_system_node import FileSystemNode
+from filemate.node_name_cleaner import NodeNameCleaner
+from filemate.directory import Directory
+from filemate.file import File
 
 @dataclass
 class Sorter:

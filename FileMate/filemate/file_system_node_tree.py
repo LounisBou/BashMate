@@ -10,8 +10,8 @@ from bigtree import Node as TreeNode
 from bigtree import print_tree, tree_to_dict, dict_to_tree
 from dataclasses import dataclass, field
 from termcolor import colored
-from .file_system_node import FileSystemNode
-from .directory import Directory
+from filemate.file_system_node import FileSystemNode
+from filemate.directory import Directory
 
 def timeit(func):
     """

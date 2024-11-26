@@ -5,9 +5,10 @@
 from .file import File
 from .directory import Directory
 from .node_name_cleaner import NodeNameCleaner
-from .sorter import Sorter
 from .file_type import FileType
 from .file_type_extensions import FileTypeExtensions
 from .file_system_node import FileSystemNode
 from .file_system_node_factory import FileSystemNodeFactory
 from .file_system_node_tree import FileSystemNodeTree
+from .sorter import Sorter
+

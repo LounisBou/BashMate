@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
-from .file_system_node import FileSystemNode
-from .directory import Directory
-from .file import File
+from filemate.file_system_node import FileSystemNode
+from filemate.directory import Directory
+from filemate.file import File
 
 class FileSystemNodeFactory():
     

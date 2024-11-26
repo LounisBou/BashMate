@@ -7,8 +7,8 @@ from pathlib import Path
 from dataclasses import dataclass, field
 import shutil
 import time
-from .node_name_cleaner import NodeNameCleaner
-from .file_type import FileType
+from filemate.node_name_cleaner import NodeNameCleaner
+from filemate.file_type import FileType
 
 @dataclass
 class FileSystemNode(ABC):
