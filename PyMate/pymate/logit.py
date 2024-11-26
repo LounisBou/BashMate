@@ -80,53 +80,87 @@ class LogIt:
         except Exception as e:
             print(f"Failed to create file handler: {e}")
 
-    def debug(self, message: str, color: Colors = Colors.CYAN) -> None:
+    def debug(self, message: str, color: Colors = Colors.CYAN, attributs=[]) -> None:
         """
         Log a debug message.
         Args:
             message (str): The message to log.
+            color (Colors): The color of the message.
         """
-        self.logger.debug(colored(message, color.value))
+        self.logger.debug(colored(message, color.value, attrs=attributs))
         
-    def info(self, message: str, color: Colors = Colors.WHITE) -> None:
+    def info(self, message: str, color: Colors = Colors.WHITE, attributs: list = []) -> None:
         """
         Log an info message.
         Args:
             message (str): The message to log.
+            color (Colors): The color of the message.
         """
-        self.logger.info(colored(message, color.value))
+        self.logger.info(colored(message, color.value, attrs=attributs))
     
-    def warning(self, message: str, color: Colors = Colors.YELLOW) -> None:
+    def warning(self, message: str, color: Colors = Colors.YELLOW, attributs: list = []) -> None:
         """
         Log a warning message.
         Args:
             message (str): The message to log.
+            color (Colors): The color of the message.
         """
-        self.logger.warning(colored(message, color.value))
+        self.logger.warning(colored(message, color.value, attrs=attributs))
         
-    def warn(self, message: str, color: Colors = Colors.YELLOW) -> None:
+    def warn(self, message: str, color: Colors = Colors.YELLOW, attributs: list = []) -> None:
         """
         Alias for warning.
         Args:
             message (str): The message to log.
+            color (Colors): The color of the message.
         """
-        self.warning(message, color)
+        self.warning(message, color=color, attrs=attributs)
         
-    def error(self, message: str, color: Colors = Colors.RED) -> None:
+    def error(self, message: str, color: Colors = Colors.RED, attributs: list = []) -> None:
         """
         Log an error message.
         Args:
             message (str): The message to log.
+            color (Colors): The color of the message.
         """
-        self.logger.error(colored(message, color.value))
+        self.logger.error(colored(message, color.value, attrs=attributs))
         
-    def critical(self, message: str, color: Colors = Colors.MAGENTA) -> None:
+    def critical(self, message: str, color: Colors = Colors.MAGENTA, attributs: list = []) -> None:
         """
         Log a critical message.
         Args:
             message (str): The message to log.
+            color (Colors): The color of the message.
         """
-        self.logger.critical(colored(message, color.value))
+        self.logger.critical(colored(message, color.value, attrs=attributs))
+        
+    def exception(self, message: str, color: Colors = Colors.RED, attributs: list = []) -> None:
+        """
+        Log an exception message.
+        Args:
+            message (str): The message to log.
+            color (Colors): The color of the message.
+        """
+        self.logger.exception(colored(message, color.value, attrs=attributs))
+        
+    def separator(self, size: int = 100, color: Colors = Colors.WHITE, attributs=['bold']) -> None:
+        """
+        Log a separator.
+        Args:
+            size (int): The size of the separator.
+            color (Colors): The color of the separator.
+            attributs (list): The attributes of the separator.
+        """
+        self.logger.info(colored('-' * size, color.value, attrs=attributs))
+        
+    def line_break(self, nb_breaks: int = 1) -> None:
+        """
+        Log a line break.
+        Args:
+            nb_breaks (int): Number of line
+        """
+        for _ in range(nb_breaks):
+            self.logger.info('')
         
 
 # Main function to test the decorator
@@ -136,8 +170,17 @@ if __name__ == '__main__':
     logger = LogIt(level=logging.DEBUG, console=True, file=True)
     
     # Test the logger
+    logger.separator()
     logger.debug("This is a debug message.")
     logger.info("This is an info message.")
     logger.warning("This is a warning message.")
     logger.error("This is an error message.")
     logger.critical("This is a critical message.")
+    logger.exception("This is an exception message.")
+    logger.separator(100)
+    logger.line_break()
+    logger.separator(50)
+    logger.line_break(2)
+    logger.separator(25)
+    logger.line_break(3)
+    logger.separator(10)
