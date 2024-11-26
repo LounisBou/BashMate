@@ -7,7 +7,7 @@ import pymate
 from pathlib import Path
 from filemate.file_system_node_factory import FileSystemNodeFactory
 from filemate.file_system_node_tree import FileSystemNodeTree
-from filemate.file_sorter import FileSorter
+from filemate.sorter import Sorter
 
 def get_logger(verbose: bool = False, console: bool = False, file: bool = False) -> None:
     """
@@ -101,7 +101,7 @@ def main(console: bool = False) -> None:
     # Check if sort is requested
     if args.sort:
         # Sort nodes
-        file_sorter = FileSorter(
+        file_sorter = Sorter(
             node, 
             verbose=args.verbose, 
             dry_run=args.dry_run, 
