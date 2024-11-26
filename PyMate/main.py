@@ -56,7 +56,8 @@ def main():
     
     # Check if utility argument is provided and exists
     if args.utility:
-        if args.utility not in utilities:
+        # Compare lowercase utility name
+        if args.utility.lower() not in [utility.lower() for utility in utilities]:
             logging.error(colored(f"Utility '{args.utility}' not found.", "red"))
             return
         utilities = [args.utility]
