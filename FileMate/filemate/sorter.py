@@ -4,7 +4,6 @@
 import os
 import logging
 from dotenv import load_dotenv
-from enum import Enum
 from dataclasses import dataclass, field
 from pathlib import Path
 from .file_type import FileType
@@ -12,23 +11,12 @@ from .file_system_node import FileSystemNode
 from .node_name_cleaner import NodeNameCleaner
 from .directory import Directory
 from .file import File
-from termcolor import colored
-
-class Colors(Enum):
-    GREY = 'grey'
-    RED = 'red'
-    GREEN = 'green'
-    YELLOW = 'yellow'
-    BLUE = 'blue'
-    MAGENTA = 'magenta'
-    CYAN = 'cyan'
-    WHITE = 'white'
 
 @dataclass
-class FileSorter:
+class Sorter:
     """
-    A class to sort files corresponding directories based on their filename and extension.
-    The class can clean filenames, pack files into directories, and sort them accordingly.
+    A class to sort nodes corresponding directories based on their name and extension.
+    The class can clean names, pack nodes into sorted directories.
     """
     
     # Attributes & initialization
@@ -98,13 +86,13 @@ class FileSorter:
         # Check if the file type is not allowed
         if not node_type in self.allowed_types.keys():
             # Logging
-            self.logger.info(colored(f"File type {node_type} is not allowed.", Colors.RED.value))
+            self.logger.warning(f"File type {node_type} is not allowed.")
             return None
         
         # Check if there is a sorted directory for the file type
         if node_type not in self.sorted_dir_names.keys():
             # Logging
-            self.logger.info(colored(f"No sorted directory for file type {node_type}", Colors.RED.value))
+            self.logger.warning(f"No sorted directory for file type {node_type}")
             return None
         
         return node_type
@@ -152,7 +140,7 @@ class FileSorter:
         
         # Check if the sorted directory exists
         if sorted_dir is None:
-            self.logger.info(colored(f"Sorted directory for type {node_type.value} does not exist.", Colors.RED.value))
+            self.logger.warning(f"Sorted directory for type {node_type.value} does not exist.")
             return None
         
         # Check if the node is a MOVIE
@@ -228,12 +216,12 @@ class FileSorter:
         # Check if the node is sorted directory
         if self.__is_sorted_dir(node):
             # Logging
-            #self.logger.info(colored(f"Node {node} is a sorted directory.", Colors.CYAN.value))
+            #self.logger.info(f"Node {node} is a sorted directory."e)
             return
         
         # Logging
-        self.logger.info(colored("-" * 100, Colors.WHITE.value, attrs=["bold"]))
-        self.logger.info(colored(f"Sorting node: {node}", Colors.YELLOW.value))
+        self.logger.info("-" * 100)
+        self.logger.info(f"Sorting node: {node}")
         
         # Get the node type
         node_type = self.__check_node_type(node)
@@ -241,7 +229,7 @@ class FileSorter:
             return
         
         # Logging
-        self.logger.info(colored(f"Node type: {node_type}", Colors.YELLOW.value))
+        self.logger.info(f"Node type: {node_type}")
         
         # Get the sorted directory for the file type
         sorted_dir = node.parent.joinpath(self.sorted_dir_names[node_type])
@@ -252,29 +240,29 @@ class FileSorter:
             return
         
         # Logging
-        self.logger.info(colored(f"Cleaned node name: {node.name_cleaned}", Colors.YELLOW.value))
-        self.logger.info(colored(f"Sorted directory: {sorted_dir}", Colors.YELLOW.value))
-        self.logger.info(colored(f"Destination path: {destination_path}", Colors.YELLOW.value))
+        self.logger.info(f"Cleaned node name: {node.name_cleaned}")
+        self.logger.info(f"Sorted directory: {sorted_dir}")
+        self.logger.info(f"Destination path: {destination_path}")
             
         # Elements to sort
         elements = self.__get_node_elements_to_sort(node, node_type)
         if elements is not None:
             for element in elements:
                 # Logging
-                self.logger.info(colored(f"Element to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}", Colors.GREEN.value))
+                self.logger.info(f"Element to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}")
                 # Move the node to the sorted directory
                 if not self.dry_run:
                     element.move(destination_path / element.name_cleaned)
             # Delete remaining element
             if delete_remaining_element:
                 # Logging
-                self.logger.warning(colored(f"Deleting remaining element: {node}", Colors.RED.value))
+                self.logger.warning(f"Deleting remaining element: {node}")
                 if not self.dry_run:
                     # Delete remaining node
                     node.delete(recursive=True)
         else:
             # Logging
-            self.logger.info(colored(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}", Colors.GREEN.value))
+            self.logger.info(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}")
             # Move the node to the sorted directory
             if not self.dry_run:
                 node.move(destination_path / node.name_cleaned)
@@ -289,20 +277,20 @@ class FileSorter:
         """
         
         # Logging
-        #self.logger.info(colored(f"Processing node: {self.root_node}", Colors.YELLOW.value))
-        #self.logger.info(colored(f"Class: {self.root_node.__class__.__name__}", Colors.YELLOW.value))
+        #self.logger.info(f"Processing node: {self.root_node}")
+        #self.logger.info(f"Class: {self.root_node.__class__.__name__}")
         
         # Check if the root node is a file
         if self.root_node._is(File):
             # Logging
-            #self.logger.info(colored(f"Processing file: {self.root_node}", Colors.BLUE.value))
+            #self.logger.info(f"Processing file: {self.root_node}")
             self.sort(self.root_node)
             return
         
         # Check if the root node is a directory
         if self.root_node._is(Directory):
             # Logging
-            #self.logger.info(colored(f"Processing directory: {self.root_node}", Colors.GREY.value))
+            #self.logger.info(f"Processing directory: {self.root_node}")
             # Process each child node
             for node in self.root_node:
                 self.sort(node, delete_remaining_element)
