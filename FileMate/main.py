@@ -28,7 +28,7 @@ def main(console: bool = False) -> None:
     args = parser.parse_args()
     
     # Get the logger
-    logger = pymate.LogIt(console=True)
+    logger = pymate.LogIt(console=True, format='%(message)s')
     
     # Node path
     node_path = args.path
