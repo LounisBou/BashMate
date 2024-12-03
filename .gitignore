@@ -2,6 +2,12 @@
 .DS_Store
 **/.DS_Store
 
+# Ignore PHPStorm config folder
+.idea/
+
+# Ignore PHPEnv config file
+.php-version
+
 # Ignore .env file
 .env
 **/.env
