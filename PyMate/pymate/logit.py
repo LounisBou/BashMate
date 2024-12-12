@@ -8,7 +8,8 @@ from termcolor import colored
 from pymate.colors import Colors
 from pymate.infos import Infos
 
-class LogIt:
+class LogIt(logging.Logger):
+    
     """
     A helper class to create and configure loggers.
     """
@@ -31,19 +32,20 @@ class LogIt:
             format (str): Format of the log message.
         """
         
+        # Parent class initialization
+        super().__init__(name)
+        
         # Check if name is provided
         if name is None:
             # Get executed script name
             name = Infos.get_script_package_name()
         
         # Check if LogIt directory exists
-        self.name = name
-        self.logger = logging.getLogger(self.name)
-        self.logger.setLevel(level if level else logging.INFO)
-        self.logger.propagate = False  # Avoid duplicate logs
+        self.setLevel(level if level else logging.INFO)
+        self.propagate = False  # Avoid duplicate logs
 
         # Check if handlers are already added
-        if not self.logger.hasHandlers():
+        if not self.hasHandlers():
             formatter = logging.Formatter(format)
 
             # Add console handler
@@ -62,7 +64,7 @@ class LogIt:
         """
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
+        self.addHandler(console_handler)
 
     def _add_file_handler(self, formatter: logging.Formatter):
         """
@@ -76,82 +78,101 @@ class LogIt:
         try:
             file_handler = logging.FileHandler(os.path.join(directory, 'logit.log'))
             file_handler.setFormatter(formatter)
-            self.logger.addHandler(file_handler)
+            self.addHandler(file_handler)
         except Exception as e:
             print(f"Failed to create file handler: {e}")
-
-    def debug(self, message: str, color: Colors = Colors.CYAN, attributs=[]) -> None:
+    
+    def debug(self, message: str, color: Colors = Colors.CYAN, attrs=[]) -> None:
         """
         Log a debug message.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.logger.debug(colored(message, color.value, attrs=attributs))
+        super().debug(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
         
-    def info(self, message: str, color: Colors = Colors.WHITE, attributs: list = []) -> None:
+    def info(self, message: str, color: Colors = Colors.WHITE, attrs: list = []) -> None:
         """
         Log an info message.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.logger.info(colored(message, color.value, attrs=attributs))
+        super().info(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
+        
+    def success(self, message: str, color: Colors = Colors.GREEN, attrs: list = []) -> None:
+        """
+        Log a success message.
+        Args:
+            message (str): The message to log.
+            color (Colors): The color of the message.
+        """
+        self.info(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
+        
+    def show(self, message: str, color: Colors = Colors.LIGHT_BLUE, attrs: list = [Colors.BOLD]) -> None:
+        """
+        Log a show message.
+        Args:
+            message (str): The message to log.
+            color (Colors): The color of the message.
+        """
+        # Get .value of each attrs element if it is a Colors enum
+        self.info(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
     
-    def warning(self, message: str, color: Colors = Colors.YELLOW, attributs: list = []) -> None:
+    def warning(self, message: str, color: Colors = Colors.YELLOW, attrs: list = []) -> None:
         """
         Log a warning message.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.logger.warning(colored(message, color.value, attrs=attributs))
+        super().warning(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
         
-    def warn(self, message: str, color: Colors = Colors.YELLOW, attributs: list = []) -> None:
+    def warn(self, message: str, color: Colors = Colors.YELLOW, attrs: list = []) -> None:
         """
         Alias for warning.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.warning(message, color=color, attrs=attributs)
+        self.warning(message, color=color, attrs=attrs)
         
-    def error(self, message: str, color: Colors = Colors.RED, attributs: list = []) -> None:
+    def error(self, message: str, color: Colors = Colors.RED, attrs: list = []) -> None:
         """
         Log an error message.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.logger.error(colored(message, color.value, attrs=attributs))
+        super().error(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
         
-    def critical(self, message: str, color: Colors = Colors.MAGENTA, attributs: list = []) -> None:
+    def critical(self, message: str, color: Colors = Colors.MAGENTA, attrs: list = []) -> None:
         """
         Log a critical message.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.logger.critical(colored(message, color.value, attrs=attributs))
+        super().critical(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
         
-    def exception(self, message: str, color: Colors = Colors.RED, attributs: list = []) -> None:
+    def exception(self, message: str, color: Colors = Colors.RED, attrs: list = []) -> None:
         """
         Log an exception message.
         Args:
             message (str): The message to log.
             color (Colors): The color of the message.
         """
-        self.logger.exception(colored(message, color.value, attrs=attributs))
+        super().exception(colored(message, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
         
-    def separator(self, size: int = 100, color: Colors = Colors.WHITE, attributs=['bold']) -> None:
+    def separator(self, size: int = 100, color: Colors = Colors.WHITE, attrs=['bold']) -> None:
         """
         Log a separator.
         Args:
             size (int): The size of the separator.
             color (Colors): The color of the separator.
-            attributs (list): The attributes of the separator.
+            attrs (list): The attributes of the separator.
         """
-        self.logger.info(colored('-' * size, color.value, attrs=attributs))
+        self.info(colored('-' * size, color.value, attrs=[attr.value for attr in attrs if isinstance(attr, Colors)]))
         
     def line_break(self, nb_breaks: int = 1) -> None:
         """
@@ -160,7 +181,7 @@ class LogIt:
             nb_breaks (int): Number of line
         """
         for _ in range(nb_breaks):
-            self.logger.info('')
+            self.info('')
         
 
 # Main function to test the decorator
