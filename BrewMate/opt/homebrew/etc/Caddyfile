@@ -1,58 +1,63 @@
 {
-    auto_https disable_redirects
+	auto_https disable_redirects
 }
 
 (cors) {
-    @hasOrigin {
-        header Origin *
-    }
+	@hasOrigin {
+		header Origin *
+	}
 
-    @hasReferrer {
-        header !Origin
-        header Referer *
-    }
+	@hasReferrer {
+		header !Origin
+		header Referer *
+	}
 
-    @noOrigin {
-        header !Origin
-        header !Referer
-    }
+	@noOrigin {
+		header !Origin
+		header !Referer
+	}
 
-    header @hasOrigin Access-Control-Allow-Origin {http.request.header.origin}
-    header @hasReferrer Access-Control-Allow-Origin {http.request.header.referer}
-    header @noOrigin Access-Control-Allow-Origin "*"
-    header Access-Control-Allow-Headers Authorization
-    header Access-Control-Allow-Credentials true
-    header Access-Control-Allow-Methods GET POST PUT DELETE OPTIONS
-    header Access-Control-Max-Age 3600
-    header Vary Origin
+	header @hasOrigin Access-Control-Allow-Origin {http.request.header.origin}
+	header @hasReferrer Access-Control-Allow-Origin {http.request.header.referer}
+	header @noOrigin Access-Control-Allow-Origin "*"
+	header Access-Control-Allow-Headers Authorization
+	header Access-Control-Allow-Credentials true
+	header Access-Control-Allow-Methods GET POST PUT DELETE OPTIONS
+	header Access-Control-Max-Age 3600
+	header Vary Origin
 }
 
 # GeoNative Mercure Hub
 (mercure) {
-    route /.well-known/mercure {
-        import cors
-        @options {
-            method OPTIONS
-        }
-        respond @options 204
+	route /.well-known/mercure {
+		import cors
+		@options {
+			method OPTIONS
+		}
+		respond @options 204
 
-        mercure {
-            transport_url bolt:///tmp/mercure.db
-            publisher_jwt {env.MERCURE_JWT_VERIFICATION_KEY} RS256
-            subscriber_jwt {env.MERCURE_JWT_VERIFICATION_KEY} RS256
-            anonymous
-            subscriptions
-            heartbeat 10s
-        }
-    }
+		mercure {
+			transport_url bolt:///tmp/mercure.db
+			publisher_jwt {$MERCURE_JWT_VERIFICATION_KEY} RS256
+			subscriber_jwt {$MERCURE_JWT_VERIFICATION_KEY} RS256
+			anonymous
+			subscriptions
+			heartbeat 10s
+		}
+	}
 }
 
 # GeoNative API
 api.geonative.local {
 	tls internal
 	import mercure
-	root * /Users/izno/dev/www/geonative-api/public
-	php_fastcgi 127.0.0.1:9081
+	root * /Users/lounis/dev/www/geonative-api/public
+	php_fastcgi 127.0.0.1:9082 {
+        dial_timeout 10s           # Timeout for establishing a connection
+        read_timeout 30s           # Timeout for reading a response
+        #health_uri /health         # Path to check the health of the PHP-FPM server
+        #health_interval 10s        # Frequency of health checks
+    }
 	file_server
 }
 
@@ -60,17 +65,45 @@ api.geonative.local {
 admin-api.geonative.local {
 	tls internal
 	import mercure
-	root * /Users/izno/dev/www/geonative-api/public
-	php_fastcgi 127.0.0.1:9081
+	root * /Users/lounis/dev/www/geonative-api/public
+	php_fastcgi 127.0.0.1:9082
 	file_server
 }
 
+# GeoNative WHEREAMI
+whereami.geonative.local {
+	tls internal
+	root * /Users/lounis/dev/www/geonative-whereami/public
+	php_fastcgi 127.0.0.1:9082
+	header Access-Control-Allow-Origin "*"
+	header Access-Control-Allow-Headers "*"
+	header Access-Control-Allow-Methods "*"
+	file_server
+}
+
+# GeoNative WHEREAMI (Framework X)
+whereamix.geonative.local {
+	tls internal
+	reverse_proxy localhost:8000
+	header Access-Control-Allow-Origin "*"
+	header Access-Control-Allow-Headers "*"
+	header Access-Control-Allow-Methods "*"
+}
+
 # GeoNative Admin
-admin.geonative.local.app {
-    reverse_proxy localhost:5000
+admin.geonative.local {
+	reverse_proxy localhost:5000
 }
 
 # GeoNative MyGeo
 mygeo.geonative.local {
-    reverse_proxy localhost:5010
+	reverse_proxy localhost:5010
+}
+
+# Test 
+test.geonative.local {
+	tls internal
+	php_fastcgi 127.0.0.1:9082
+ 	root * /Users/lounis/dev/www/test
+	file_server
 }
