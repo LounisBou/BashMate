@@ -236,6 +236,9 @@ if [[ $(uname) == "Darwin" ]]; then
   # Open in Chrome
   alias open-chrome="open -a /Applications/Google\ Chrome.app $*"
 
+  # Open in Chrome
+  alias open-arc="open -a /Applications/Arc.app $*"
+
   # Open in Firefox
   alias open-firefox="open -a /Applications/Firefox.app $*"
 

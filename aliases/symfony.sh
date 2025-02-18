@@ -41,7 +41,7 @@ function sf-test-open-report(){
     # Get current directory name
     current_directory=${PWD##*/}
     # Open coverage report in browser
-    open-chrome /tmp/tests-coverage/$current_directory/index.html
+    open-arc /tmp/tests-coverage/$current_directory/index.html
 }
 # PHP Code Sniffer 
 alias sf-phpcs-check="vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff"
