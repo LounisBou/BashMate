@@ -19,7 +19,7 @@ if __name__ == "__main__":
         transcriptor = Transcriptor()
 
         # Run the main function
-        transcriptor.main()
+        transcriptor.start()
 
     except KeyboardInterrupt:
         print("\nProgram terminated by user")
