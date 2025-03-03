@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
 import wave
 import pyaudio
 import threading
@@ -9,7 +8,6 @@ from datetime import datetime
 import webrtcvad
 import logging
 from typing import Callable
-import numpy as np
 import tempfile
 
 class MicrophoneRecorder:

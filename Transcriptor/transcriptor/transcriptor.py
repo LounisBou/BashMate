@@ -29,7 +29,7 @@ class Transcriptor:
     # Use Metal Performance Shaders (MPS) for memory efficiency
     USE_TORCH_MPS = False
     
-    def __init__(self, model_size: str = "medium", language: str = "fr") -> None:
+    def __init__(self, model_size: str = "small", language: str = "fr") -> None:
         """
         Initialize the transcriptor.
         ---

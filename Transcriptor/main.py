@@ -8,7 +8,7 @@ if __name__ == "__main__":
     """
     Main function to start the voice-activated recording system
     """
-
+    
     try:
         # Message to user
         print("Starting voice-activated recording system...")
