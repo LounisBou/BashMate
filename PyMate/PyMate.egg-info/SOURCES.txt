@@ -9,8 +9,11 @@ PyMate.egg-info/top_level.txt
 pymate/__init__.py
 pymate/cacheit.py
 pymate/colors.py
+pymate/convertit.py
 pymate/debugit.py
+pymate/infos.py
 pymate/lazyit.py
 pymate/logit.py
+pymate/memit.py
 pymate/saveit.py
 pymate/timeit.py
