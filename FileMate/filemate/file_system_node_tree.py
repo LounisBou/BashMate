@@ -1,32 +1,20 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-from pathlib import Path
 import json
-import logging
 import time
-import functools
-from bigtree import Node as TreeNode
-from bigtree import print_tree, tree_to_dict, dict_to_tree
 from dataclasses import dataclass, field
-from termcolor import colored
-from filemate.file_system_node import FileSystemNode
-from filemate.directory import Directory
+from pathlib import Path
+from typing import ClassVar
 
-def timeit(func):
-    """
-    A decorator to measure the execution time of a function.
-    """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.perf_counter()
-        result = func(*args, **kwargs)
-        end_time = time.perf_counter()
-        total_time = end_time - start_time
-        # first item in the args, ie `args[0]` is `self`
-        print(f'Function {func.__name__}{args} Took {total_time:.4f} seconds')
-        return result
-    return wrapper
+from bigtree import Node as TreeNode
+from bigtree import dict_to_tree, print_tree, tree_to_dict
+from pymate import CacheIt, LogIt, SaveIt, TimeIt
+from termcolor import colored
+
+from filemate.directory import Directory
+from filemate.file_system_node import FileSystemNode
+
 
 @dataclass
 class FileSystemNodeTree():
@@ -37,22 +25,28 @@ class FileSystemNodeTree():
     
     # Attributes & initialization
     
+    nodetree_folder_name: ClassVar[str] = "__nodetree__"
+    redis_config: ClassVar[dict] = {"host": "localhost", "port": 6379, "db": 0}
+    
     root_node: FileSystemNode = field(init=True, metadata={"help": "The root node to sort."})
     verbose: bool = field(init=True, default=False, metadata={"help": "Verbose output."})
     root_tree_node: TreeNode = field(init=False, default=None, metadata={"help": "The root tree node."})
-    logger: logging.Logger = field(init=True, default_factory=logging.Logger, metadata={"help": "The logger."})
+    logger: LogIt = field(init=True, default_factory=LogIt, metadata={"help": "The logger."})
+    saveit: SaveIt = field(init=False, default_factory=SaveIt, metadata={"help": "The SaveIt instance."})
     
     def __post_init__(self) -> None:
         """
         Initializes the file system node tree.
         """
         # Check if the root node is a directory
-        if not self.root_node._is(Directory):
+        if not self.root_node.is_instance(Directory):
             raise ValueError(f"The root node {self.root_node} is not a directory.")
+        # Create an instance of saveit
+        self.saveit = SaveIt(backend='redis', redis_config=FileSystemNodeTree.redis_config)
     
     # Private methods
     
-    @timeit
+    @TimeIt
     def __build_tree(self) -> None:
         """
         Builds the tree of file system nodes.
@@ -60,6 +54,7 @@ class FileSystemNodeTree():
         self.root_tree_node = FileSystemNodeTree.create_node(self.root_node)
         self.__build_tree_recursive(self.root_node, self.root_tree_node)
     
+    @CacheIt(max_duration=3600, backend='redis', redis_config=redis_config)
     def __build_tree_recursive(self, node: Directory, tree_node: TreeNode) -> None:
         """
         Builds the tree of file system nodes recursively.
@@ -71,9 +66,9 @@ class FileSystemNodeTree():
             try:
                 # Create tree node
                 child_tree_node = FileSystemNodeTree.create_node(child_node, parent=tree_node)
-                if child_node._is(Directory):
+                if child_node.is_instance(Directory):
                     self.__build_tree_recursive(child_node, child_tree_node)
-            except Exception as e:
+            except (OSError, AttributeError) as e:
                 self.logger.info(colored(f"Skipping node {child_node.path.name} due to error: {e}"), "yellow")
                 
     def __str__(self) -> str:
@@ -152,7 +147,7 @@ class FileSystemNodeTree():
         Exports the tree to a JSON file.
         :param file_path: Path to save the tree.
         """
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json_data = self.json(indent=indent)
             f.write(json_data)
     
@@ -163,7 +158,7 @@ class FileSystemNodeTree():
         :param file_path: Path to the JSON file.
         :return: An instance of FileSystemNodeTree.
         """
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             tree_data = json.load(f)
         
         return FileSystemNodeTree.dict_to_tree(tree_data)
@@ -177,7 +172,16 @@ class FileSystemNodeTree():
         :param name: Name of the node to search for.
         :return: The matching TreeNode if found, None otherwise.
         """
-        return self.root_tree_node.find(name)
+        # Traverse the tree to find a node by name
+        def _find_by_name(node, name):
+            if node.name == name:
+                return node
+            for child in getattr(node, "children", []):
+                result = _find_by_name(child, name)
+                if result is not None:
+                    return result
+            return None
+        return _find_by_name(self.root_tree_node, name)
     
     def search_node_by_path(self, path: Path) -> TreeNode | None:
         """
@@ -204,34 +208,34 @@ class FileSystemNodeTree():
     
     # - Utility methods
     
-    @timeit
+    @TimeIt
     def save(self) -> None:
         """
-        Saves the tree to a JSON file in saved-tree folder.
+        Saves the tree to a JSON file in nodetree folder.
         """
-        # Check if the saved-tree folder exists
-        saved_tree_folder = Path("saved-tree")
-        if not saved_tree_folder.exists():
-            saved_tree_folder.mkdir()
+        # Check if the nodetree folder exists
+        nodetree_folder = Path(FileSystemNodeTree.nodetree_folder_name)
+        if not nodetree_folder.exists():
+            nodetree_folder.mkdir()
         # Check if the tree has been saved
         if FileSystemNodeTree.check_saved_tree(self.root_node.name):
             # Remove the existing saved tree
-            (saved_tree_folder / f"{self.root_node.name}.json").unlink()
+            (nodetree_folder / f"{self.root_node.name}.json").unlink()
         # Export the tree to a JSON file
-        self.export(f"saved-tree/{self.root_node.name}.json")
+        self.export(f"{FileSystemNodeTree.nodetree_folder_name}/{self.root_node.name}.json")
 
     @staticmethod
-    @timeit
+    @TimeIt
     def restore(node_name: str) -> 'FileSystemNodeTree':
         """
-        Restores the tree from a JSON file in saved-tree folder.
+        Restores the tree from a JSON file in nodetree folder.
         :param node_name: Name of the node.
         :return: An instance of FileSystemNodeTree.
         """
         # Check if the tree has been saved
         if not FileSystemNodeTree.check_saved_tree(node_name):
             raise FileNotFoundError("No saved tree found.")
-        return FileSystemNodeTree.importer(f"saved-tree/{node_name}.json")
+        return FileSystemNodeTree.importer(f"{FileSystemNodeTree.nodetree_folder_name}/{node_name}.json")
     
     @staticmethod
     def check_saved_tree(node_name: str, max_age: int|None = None) -> bool:
@@ -244,11 +248,11 @@ class FileSystemNodeTree():
         # Check if max_age is set
         if max_age is not None:
             # Check if the saved tree exists and is not older than max_age
-            saved_tree_path = Path(f"saved-tree/{node_name}.json")
-            if saved_tree_path.exists():
-                return (time.time() - saved_tree_path.stat().st_mtime) < max_age
+            nodetree_path = Path(f"{FileSystemNodeTree.nodetree_folder_name}/{node_name}.json")
+            if nodetree_path.exists():
+                return (time.time() - nodetree_path.stat().st_mtime) < max_age
             return False
-        return Path(f"saved-tree/{node_name}.json").exists()
+        return Path(f"{FileSystemNodeTree.nodetree_folder_name}/{node_name}.json").exists()
     
     @staticmethod
     def create_node(node: FileSystemNode, parent: TreeNode = None) -> TreeNode:

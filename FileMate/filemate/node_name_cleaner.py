@@ -34,14 +34,14 @@ class NodeNameCleaner:
         """
         Loads the cleaning characters from the .env file.
         """
-        with open(self.cleaning_chars_path, "r") as file:
+        with open(self.cleaning_chars_path, "r", encoding="utf-8") as file:
             self.cleaning_chars = file.read().splitlines()
               
     def __load_cleaning_words(self):
         """
         Loads the cleaning words from the .env file.
         """
-        with open(self.cleaning_words_path, "r") as file:
+        with open(self.cleaning_words_path, "r", encoding="utf-8") as file:
             self.cleaning_words = file.read().splitlines()
         
     # Private methods
@@ -55,10 +55,10 @@ class NodeNameCleaner:
         :return: The node stem with unwanted characters removed.
         """
         for char_to_clean in self.cleaning_chars:
-            node_stem = node_stem.replace(char_to_clean, ' ')
+            node_stem = node_stem.replace(char_to_clean, replacement)
         return node_stem
 
-    def __clean_node_stem_words(self, node_stem: str, replacement = ' ') -> str:
+    def __clean_node_stem_words(self, node_stem: str, replacement = '') -> str:
         """
         Cleans unwanted words from the node stem.
         :param node_stem: Node name without the extension.
@@ -66,7 +66,7 @@ class NodeNameCleaner:
         :return: The node stem with unwanted words removed.
         """
         for word_to_clean in self.cleaning_words:
-            node_stem = re.sub(rf'\b{word_to_clean}\b', '', node_stem)
+            node_stem = re.sub(rf'\b{word_to_clean}\b', replacement, node_stem)
         return node_stem.strip()
 
     def __clean_node_stem(self, node_stem: str) -> str:
@@ -77,10 +77,7 @@ class NodeNameCleaner:
         """
         # Convert to lowercase
         node_stem = node_stem.lower()
-        # Remove elements in brackets
-        node_stem = re.sub(r'\[.*?\]', '', node_stem, flags=re.IGNORECASE)
-        # Remove elements in parentheses
-        node_stem = re.sub(r'\(.*?\)', '', node_stem, flags=re.IGNORECASE)
+
         # Remove leading and trailing spaces
         node_stem = node_stem.strip()
         # Remove unwanted characters
@@ -151,7 +148,7 @@ class NodeNameCleaner:
         
         # Match the pattern
         match = re.findall(pattern, node_name)
-
+        
         # Initialize season and episode
         season = None
         episode = None
@@ -167,6 +164,16 @@ class NodeNameCleaner:
                 season = int(groups[0])
             elif groups[1]:  # Case: e04
                 episode = int(groups[1])
+                
+            # Handle groups for both season and episode (second case)
+            elif groups[2] and groups[3]:
+                season = int(groups[2])
+                episode = int(groups[3])
+                break
+            elif groups[2]:
+                season = int(groups[2])
+            elif groups[3]:
+                episode = int(groups[3])
                 
         return season, episode
 

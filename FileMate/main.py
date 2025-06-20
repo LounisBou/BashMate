@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import pymate
 from pathlib import Path
+
+from pymate import LogIt
+
 from filemate.file_system_node_factory import FileSystemNodeFactory
 from filemate.file_system_node_tree import FileSystemNodeTree
 from filemate.sorter import Sorter
 
-def main(console: bool = False) -> None:
+
+def main() -> None:
     """
     Entry point for the FileMate application.
     """
@@ -28,14 +31,14 @@ def main(console: bool = False) -> None:
     args = parser.parse_args()
     
     # Get the logger
-    logger = pymate.LogIt(console=True, format='%(message)s')
+    logger = LogIt(console=True, format='%(message)s')
     
     # Node path
     node_path = args.path
-    # Path 
+    # Path
     path = Path(node_path)
     # Node
-    node = FileSystemNodeFactory(path)
+    node = FileSystemNodeFactory.create_node(path)
     
     # Check if tree is requested
     if args.tree:
@@ -46,14 +49,14 @@ def main(console: bool = False) -> None:
         else:
             # Create the tree
             file_system_node_tree = FileSystemNodeTree(
-                node, 
-                verbose=args.verbose, 
+                node,
+                verbose=args.verbose,
                 logger=logger
             )
             # Build the tree
             file_system_node_tree.build()
             # Save the tree
-            file_system_node_tree.save()
+            #file_system_node_tree.save()
         # Print the node tree
         if args.show_tree:
             file_system_node_tree.show()
@@ -62,12 +65,12 @@ def main(console: bool = False) -> None:
     if args.sort:
         # Sort nodes
         file_sorter = Sorter(
-            node, 
-            verbose=args.verbose, 
-            dry_run=args.dry_run, 
+            node,
+            verbose=args.verbose,
+            dry_run=args.dry_run,
             logger=logger,
         )
-        file_sorter.process(delete_remaining_element=args.clean)      
+        file_sorter.process(delete_remaining_element=args.clean)
 
   
 # Check if the script is being run directly

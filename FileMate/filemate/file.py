@@ -98,12 +98,12 @@ class File(FileSystemNode):
         
         # Override the file type for specific cases
         if file_type_ext.name == FileTypeExtensions.VIDEO.name:
-            season, episode = self.name_cleaner.get_season_and_episode_from_node_name(self.stem_cleaned)
+            season, episode = self.name_cleaner.get_season_and_episode_from_node_name(self.stem)
             if season is not None or episode is not None:
                 return FileType.TVSHOW
             else:
                 return FileType.MOVIE
-            
+                
         # Check if there is a file type matching the file type extension
         if not hasattr(FileType, file_type_ext.name):
             return FileType.OTHER

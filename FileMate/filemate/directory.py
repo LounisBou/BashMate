@@ -3,15 +3,16 @@
 
 import os
 import shutil
-from dataclasses import dataclass, field
-from typing import Union
 from collections import Counter
-from typing import Iterator
+from dataclasses import dataclass, field
 from pathlib import Path
-from filemate.file_system_node import FileSystemNode
+from typing import Iterator, Union
+
 from filemate.file import File
+from filemate.file_system_node import FileSystemNode
 from filemate.file_type import FileType
 from filemate.file_type_extensions import FileTypeExtensions
+
 
 @dataclass
 class Directory(FileSystemNode):
@@ -37,7 +38,7 @@ class Directory(FileSystemNode):
         if not self.path.is_dir():
             raise ValueError(f"The path {self.path} is not a directory.")
         # Stem is the name without year in parentheses
-        self.stem = self.name.split(' (')[0]
+        self.stem = self.name.split(' (', maxsplit=1)[0]
         # Year is the year in parentheses if it exists at the end of the name and is a 4-digit number else 0
         self.year = self.name_cleaner.get_year_from_node_name(self.name)
     
@@ -105,7 +106,7 @@ class Directory(FileSystemNode):
 
         # If recursive is True, check subdirectories
         if getattr(self, 'recursive', False):  # Check if the `recursive` attribute exists and is True
-            for root, dirs, files in os.walk(self.path):
+            for _, dirs, files in os.walk(self.path):
                 if target_name in files or target_name in dirs:
                     return True
 
@@ -257,10 +258,10 @@ class Directory(FileSystemNode):
                     elif node_path.is_dir():
                         yield Directory(node_path)
                 except (FileNotFoundError, ValueError) as e:
-                    raise ValueError(f"Error processing {node_path}: {e}")
+                    raise ValueError(f"Error processing {node_path}: {e}") from e
 
         except Exception as e:
-            raise RuntimeError(f"Error accessing contents of {self.path}: {e}")
+            raise RuntimeError(f"Error accessing contents of {self.path}: {e}") from e
 
 
     def iter_dir(self, recursive: bool = False, hidden: bool = False) -> Iterator['Directory']:
@@ -272,7 +273,7 @@ class Directory(FileSystemNode):
         :yield: An iterator over Directory instances.
         """
         for node in self.iter(recursive=recursive, hidden=hidden):
-            if node._is(Directory):
+            if node.is_instance(Directory):
                 yield node
     
     def iter_files(self, recursive: bool = False, hidden: bool = False) -> Iterator[File]:
@@ -284,7 +285,7 @@ class Directory(FileSystemNode):
         :yield: An iterator over File instances.
         """
         for node in self.iter(recursive=recursive, hidden=hidden):
-            if node._is(File):
+            if node.is_instance(File):
                 yield node
     
     def get_size(self) -> int:
@@ -353,9 +354,9 @@ class Directory(FileSystemNode):
         """
         unpacked = set[FileSystemNode]()
         for node in self:
-            if file_only and node._is(Directory):
+            if file_only and node.is_instance(Directory):
                 continue
-            if dir_only and node._is(File):
+            if dir_only and node.is_instance(File):
                 continue
             if clean:
                 node.clean_name()

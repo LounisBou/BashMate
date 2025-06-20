@@ -2,9 +2,11 @@
 1080i
 1080p
 10bit
-10-bit
+10bits
+10 bit
 1920x1080
 2160p
+265 r3mix
 2ch
 2vf
 480p
@@ -13,17 +15,24 @@
 4k
 4klight
 6ch
+aac lc
 aac
 aaclc
 abcollection
+ac3 vigi
 ac 3
 ac3
 acc
 acool
+ad
 amzn
 ark01
+atmos
+atvp
 av1
+avalon
 avc
+badevel
 bbc
 bbt
 bdrip
@@ -34,6 +43,8 @@ bluray
 bluray1080p
 brrip
 btt
+btrs
+bulitt
 buret
 ccats
 ch
@@ -41,28 +52,38 @@ chill
 chris44
 custom
 cut
+d4kid
 darkjuju
 dd
 ddp
+ddp2 0
+ddp2
 directors cut
 dl
+doc french
+doc multi
 dolby vision
 dread team
 dts
+dv
 dvdrip
 dvd rip
+eac3 joc
 eac3
 eaulive
 elcrackito
 en
 eng
+esper
 extended
 extreme
 fasandraeberne
 fervex
 final cut
+finalmulti
 flaskepost
 fr
+fr2
 fre
 french
 french(vff)
@@ -74,18 +95,26 @@ ght
 ghz
 gismo65
 gwen
+h264 bouba
 h264
+h 264
+h265 bouba
 h265
+h 265
 h4s5s
 hd
 hdl
 hdlight
 hdma
 hdr
+hdr10p
+hdr10plus
 hdtv
 he
+hevc kz
 hevc
 hush
+imax
 integral
 integrale
 internal
@@ -97,6 +126,7 @@ kvinden
 lazarus
 lcds
 libertad
+lmulti
 luminus
 mhd
 mhdgz
@@ -105,8 +135,10 @@ mm91
 moe
 mtl666
 multi
+multi1080p
 multi3
 nf
+nl51
 noex
 nobodyperfect
 non censurée
@@ -117,12 +149,17 @@ owii
 p4t4t3
 pop
 pophd
-Portos
 portos
+proper
+qbdom
 qtz
+r3mix
+redisdead
 remastered
 repack
 romkent
+sacrilege
+sakadox
 se7en
 serqph
 shc23
@@ -130,14 +167,19 @@ slayer
 slay3r
 sn2p
 srt
+stegner
 stereo
+t3kashi
 tf
+tfa
+themouche
 title1
 tonyk
 tr
 truefrench
 trunkdu92
 tvwh0res
+tyhd
 unrated
 uptopol
 utt
@@ -153,11 +195,13 @@ vo
 vof
 vost
 vostfr
+vofstfr
 vp9
 web
 web dl
 webdl
 webrip
+wmtorrent
 x264
 x265
 xvid

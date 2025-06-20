@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 import shutil
 import time
 from filemate.node_name_cleaner import NodeNameCleaner
-from filemate.file_type import FileType
+
 
 @dataclass
 class FileSystemNode(ABC):
@@ -25,7 +25,7 @@ class FileSystemNode(ABC):
     stem_cleaned: str = field(init=False, default="", metadata="The cleaned name of the node, without the extension.")
     size: int = field(init=False, default=0, metadata="The size of the node.")
     modification_time: float = field(init=False, default=0, metadata="The last modification time of the node.")
-    name_cleaner: NodeNameCleaner = field(init=False, default=NodeNameCleaner(), metadata="The node name cleaner.")
+    name_cleaner: NodeNameCleaner = field(init=False, default_factory=NodeNameCleaner, metadata="The node name cleaner.")
     
     # Special methods
     
@@ -50,14 +50,14 @@ class FileSystemNode(ABC):
 
     # - Class check
     
-    def _is(self, object: 'FileSystemNode') -> bool:
+    def is_instance(self, node: 'FileSystemNode') -> bool:
         """
         Checks if the node is an instance of the given class.
         Example: node.is(File)
         :param object: The class to check.
         :return: True if the node is an instance of the given class, False otherwise.
         """
-        return isinstance(self, object)
+        return isinstance(self, node)
     
     def _instanceof(self) -> 'FileSystemNode':
         """
@@ -259,7 +259,7 @@ class FileSystemNode(ABC):
         """
         raise NotImplementedError("The get_size method must be implemented in the subclass.")
     
-    def human_readable_size(self, force_unit: str = None) -> str:
+    def human_readable_size(self, unit: str = None) -> str:
         """
         Converts the file size into a human-readable format.
         :param unit: The unit to convert the size to. Default is None.
@@ -272,20 +272,20 @@ class FileSystemNode(ABC):
             size /= 1024
         return f"{size:.2f} {unit}"
 
-    def formatted_modification_time(self, format: str = '%Y-%m-%d %H:%M:%S') -> str:
+    def formatted_modification_time(self, datetime_format: str = '%Y-%m-%d %H:%M:%S') -> str:
         """
         Formats the modification time into a human-readable string.
-        :param format: The format of the modification time. Default is '%Y-%m-%d %H:%M:%S'.
+        :param datetime_format: The format of the modification time. Default is '%Y-%m-%d %H:%M:%S'.
         :return: The formatted modification time.
         """
-        return time.strftime(format, time.localtime(self.modification_time))
+        return time.strftime(datetime_format, time.localtime(self.modification_time))
     
         # - Type checking
     
     # - Type checking
     
     @abstractmethod
-    def get_type(self) -> FileType:
+    def get_type(self) -> None:
         """
         Gets the type of the node.
         :return: The type of the node.

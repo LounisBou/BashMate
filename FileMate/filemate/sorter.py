@@ -2,15 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import os
-import logging
-from dotenv import load_dotenv
 from dataclasses import dataclass, field
 from pathlib import Path
-from filemate.file_type import FileType
-from filemate.file_system_node import FileSystemNode
-from filemate.node_name_cleaner import NodeNameCleaner
+
+from dotenv import load_dotenv
+from pymate import LogIt
+
 from filemate.directory import Directory
 from filemate.file import File
+from filemate.file_system_node import FileSystemNode
+from filemate.file_type import FileType
+from filemate.node_name_cleaner import NodeNameCleaner
+
 
 @dataclass
 class Sorter:
@@ -26,7 +29,7 @@ class Sorter:
     dry_run: bool = field(init=True, default=False, metadata={"help": "True for dry run, False otherwise."})
     sorted_dir_names: dict = field(init=False, default_factory=dict, metadata={"help": "Sorted directories by file type."})
     allowed_types: dict = field(init=False, default_factory=dict, metadata={"help": "Allowed types for each file type."})
-    logger: logging.Logger = field(init=True, default_factory=logging.Logger, metadata={"help": "The logger."})
+    logger: LogIt = field(init=True, default_factory=LogIt, metadata={"help": "The logger."})
     name_cleaner: NodeNameCleaner = field(init=False, default_factory=NodeNameCleaner, metadata={"help": "The node name cleaner."})
     
     def __post_init__(self):
@@ -84,13 +87,13 @@ class Sorter:
         node_type = node.get_type()
         
         # Check if the file type is not allowed
-        if not node_type in self.allowed_types.keys():
+        if node_type not in self.allowed_types:
             # Logging
             self.logger.warning(f"File type {node_type} is not allowed.")
             return None
         
         # Check if there is a sorted directory for the file type
-        if node_type not in self.sorted_dir_names.keys():
+        if node_type not in self.sorted_dir_names:
             # Logging
             self.logger.warning(f"No sorted directory for file type {node_type}")
             return None
@@ -104,7 +107,7 @@ class Sorter:
         :param node: FileSystem node to check.
         :return: True if the directory is a sorted directory, False otherwise.
         """
-        if not node._is(Directory):
+        if not node.is_instance(Directory):
             return False
         return any([node.name == sorted_dir for sorted_dir in self.sorted_dir_names.values()])
     
@@ -145,25 +148,36 @@ class Sorter:
         
         # Check if the node is a MOVIE
         if node_type == FileType.MOVIE:
-            if node._is(File):
-                # Movie year
-                movie_year = self.name_cleaner.get_year_from_node_name(node.stem_cleaned)
-                if movie_year is not None:
-                    # Movie folder name with the year in parentheses
-                    movie_folder_name = f"{self.name_cleaner.get_name_without_year(node.stem_cleaned)} ({movie_year})"
-                else:
-                    # Movie folder name without the year
-                    movie_folder_name = node.stem_cleaned
+            # Movie year
+            movie_year = self.name_cleaner.get_year_from_node_name(node.stem_cleaned)
+            if movie_year is not None:
+                # Movie folder name with the year in parentheses
+                movie_folder_name = f"{self.name_cleaner.get_name_without_year(node.stem_cleaned)} ({movie_year})"
+            else:
+                # Movie folder name without the year
+                movie_folder_name = node.stem_cleaned
+            if node.is_instance(File):
                 # Destination is a directory with the same name as the node in the sorted directory
                 return sorted_dir.path / movie_folder_name.capitalize()
             else:
+                # If not dry run
+                if not self.dry_run:
+                    # Rename the directory node directly 
+                    node.rename(movie_folder_name.capitalize())
+                else:
+                    # Print
+                    self.logger.warning(f"Renaming movie dir to : {movie_folder_name.capitalize()}")
                 # Destination is a directory with the same name as the node in the sorted directory
                 return sorted_dir.path
         
         # Check if the node is a TVSHOW
         if node_type == FileType.TVSHOW:
+            # Create TVSHOW directory
+            tvshow_dir = self.name_cleaner.get_name_without_season_and_episode(node.stem_cleaned)
+            tvshow_dir = self.name_cleaner.get_name_without_year(tvshow_dir)
+            tvshow_dir = tvshow_dir.capitalize()
             # Destination is a directory with the same name as the node in the sorted directory
-            return sorted_dir.path / self.name_cleaner.get_name_without_season_and_episode(node.stem_cleaned).capitalize()
+            return sorted_dir.path / tvshow_dir
             
 
         # default
@@ -177,7 +191,7 @@ class Sorter:
         :return: A list of elements for the node, None if the element to sort is the node itself.
         """
         # Check if the node is a file
-        if node._is(File):
+        if node.is_instance(File):
             return None
         
         # Check node type
@@ -215,13 +229,11 @@ class Sorter:
 
         # Check if the node is sorted directory
         if self.__is_sorted_dir(node):
-            # Logging
-            #self.logger.info(f"Node {node} is a sorted directory."e)
             return
         
         # Logging
         self.logger.separator()
-        self.logger.info(f"Sorting node: {node}")
+        self.logger.show(f"Sorting node: {node}")
         
         # Get the node type
         node_type = self.__check_node_type(node)
@@ -249,7 +261,7 @@ class Sorter:
         if elements is not None:
             for element in elements:
                 # Logging
-                self.logger.info(f"Element to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}")
+                self.logger.success(f"Node to sort: [{element.__class__.__name__}] {destination_path / element.name_cleaned}")
                 # Move the node to the sorted directory
                 if not self.dry_run:
                     element.move(destination_path / element.name_cleaned)
@@ -262,7 +274,7 @@ class Sorter:
                     node.delete(recursive=True)
         else:
             # Logging
-            self.logger.info(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}")
+            self.logger.success(f"Node to sort: [{node.__class__.__name__}] {destination_path / node.name_cleaned}")
             # Move the node to the sorted directory
             if not self.dry_run:
                 node.move(destination_path / node.name_cleaned)
@@ -276,23 +288,25 @@ class Sorter:
         :return: None
         """
         
-        # Logging
-        #self.logger.info(f"Processing node: {self.root_node}")
-        #self.logger.info(f"Class: {self.root_node.__class__.__name__}")
-        
         # Check if the root node is a file
-        if self.root_node._is(File):
-            # Logging
-            #self.logger.info(f"Processing file: {self.root_node}")
+        if self.root_node.is_instance(File):
+            # Check if verbose is enabled
+            if self.verbose:
+                self.logger.show(f"Sorting file: {self.root_node.name_cleaned}")
             self.sort(self.root_node)
             return
         
         # Check if the root node is a directory
-        if self.root_node._is(Directory):
-            # Logging
-            #self.logger.info(f"Processing directory: {self.root_node}")
+        if self.root_node.is_instance(Directory):
+            # Check if verbose is enabled
+            if self.verbose:
+                self.logger.show(f"Sorting directory: {self.root_node.name_cleaned}")
             # Process each child node
             for node in self.root_node:
+                # Check if verbose is enabled
+                if self.verbose:
+                    self.logger.show(f"Sorting child node: {node.name_cleaned}")
+                # Sort the node
                 self.sort(node, delete_remaining_element)
             return
         
