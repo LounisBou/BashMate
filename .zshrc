@@ -110,6 +110,8 @@ source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 export PIPENV_PYTHON="$PYENV_ROOT/shims/python"
+# Add BashMate to the PYTHONPATH
+export PYTHONPATH="$HOME/BashMate:$PYTHONPATH"
 
 # Symfony
 export PATH="$HOME/.symfony5/bin:$PATH"

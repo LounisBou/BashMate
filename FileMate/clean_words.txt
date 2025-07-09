@@ -32,7 +32,9 @@ atvp
 av1
 avalon
 avc
+azaze
 badevel
+bd
 bbc
 bbt
 bdrip
@@ -90,6 +92,7 @@ french(vff)
 frosties
 ftmvhd
 fw
+fwd
 gbx
 ght
 ghz
@@ -114,6 +117,7 @@ he
 hevc kz
 hevc
 hush
+hybridv8
 imax
 integral
 integrale
@@ -128,6 +132,7 @@ lcds
 libertad
 lmulti
 luminus
+menzo
 mhd
 mhdgz
 mkv
@@ -160,6 +165,7 @@ repack
 romkent
 sacrilege
 sakadox
+sdr
 se7en
 serqph
 shc23
@@ -180,9 +186,11 @@ truefrench
 trunkdu92
 tvwh0res
 tyhd
+uhdr10
 unrated
 uptopol
 utt
+version longue
 version
 vf
 vf2

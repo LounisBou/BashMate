@@ -25,8 +25,10 @@ class NodeNameCleaner:
         Initializes the NodeNameCleaner class.
         """
         load_dotenv()
-        self.cleaning_chars_path = os.getenv("CLEAN_CHARACTERS_FILE")
-        self.cleaning_words_path = os.getenv("CLEAN_WORDS_FILE")
+        # Current directory of the script
+        main_script_dir = Path(__file__).parent.resolve().parent
+        self.cleaning_chars_path = main_script_dir / os.getenv("CLEAN_CHARACTERS_FILE")
+        self.cleaning_words_path = main_script_dir / os.getenv("CLEAN_WORDS_FILE")
         self.__load_cleaning_chars()
         self.__load_cleaning_words()
         
