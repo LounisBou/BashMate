@@ -41,8 +41,8 @@ class MediaFileCleaner:
     """Helper for ad-boundary detection and optional trimming."""
 
     @staticmethod
-    def fmt_hhmmss(seconds: float) -> str:
-        """Format seconds as HH:MM:SS.
+    def format_to_time(seconds: float) -> str:
+        """Format seconds as HH:MM:SS. for display purposes.
 
         Args:
             seconds: Time in seconds.
@@ -212,6 +212,8 @@ def _main() -> int:
     )
     ap.add_argument(
         "--trim-output", 
+        type=str,
+        default=None,
         help="If set, write a trimmed file starting at detected ad end (e.g., output.mp3)"
     )
     ap.add_argument(
@@ -221,6 +223,12 @@ def _main() -> int:
         help="Extra pad after ad end before trimming (ms)"
     )
     args = ap.parse_args()
+    
+    # Default trimmed output path if not specified
+    if args.trim_output is None:
+        if args.file:
+            os.makedirs("./trimmed", exist_ok=True)
+        args.trim_output = os.path.join("./trimmed", os.path.basename(args.file))
 
     try:
         t = MediaFileCleaner.detect_ads_end(
@@ -238,13 +246,13 @@ def _main() -> int:
     if args.json:
         payload = {"ad_end_seconds": t, "ad_end_hhmmss": None}
         if t is not None:
-            payload["ad_end_hhmmss"] = MediaFileCleaner.fmt_hhmmss(t)
+            payload["ad_end_hhmmss"] = MediaFileCleaner.format_to_time(t)
         print(json.dumps(payload, ensure_ascii=False))
     else:
         if t is None:
             print("No reliable ad-end point found in the analysis window.")
         else:
-            print(f"Ad end ≈ {t:.3f} s ({MediaFileCleaner.fmt_hhmmss(t)})")
+            print(f"Ad end ≈ {t:.3f} s ({MediaFileCleaner.format_to_time(t)})")
 
     # Optional trimming step
     if args.trim_output and t is not None:
