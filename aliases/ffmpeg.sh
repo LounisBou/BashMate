@@ -9,6 +9,27 @@
 
 # GLOBAL VARIABLES
 
+# Helper function to show ffmpeg errors
+_fferr(){ printf "%s\n" "$*" 1>&2; }
+
+# Helper function to get duration of a media file
+_ffduration(){ # usage: _ffduration <input>
+  [ -f "$1" ] || { _fferr "Input not found: $1"; return 1; }
+  # Get duration in seconds with milliseconds
+  ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$1"
+}
+
+# Helper function to trim video/audio
+_ffsplit(){ # prints: base \n ext
+  local path="$1" name ext base
+  name="${path##*/}"               # strip dir (portable, no basename)
+  case "$name" in
+    *.*) base="${name%.*}"; ext="${name##*.}" ;;
+    *)   base="$name";      ext=""             ;;
+  esac
+  printf '%s\n%s\n' "$base" "$ext"            # keep ext as-is (no tr)
+}
+
 # COMMANDS
 
 # Play video
@@ -265,4 +286,99 @@ function ffmpeg-convert-h265-4k(){
     file_name=$(basename -- "$1")
     # Convert to H.265 4k 10Mbps
     ffmpeg -i $1 -c:v libx265 -preset slow -crf 28  -vf scale=-1:2160 -c:a aac -b:a 128k $2
+}
+
+# Remove n first seconds from an audio or video file
+ffmpeg-ltrim(){
+    if [ $# -lt 2 ]; then _fferr "Usage: ffmpeg-ltrim <input> <seconds>"; return 2; fi
+    local in="$1" duration="$2"
+    [ -f "$in" ] || { _fferr "Input not found: $in"; return 1; }
+
+    # Check if trimmed subfolder exists else create it
+    local subfolder="${in%/*}/trimmed"
+    [ -d "$subfolder" ] || mkdir -p "$subfolder"
+
+    local base ext
+    { IFS= read -r base && IFS= read -r ext; } < <(_ffsplit "$in")
+    local out="${subfolder}/${base}.${ext}"
+
+    # Fast (keyframe-based) cut first
+    ffmpeg -n -ss "$duration" -i "$in" -c copy "$out" || {
+        _fferr "Stream copy failed; re-encoding for precise cut…"
+        if [ "$ext" = "mp3" ]; then
+            ffmpeg -n -ss "$duration" -i "$in" -c:a libmp3lame -q:a 2 "$out"
+        else
+            ffmpeg -n -ss "$duration" -i "$in" -c:v libx264 -crf 18 -preset veryfast -c:a aac -q:a 2 "$out"
+        fi
+    }
+}
+
+# Remove n last seconds from an audio or video file
+ffmpeg-rtrim(){ 
+    if [ $# -lt 2 ]; then _fferr "Usage: ffmpeg-rtrim <input> <seconds>"; return 2; fi
+    local in="$1" cut="$2"
+    [ -f "$in" ] || { _fferr "Input not found: $in"; return 1; }
+
+    local total newdur
+    total="$(_ffduration "$in")" || { _fferr "Unable to read duration."; return 1; }
+    newdur="$(awk -v t="$total" -v c="$cut" 'BEGIN{d=t-c; if(d<0)d=0; printf("%.3f", d)}')"
+    awk -v d="$newdur" 'BEGIN{exit (d<=0)}' || { _fferr "Cut ($cut s) >= duration ($total s)."; return 1; }
+
+    # Check if trimmed subfolder exists else create it
+    local subfolder="${in%/*}/trimmed"
+    [ -d "$subfolder" ] || mkdir -p "$subfolder"
+    
+    local base ext
+    { IFS= read -r base && IFS= read -r ext; } < <(_ffsplit "$in")
+    local out="${subfolder}/${base}.${ext}"
+
+    ffmpeg -n -i "$in" -t "$newdur" -c copy "$out" || {
+        _fferr "Stream copy failed; re-encoding for precise cut…"
+        if [ "$ext" = "mp3" ]; then
+            ffmpeg -n -i "$in" -t "$newdur" -c:a libmp3lame -q:a 2 "$out"
+        else
+            ffmpeg -n -i "$in" -t "$newdur" -c:v libx264 -crf 18 -preset veryfast -c:a aac -q:a 2 "$out"
+        fi
+    }
+}
+
+# Trim all media files in a folder (default: current folder)
+ffmpeg-ltrim-all(){ 
+  local folder duration
+  folder="${1:-$PWD}"
+  duration="$2"
+  if [ -z "$duration" ]; then duration="$1"; folder="$PWD"; fi
+  [ -n "$duration" ] || { _fferr "Usage: ffmpeg-ltrim-all [folder] <seconds>"; return 2; }
+
+  local found=0
+  # Search only the given folder (no recursion) and match extensions case-insensitively
+  find "$folder" \
+    -type d ! -path "$folder" -prune -o \
+    -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.avi' -o -iname '*.mp3' -o -iname '*.aac' \) \
+    -print0 |
+  while IFS= read -r -d '' file; do
+    found=1
+    ffmpeg-ltrim "$file" "$duration"
+  done
+  [ $found -eq 1 ] || _fferr "No matching media files in: $folder"
+}
+
+# Trim all media files in a folder (default: current folder)
+ffmpeg-rtrim-all(){ # usage: ffmpeg-rtrim-all [folder] <seconds>
+  local folder duration
+  folder="${1:-$PWD}"
+  duration="$2"
+  if [ -z "$duration" ]; then duration="$1"; folder="$PWD"; fi
+  [ -n "$duration" ] || { _fferr "Usage: ffmpeg-rtrim-all [folder] <seconds>"; return 2; }
+
+  local found=0
+  find "$folder" \
+    -type d ! -path "$folder" -prune -o \
+    -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.avi' -o -iname '*.mp3' -o -iname '*.aac' \) \
+    -print0 |
+  while IFS= read -r -d '' file; do
+    found=1
+    ffmpeg-rtrim "$file" "$duration"
+  done
+  [ $found -eq 1 ] || _fferr "No matching media files in: $folder"
 }
