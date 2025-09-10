@@ -15,7 +15,7 @@ If nothing matches, fallback to the longest silence after warmup_sec.
 CLI:
   python mediafilecleaner.py /path/file.mp3 \
     [--seconds 180] [--min-silence-ms 600] [--silence-db-offset 14] \
-    [--min-content-sec 20] [--warmup-sec 10] [--json] [--trim-output OUTFILE]
+    [--min-content-sec 20] [--warmup-sec 10] [--json] [--trim-output OUTFILE] \
     [--silence-pad-ms 0] [--dry-run]
 
 Requirements:
