@@ -43,6 +43,7 @@ import librosa
 
 # Module version
 VERSION = "0.0.1"
+DEBUG_MODE = True
 
 class MediaFileCleaner:
     """Helper for ad-boundary detection and optional trimming."""
@@ -60,9 +61,12 @@ class MediaFileCleaner:
     DEFAULT_FALLBACK_MIN_CONTENT_SEC = 8            # min content length for fallback
 
     DEFAULT_INTRO_SAMPLE = "intro_sample.mp3"       # default intro sample file
-    DEFAULT_INTRO_MATCH_THRESHOLD = 0.35             # default intro match threshold
-    DEFAULT_INTRO_SAMPLE_RATE = 22050                # default sample rate for intro matching
-    DEFAULT_INTRO_TRIM_DB = 30.0                     # default trim dB for intro sample
+    DEFAULT_INTRO_MATCH_THRESHOLD = 0.35            # default intro match threshold
+    DEFAULT_INTRO_SAMPLE_RATE = 22050               # default sample rate for intro matching
+    DEFAULT_INTRO_TRIM_DB = 30.0                    # default trim dB for intro sample
+    DEFAULT_INTRO_SEARCH_WINDOW_SEC = 300.0         # max search window for intro matching
+    DEFAULT_INTRO_PEAK_NEIGHBORHOOD_MS = 20         # peak neighborhood in ms for intro matching
+    DEFAULT_INTRO_PREFER_EARLIEST = True             # prefer earliest intro match
 
     @staticmethod
     def format_to_time(seconds: float) -> str:
@@ -223,6 +227,9 @@ class MediaFileCleaner:
         sample_rate: int = DEFAULT_INTRO_SAMPLE_RATE,
         threshold: float = DEFAULT_INTRO_MATCH_THRESHOLD,
         trim_sample_db: float = DEFAULT_INTRO_TRIM_DB,
+        intro_search_window_seconds: float = DEFAULT_INTRO_SEARCH_WINDOW_SEC,
+        peak_neighborhood_ms: int = DEFAULT_INTRO_PEAK_NEIGHBORHOOD_MS,
+        prefer_earliest: bool = DEFAULT_INTRO_PREFER_EARLIEST,
     ) -> float | None:
         """
         Try to find `intro_sample` inside `file_path` using normalized cross-correlation over waveforms.
@@ -234,65 +241,77 @@ class MediaFileCleaner:
             sample_rate: Resample rate for analysis (mono).
             threshold: Match threshold in [0, 1]. Typical 0.30–0.50. Increase to reduce false positives.
             trim_sample_db: Trim leading/trailing silence from sample (librosa.effects.trim top_db).
-
+            intro_search_window_seconds: Max search window from start of target (to limit processing time).
+            peak_neighborhood_ms: Neighborhood in ms to suppress non-max peaks (to prefer earliest match).
+            prefer_earliest: If True, prefer earliest match in case of multiple peaks above threshold.
+        Returns:
+            Start time in seconds of detected intro in target, or None if not found.
+        Raises:
+            FileNotFoundError: If input or sample file does not exist.
+            ValueError: On invalid parameters.
         Notes:
             - Works best if the sample is the *clean* intro (same mix). If heavy EQ/compression differs,
               consider a feature-based approach (e.g., chroma) as a next step.
         """
-        # 1) Load target and sample (mono, same sampling rate)
+        
+        # Load target + sample (mono, same sr)
         x, _ = librosa.load(file_path, sr=sample_rate, mono=True)
         y, _ = librosa.load(intro_sample, sr=sample_rate, mono=True)
 
-        # Guard: sample longer than target
         if len(y) == 0 or len(y) > len(x):
             return None
 
-        # 2) Trim silence on the sample to make matching sharper
-        y, _ = librosa.effects.trim(y, top_db=trim_sample_db)
+        # Limit search to first window
+        n_limit = min(len(x), int(intro_search_window_seconds * sample_rate))
+        x = x[:n_limit]
+
+        # Trim leading/trailing silence from sample
+        if trim_sample_db is not None:
+            y, _ = librosa.effects.trim(y, top_db=trim_sample_db)
         m = len(y)
-        if m < int(0.2 * sample_rate):  # too short (<~200ms) -> unreliable
+        if m < int(0.2 * sample_rate):  # too short for robust matching
             return None
 
-        # 3) Zero-mean, unit-variance the template (sample)
-        y_mean = y.mean()
-        y_std = y.std() + 1e-9
-        y0 = (y - y_mean) / y_std
+        # ZNCC via fast convolution (FFT)
+        # 1) Zero-mean + unit-std sample
+        # 2) Zero-mean target
+        # 3) FFT-based convolution + normalization
+        #    (note: np.correlate with 'valid' mode is too slow for long signals)
+        # ref: https://en.wikipedia.org/wiki/Cross-correlation#Efficient_computation
+        # ref: https://dsp.stackexchange.com/questions/43169/fastest-way-to-compute-zncc
+        y0 = (y - y.mean()) / (y.std() + 1e-9)
+        xz = x - x.mean()
 
-        # 4) Precompute sliding window stats of x (for normalized correlation)
-        n = len(x)
-        if n < m:
-            return None
-
-        # cumulative sums for fast window mean/std
-        csum = np.concatenate(([0.0], np.cumsum(x)))
-        csum2 = np.concatenate(([0.0], np.cumsum(x * x)))
-
-        # convolution for numerator: sum(x_k * y0)
-        sxy = np.convolve(x, y0[::-1], mode="valid")  # length n - m + 1
+        pad = len(xz) + len(y0) - 1
+        rfft_x = np.fft.rfft(xz, pad)
+        rfft_y = np.fft.rfft(y0[::-1], pad)
+        corr = np.fft.irfft(rfft_x * rfft_y, pad)
+        r = corr[m-1:len(xz)]  # valid positions only
 
         # per-window std of x
-        # mean_xk = sum_x / m ; var_xk = E[x^2] - mean^2
-        sum_x = csum[m:] - csum[:-m]                        # shape (n - m + 1,)
+        x2 = xz * xz
+        csum = np.concatenate(([0.0], np.cumsum(xz)))
+        csum2 = np.concatenate(([0.0], np.cumsum(x2)))
+        sum_x  = csum[m:]  - csum[:-m]
         sum_x2 = csum2[m:] - csum2[:-m]
         mean_x = sum_x / m
-        var_x = (sum_x2 / m) - (mean_x * mean_x)
-        std_x = np.sqrt(np.maximum(var_x, 1e-12))
+        var_x  = np.maximum(sum_x2 / m - mean_x * mean_x, 1e-12)
+        std_x  = np.sqrt(var_x)
+        r = r / (m * std_x * (y0.std() + 1e-12))
 
-        # ZNCC: r[k] = sum( (xk - mean_xk)*(y - mean_y) ) / (m*std_xk*std_y)
-        # With y0 normalized to zero-mean and unit-std:
-        # r[k] = sum( xk * y0 ) / (m * std_xk)
-        r = sxy / (m * std_x)
-
-        # 5) Find best match
-        k = int(np.argmax(r))
-        score = float(r[k])
-
-        if score < threshold:
+        # 4) Pick earliest *local* peak above threshold
+        neigh = max(1, int(peak_neighborhood_ms * sample_rate / 1000))
+        if prefer_earliest:
+            for i in range(neigh, len(r) - neigh):
+                if r[i] >= threshold and r[i] == r[i - neigh : i + neigh + 1].max():
+                    return i / float(sample_rate)
             return None
 
-        # Start time in seconds
-        start_sec = k / float(sample_rate)
-        return start_sec
+        # fallback: best peak (kept for completeness)
+        k = int(np.argmax(r))
+        if r[k] < threshold:
+            return None
+        return k / float(sample_rate)
 
     @staticmethod
     def extract_intro_sample(
@@ -388,6 +407,15 @@ class MediaFileCleaner:
             Duration in seconds to trim from start, or None if duration detection fails.
         """
         
+        # Check default intro sample path
+        if intro_sample is None:
+            # Check if default intro sample exists in script dir
+            file_path_dir = os.path.dirname(os.path.abspath(file_path))
+            intro_sample = os.path.join(file_path_dir, MediaFileCleaner.DEFAULT_INTRO_SAMPLE)
+            print(f"Info: Using default intro sample path: {intro_sample}", file=sys.stderr)
+            if not os.path.isfile(intro_sample):
+                intro_sample = None
+
         # Check if sample intro file exists
         if intro_sample is not None and os.path.isfile(intro_sample):
             intro_start = MediaFileCleaner.detect_intro(
@@ -400,8 +428,8 @@ class MediaFileCleaner:
             if intro_start is not None:
                 return intro_start
         else:
-            print("No")
-        
+            print(f"Warning: intro sample not found at {intro_sample}; skipping intro matching.", file=sys.stderr)
+
         # Fallback to ad-end detection heuristic
         try:
             ad_end = MediaFileCleaner.detect_ads_end(
@@ -657,7 +685,7 @@ def set_default_args_values(args: argparse.Namespace) -> None:
     # Default intro sample : <input_dir>/intro_sample.mp3
     if args.intro_sample is None:
         args.intro_sample = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
+            args.file_or_path,
             MediaFileCleaner.DEFAULT_INTRO_SAMPLE
         )
 
@@ -671,14 +699,21 @@ def define_files_to_process(args: argparse.Namespace) -> List[str]:
     Returns:
         List of file paths to process.
     """
+    # If directory, list supported media files
     if os.path.isdir(args.file_or_path):
         files_to_process = []
         for entry in os.listdir(args.file_or_path):
+            # Build full path of entry
             full_path = os.path.join(args.file_or_path, entry)
+            # Ignore intro sample file
+            if args.intro_sample is not None and os.path.abspath(full_path) == os.path.abspath(args.intro_sample):
+                continue
+            # Only process supported media files
             if os.path.isfile(full_path):
                 _, ext = os.path.splitext(entry)
                 if ext.lower() in MediaFileCleaner.MEDIA_FILE_EXTENSIONS:
                     files_to_process.append(full_path)
+        # Ensure we found some files
         if not files_to_process:
             raise FileNotFoundError(
                 f"No supported media files found in directory: {args.file_or_path}")
