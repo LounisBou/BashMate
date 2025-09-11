@@ -41,6 +41,9 @@ from pydub import AudioSegment, silence
 import numpy as np
 import librosa
 
+# Module version
+VERSION = "0.0.1"
+
 class MediaFileCleaner:
     """Helper for ad-boundary detection and optional trimming."""
 
@@ -354,7 +357,7 @@ class MediaFileCleaner:
         fmt = (os.path.splitext(out_path)[1][1:].lower() or "mp3") if os.path.splitext(out_path)[1] else "mp3"
         segment.export(str(out_path), format=fmt)
 
-        return str(out_path.resolve())
+        return out_path
 
     @staticmethod
     def get_trim_duration(
@@ -466,11 +469,16 @@ def parse_args() -> argparse.Namespace:
         SystemExit: If parsing fails.
     """
     ap = argparse.ArgumentParser(
-        description="Detect end of first ad block at start of a podcast audio."
+        description="Trim start ads from podcast audio files.",
     )
     ap.add_argument(
         "file_or_path",
         help=f"Input media file or directory path (supported: {', '.join(sorted(MediaFileCleaner.MEDIA_FILE_EXTENSIONS))})"
+    )
+    ap.add_argument(
+        "--version",
+        action="version",
+        version=f"mediafilecleaner {VERSION}"
     )
     ap.add_argument(
         "--extract-intro",
@@ -712,6 +720,9 @@ def _main() -> int:
             )
             print(f"Extracted intro sample from file: {file_to_extract_sample_from} between {intro_start_timecode} and {intro_end_timecode} to {extracted_path}")
             args.intro_sample = extracted_path
+            
+            return 0  # Exit after extraction
+            
         except (FileNotFoundError, ValueError, OSError) as e:
             print(f"Intro extraction error: {e}", file=sys.stderr)
             return 4
