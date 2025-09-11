@@ -14,6 +14,7 @@ If nothing matches, fallback to the longest silence after warmup_sec.
 
 CLI:
   python mediafilecleaner.py /path/file.mp3 \
+    [--extract-intro start end] \
     [--intro-sample intro.mp3] [--intro-sample-rate 22050] [--intro-threshold 0.35] \
     [--intro-trim-db 30.0] [--analysis_window_seconds 180] [--min-silence-ms 600] [--silence-db-offset 14] \
     [--min-content-sec 20] [--warmup-sec 10] [--json] [--trim-output OUTFILE] \
@@ -472,6 +473,14 @@ def parse_args() -> argparse.Namespace:
         help=f"Input media file or directory path (supported: {', '.join(sorted(MediaFileCleaner.MEDIA_FILE_EXTENSIONS))})"
     )
     ap.add_argument(
+        "--extract-intro",
+        nargs=2,
+        metavar=("INTRO_START", "INTRO_END"),
+        type=str,
+        default=None,
+        help="Extract intro sample from input file between START and END timecodes (e.g., '00:00:05.250' '00:00:12.000')"
+    )
+    ap.add_argument(
         "--intro-sample",
         type=str,
         default=None,
@@ -588,6 +597,18 @@ def check_args(args: argparse.Namespace) -> None:
     # Optionals arguments validation
     if args.intro_sample is not None and not os.path.isfile(args.intro_sample):
         args.intro_sample = None  # Ignore if not found
+        
+    if args.extract_intro is not None:
+        if len(args.extract_intro) != 2:
+            raise ValueError("--extract-intro requires exactly two arguments: START END")
+        intro_start_timecode, intro_end_timecode = args.extract_intro
+        try:
+            start_sec = MediaFileCleaner.parse_timecode(intro_start_timecode)
+            end_sec = MediaFileCleaner.parse_timecode(intro_end_timecode)
+            if start_sec < 0 or end_sec <= 0 or end_sec <= start_sec:
+                raise ValueError
+        except ValueError as exc:
+            raise ValueError(f"Invalid timecodes for --extract-intro: {args.extract_intro}") from exc
     if args.intro_sample_rate <= 0:
         raise ValueError("--intro-sample-rate must be > 0")
     if not (0.0 < args.intro_threshold < 1.0):
@@ -674,10 +695,26 @@ def _main() -> int:
     except (FileNotFoundError, ValueError) as e:
         print(f"Argument error: {e}", file=sys.stderr)
         return 1
-    set_default_args_values(args)
 
     # Define files to process
     files_to_process = define_files_to_process(args)
+    
+    # Check if we need to extract intro sample
+    if args.extract_intro is not None and os.path.isfile(files_to_process[0]):
+        intro_start_timecode, intro_end_timecode = args.extract_intro
+        try:
+            file_to_extract_sample_from = files_to_process[0]
+            extracted_path = MediaFileCleaner.extract_intro_sample(
+                file_to_extract_sample_from,
+                intro_start_timecode,
+                intro_end_timecode,
+                out_path=args.intro_sample
+            )
+            print(f"Extracted intro sample from file: {file_to_extract_sample_from} between {intro_start_timecode} and {intro_end_timecode} to {extracted_path}")
+            args.intro_sample = extracted_path
+        except (FileNotFoundError, ValueError, OSError) as e:
+            print(f"Intro extraction error: {e}", file=sys.stderr)
+            return 4
     
     # Check dry-run mode
     if args.dry_run:
