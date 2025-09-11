@@ -407,15 +407,6 @@ class MediaFileCleaner:
             Duration in seconds to trim from start, or None if duration detection fails.
         """
         
-        # Check default intro sample path
-        if intro_sample is None:
-            # Check if default intro sample exists in script dir
-            file_path_dir = os.path.dirname(os.path.abspath(file_path))
-            intro_sample = os.path.join(file_path_dir, MediaFileCleaner.DEFAULT_INTRO_SAMPLE)
-            print(f"Info: Using default intro sample path: {intro_sample}", file=sys.stderr)
-            if not os.path.isfile(intro_sample):
-                intro_sample = None
-
         # Check if sample intro file exists
         if intro_sample is not None and os.path.isfile(intro_sample):
             intro_start = MediaFileCleaner.detect_intro(
